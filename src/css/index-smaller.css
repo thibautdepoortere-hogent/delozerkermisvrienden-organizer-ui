@@ -1,0 +1,25 @@
+@media all and (max-width: 768px) {
+  /* 575px */
+
+  /* ------------------------------- */
+  /* --- APP ----------------------- */
+  .flexbox {
+    /* Flex - parent */
+    flex-direction: column;
+  }
+
+  /* ------------------------------- */
+  /* --- GEMEENSCHAPPELIJK --------- */
+  .titelMetAcites {
+    /* Flex - parent */
+    flex-direction: column;
+  }
+
+  .titelMetAcites-acties {
+    margin-left: 0;
+  }
+
+  .titelMetAcites-acties-actie {
+    margin-bottom: 5px;
+  }
+}
