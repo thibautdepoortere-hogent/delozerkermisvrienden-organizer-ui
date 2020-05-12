@@ -19,32 +19,50 @@ class NavBar extends Component {
             linkUrl="/inschrijvingen/nieuw"
             linkNaam="Nieuwe inschrijving"
             icoonNaam="add"
+            onMenuItemClick={this.handleMenuItemClick}
           />
           <NavBarItem
             linkUrl="/inschrijvingen/opzoeken"
             linkNaam="Inschrijving opzoeken"
             icoonNaam="search"
+            onMenuItemClick={this.handleMenuItemClick}
           />
-          <NavBarItem linkUrl="/lijsten" linkNaam="Lijsten" icoonNaam="list" />
+          <NavBarItem
+            linkUrl="/lijsten"
+            linkNaam="Lijsten"
+            icoonNaam="list"
+            onMenuItemClick={this.handleMenuItemClick}
+          />
           <NavBarItem
             linkUrl="/fabrieksinstellingen"
             linkNaam="Fabrieksinstellingen"
             icoonNaam="reset"
+            onMenuItemClick={this.handleMenuItemClick}
           />
           <div className="divider"></div>
-          <NavBarItem linkUrl="/login" linkNaam="Login" icoonNaam="log-in" />
+          <NavBarItem
+            linkUrl="/login"
+            linkNaam="Login"
+            icoonNaam="log-in"
+            onMenuItemClick={this.handleMenuItemClick}
+          />
         </div>
       </div>
     );
   }
 
   renderClassNameDivNavBarItems = () => {
-    return this.state.menuZichtbaar ? "" : "onzichtbaar";
+    return this.state.menuZichtbaar ? "nav-items" : "nav-items onzichtbaar";
   };
 
   handleMenuClick = () => {
-    console.log("Clicked");
     this.setState({ menuZichtbaar: !this.state.menuZichtbaar });
+  };
+
+  handleMenuItemClick = () => {
+    if (this.state.menuZichtbaar) {
+      this.setState({ menuZichtbaar: false });
+    }
   };
 }
 

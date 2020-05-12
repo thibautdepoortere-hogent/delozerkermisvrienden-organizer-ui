@@ -1,7 +1,7 @@
 .nav {
   display: flex;
   flex-direction: column;
-  flex-basis: 20rem;
+  flex-basis: auto;
   background-color: #182026;
 }
 
@@ -30,6 +30,12 @@
   visibility: hidden;
   margin-left: 20px;
   color: #f5f8fa;
+}
+
+.nav-items {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 18rem;
 }
 
 .nav-item {

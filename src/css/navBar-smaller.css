@@ -1,6 +1,6 @@
 @media all and (max-width: 991px) {
   .nav {
-    flex-basis: 15rem;
+    flex-basis: auto;
   }
 
   .nav-header {

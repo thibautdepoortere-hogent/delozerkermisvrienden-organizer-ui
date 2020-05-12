@@ -1,6 +1,6 @@
 import React from "react";
-import FormulierGroepLabel from "../formulieren/groepLabel";
-import FormulierGroepTekstvak from "../formulieren/groepTekstvak";
+import FormulierGroepItem_Label from "./../formulieren/groepItem-label";
+import FormulierGroepItem_Tekstvak from "./../formulieren/groepItem-tekstvak";
 
 const FilterZoeken = ({
   id,
@@ -12,13 +12,13 @@ const FilterZoeken = ({
 }) => {
   return (
     <div className="bp3-form-group filter-component">
-      <FormulierGroepLabel
+      <FormulierGroepItem_Label
         id={id}
         omschrijving={omschrijving}
         extraInfo={"wissen"}
         onKlikExtraInfo={onWissenInhoud}
       />
-      <FormulierGroepTekstvak
+      <FormulierGroepItem_Tekstvak
         id={id}
         waarde={waarde}
         placeholder={placeholder}

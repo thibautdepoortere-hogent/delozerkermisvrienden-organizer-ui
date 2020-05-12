@@ -1,8 +1,8 @@
 import React from "react";
 import FormulierGroepItem_Label from "./groepItem-label";
-import FormulierGroepItem_Tekstvak from "./groepItem-tekstvak";
+import FormulierGroepItem_Tekstveld from "./groepItem-tekstveld";
 
-const FormulierGroepTekstvak = ({
+const FormulierGroepTekstveld = ({
   id,
   omschrijving,
   waarde,
@@ -18,11 +18,10 @@ const FormulierGroepTekstvak = ({
         omschrijving={omschrijving}
         extraInfo={extraInfo(verplicht)}
       />
-      <FormulierGroepItem_Tekstvak
+      <FormulierGroepItem_Tekstveld
         id={id}
         waarde={waarde}
         placeholder={placeholder}
-        icoon={icoon}
         onInhoudGewijzigd={onInhoudGewijzigd}
       />
     </div>
@@ -35,4 +34,4 @@ function extraInfo(verplicht) {
   }
 }
 
-export default FormulierGroepTekstvak;
+export default FormulierGroepTekstveld;

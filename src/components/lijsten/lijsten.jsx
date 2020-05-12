@@ -20,13 +20,6 @@ const Lijsten = () => {
 
 const lijsten = [
   {
-    id: "1",
-    extraClass: "bp3-intent-warning",
-    omschrijving: "Aanvragen",
-    link: "/lijsten/aanvragen",
-    route: <Route key="1" path="/lijsten/aanvragen" component={NotFound} />,
-  },
-  {
     id: "2",
     extraClass: "bp3-intent-success",
     omschrijving: "Inschrijvingen",
@@ -38,6 +31,13 @@ const lijsten = [
         render={(props) => <Inschrijvingen filter="goedgekeurd" {...props} />}
       />
     ),
+  },
+  {
+    id: "1",
+    extraClass: "bp3-intent-warning",
+    omschrijving: "Aanvragen",
+    link: "/lijsten/aanvragen",
+    route: <Route key="1" path="/lijsten/aanvragen" component={NotFound} />,
   },
   {
     id: "3",
