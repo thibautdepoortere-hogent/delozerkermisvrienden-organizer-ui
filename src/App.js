@@ -5,6 +5,7 @@ import NotFound from "./components/notFound";
 import Fabrieksinstellingen from "./components/fabrieksinstellingen/fabrieksinstellingen";
 import Lijsten from "./components/lijsten/lijsten";
 import FormulierNieuweAanvraag from "./components/formulieren/nieuweAanvraag";
+import Inschrijvingen from "./components/lijsten/lijstItems/inschrijvingen";
 
 function App() {
   return (
@@ -19,6 +20,11 @@ function App() {
                 path="/inschrijvingen/nieuw"
                 component={FormulierNieuweAanvraag}
               />
+              <Route
+                path="/lijsten/inschrijvingen"
+                component={Inschrijvingen}
+              />
+              <Route path="/lijsten/aanvragen" component={NotFound} />
               <Route path="/lijsten/" component={Lijsten} />
               <Route path="/login" component={NotFound} />
               <Route path="/home" component={NotFound} />

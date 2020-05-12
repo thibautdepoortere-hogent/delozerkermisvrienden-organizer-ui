@@ -8,12 +8,6 @@ const Lijsten = () => {
   return (
     <React.Fragment>
       <NavBarLijsten lijsten={lijsten} />
-      <Switch>
-        {lijsten.map((lijst) => lijst.route)}
-        {lijsten && lijsten[0] && (
-          <Redirect from="/lijsten" exact to={lijsten[0].link} />
-        )}
-      </Switch>
     </React.Fragment>
   );
 };
