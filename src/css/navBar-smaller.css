@@ -1,5 +1,6 @@
 @media all and (max-width: 991px) {
   .nav {
+    /* flex-grow: 1; */
     flex-basis: auto;
   }
 
@@ -25,6 +26,8 @@
   .verbergBijSmaller {
     display: none;
     visibility: hidden;
+    /* flex-basis: auto; */
+    /* flex-grow: 1; */
   }
 }
 

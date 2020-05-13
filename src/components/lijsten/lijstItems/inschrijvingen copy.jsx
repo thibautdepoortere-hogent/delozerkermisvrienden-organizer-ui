@@ -4,9 +4,8 @@ import * as toaster from "../../../services/toasterService";
 import Tabel from "../../gemeenschappelijk/tabellen/tabel";
 import FilterZoekTekstvak from "./../../gemeenschappelijk/filteren/zoeken";
 import OverzichtTitelMetActies from "../../gemeenschappelijk/overzichten/titelMetActies";
-import NotFound from "./../../notFound";
 
-class Inschrijvingen extends Component {
+class InschrijvingenDuplicate extends Component {
   state = {
     kolommen: [],
     data: [],
@@ -102,11 +101,95 @@ class Inschrijvingen extends Component {
     const { data } = this.gefilterdeInschrijvingenInladen();
     return (
       <React.Fragment>
-        <NotFound />
-        <NotFound />
-        <NotFound />
-        <NotFound />
-        <NotFound />
+        <OverzichtTitelMetActies
+          omschrijving="Inschrijvingen"
+          acties={[
+            {
+              id: "gegevensHerladen",
+              omschrijving: "gegevens herladen",
+              intent: "success",
+              onActieGeklikt: this.inschrijvingenHerladen,
+            },
+            {
+              id: "filtersVerwijderen",
+              omschrijving: "filters verwijderen",
+              intent: "danger",
+              onActieGeklikt: this.handleAlleFiltersWissen,
+            },
+          ]}
+        />
+        <div className="filters">
+          <div className="filter-rij">
+            <FilterZoekTekstvak
+              id="zoekVoornaam"
+              omschrijving="Voornaam"
+              waarde={zoekVoornaam}
+              placeholder="Zoek voornaam..."
+              onInhoudGewijzigd={this.handlezoekVoornaamGewijzigd}
+              onWissenInhoud={this.handlezoekVoornaamWissen}
+            />
+            <FilterZoekTekstvak
+              id="zoekAchternaam"
+              omschrijving="Achternaam"
+              waarde={zoekAchternaam}
+              placeholder="Zoek achternaam..."
+              onInhoudGewijzigd={this.handlezoekAchternaamGewijzigd}
+              onWissenInhoud={this.handlezoekAchternaamWissen}
+            />
+            <FilterZoekTekstvak
+              id="zoekGemeente"
+              omschrijving="Gemeente"
+              waarde={zoekGemeente}
+              placeholder="Zoek gemeente..."
+              onInhoudGewijzigd={this.handleZoekGemeenteGewijzigd}
+              onWissenInhoud={this.handleZoekGemeenteWissen}
+            />
+            <FilterZoekTekstvak
+              id="zoekMobielNummer"
+              omschrijving="Mobiel nummer"
+              waarde={zoekMobielNummer}
+              placeholder="Zoek mobiel nummer (voorbeeld: 0412 34 56 78)"
+              onInhoudGewijzigd={this.handleZoekMobielNummerGewijzigd}
+              onWissenInhoud={this.handleZoekMobielNummerWissen}
+            />
+          </div>
+          <div className="filter-rij">
+            <FilterZoekTekstvak
+              id="zoekVoornaam"
+              omschrijving="Voornaam"
+              waarde={zoekVoornaam}
+              placeholder="Zoek voornaam..."
+              onInhoudGewijzigd={this.handlezoekVoornaamGewijzigd}
+              onWissenInhoud={this.handlezoekVoornaamWissen}
+            />
+            <FilterZoekTekstvak
+              id="zoekAchternaam"
+              omschrijving="Achternaam"
+              waarde={zoekAchternaam}
+              placeholder="Zoek achternaam..."
+              onInhoudGewijzigd={this.handlezoekAchternaamGewijzigd}
+              onWissenInhoud={this.handlezoekAchternaamWissen}
+            />
+            <FilterZoekTekstvak
+              id="zoekGemeente"
+              omschrijving="Gemeente"
+              waarde={zoekGemeente}
+              placeholder="Zoek gemeente..."
+              onInhoudGewijzigd={this.handleZoekGemeenteGewijzigd}
+              onWissenInhoud={this.handleZoekGemeenteWissen}
+            />
+            <FilterZoekTekstvak
+              id="zoekMobielNummer"
+              omschrijving="Mobiel nummer"
+              waarde={zoekMobielNummer}
+              placeholder="Zoek mobiel nummer (voorbeeld: 0412 34 56 78)"
+              onInhoudGewijzigd={this.handleZoekMobielNummerGewijzigd}
+              onWissenInhoud={this.handleZoekMobielNummerWissen}
+            />
+          </div>
+        </div>
+
+        <Tabel kolommen={kolommen} data={data} />
       </React.Fragment>
     );
   }
@@ -229,4 +312,4 @@ class Inschrijvingen extends Component {
   }
 }
 
-export default Inschrijvingen;
+export default InschrijvingenDuplicate;
