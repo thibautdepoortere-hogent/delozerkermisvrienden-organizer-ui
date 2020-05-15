@@ -23,3 +23,37 @@
     margin-bottom: 5px;
   }
 }
+
+@media all and (max-width: 560px) {
+  /* ------------------------------- */
+  .formulier-groep {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .formulier-groep-item-alleen {
+    min-width: 300px;
+    flex-grow: 1;
+  }
+
+  .formulier-groep-item-twee {
+    min-width: 300px;
+    flex-grow: 1;
+  }
+
+  .formulier-groep-item-drie {
+    min-width: 300px;
+    flex-grow: 1;
+  }
+
+  .formulier-groep-item-landnummer {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .formulier-groep-item-mobielnummer {
+    min-width: 200px;
+    flex-grow: 1;
+  }
+}

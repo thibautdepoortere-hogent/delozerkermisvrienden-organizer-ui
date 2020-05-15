@@ -6,10 +6,13 @@ import FormulierGroepTekstveld from "./../gemeenschappelijk/formulieren/groepTek
 import FormulierGroepMobielNummer from "./../gemeenschappelijk/formulieren/groepMobielNummer";
 import { betaalmethodenOphalen } from "./../../services/api/betaalmethodenService";
 import FormulierGroepRadio from "../gemeenschappelijk/formulieren/groepRadio";
+import FormulierGroep from "../gemeenschappelijk/formulieren/groep";
+import FormulierGroepNumeriekVak from "./../gemeenschappelijk/formulieren/groepNumeriekVak";
+import BelangrijkeMededeling from "../gemeenschappelijk/belangrijkeMededeling";
 
 class FormulierNieuweAanvraag extends Component {
   state = {
-    evenementStartDatum: new Date("05/20/2020"),
+    evenementStartDatum: new Date("06/20/2020"),
     betaalmethoden: [],
     waardeBetaalmethode: "",
   };
@@ -25,46 +28,70 @@ class FormulierNieuweAanvraag extends Component {
         <form onSubmit={this.handleVerzendFormulier}>
           <div>
             <h2>Persoonlijk:</h2>
-            <div>
-              <FormulierGroepTekstvak
-                id="voornaam"
-                omschrijving="Voornaam"
-                waarde=""
-                icoon="person"
-                placeholder=""
-                verplicht={true}
-                onInhoudGewijzigd={this.handleTempChange}
-              />
-              <FormulierGroepTekstvak
-                id="achternaam"
-                omschrijving="Achternaam"
-                waarde=""
-                icoon="person"
-                placeholder=""
-                verplicht={true}
-                onInhoudGewijzigd={this.handleTempChange}
-              />
-            </div>
-            <div>
-              <FormulierGroepTekstvak
-                id="postcode"
-                omschrijving="Postcode"
-                waarde=""
-                icoon="home"
-                placeholder=""
-                verplicht={true}
-                onInhoudGewijzigd={this.handleTempChange}
-              />
-              <FormulierGroepTekstvak
-                id="gemeente"
-                omschrijving="Gemeente"
-                waarde=""
-                icoon="home"
-                placeholder=""
-                verplicht={true}
-                onInhoudGewijzigd={this.handleTempChange}
-              />
-            </div>
+            <FormulierGroep
+              data={[
+                {
+                  id: "voornaam",
+                  item: (
+                    <FormulierGroepTekstvak
+                      id="voornaam"
+                      omschrijving="Voornaam"
+                      waarde=""
+                      icoon="person"
+                      placeholder=""
+                      verplicht={true}
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+                {
+                  id: "achternaam",
+                  item: (
+                    <FormulierGroepTekstvak
+                      id="achternaam"
+                      omschrijving="Achternaam"
+                      waarde=""
+                      icoon="person"
+                      placeholder=""
+                      verplicht={true}
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+              ]}
+            />
+            <FormulierGroep
+              data={[
+                {
+                  id: "postcode",
+                  item: (
+                    <FormulierGroepTekstvak
+                      id="postcode"
+                      omschrijving="Postcode"
+                      waarde=""
+                      icoon="home"
+                      placeholder=""
+                      verplicht={true}
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+                {
+                  id: "gemeente",
+                  item: (
+                    <FormulierGroepTekstvak
+                      id="gemeente"
+                      omschrijving="Gemeente"
+                      waarde=""
+                      icoon="home"
+                      placeholder=""
+                      verplicht={true}
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+              ]}
+            />
             <FormulierGroepMobielNummer
               idPrefix="mobielNummer_prefix"
               idMobielNummer="mobielNummer_mobielNummer"
@@ -74,58 +101,127 @@ class FormulierNieuweAanvraag extends Component {
               onInhoudGewijzigdPrefix={this.handleTempChange}
               onInhoudGewijzigdMobielNummer={this.handleTempChange}
             />
-            <FormulierGroepTekstvak
-              id="email"
-              omschrijving="E-mail"
-              waarde=""
-              icoon="envelope"
-              placeholder=""
-              verplicht={true}
-              onInhoudGewijzigd={this.handleTempChange}
+            <FormulierGroep
+              data={[
+                {
+                  id: "email",
+                  item: (
+                    <FormulierGroepTekstvak
+                      id="email"
+                      omschrijving="E-mail"
+                      waarde=""
+                      icoon="envelope"
+                      placeholder=""
+                      verplicht={true}
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+              ]}
             />
           </div>
           <div>
             <h2>Praktisch:</h2>
-            <FormulierGroepTekstvak
-              id="aantalMeter"
-              omschrijving="Aantal meter"
-              waarde="3"
-              placeholder=""
-              helperOmschrijving="Prijs per LM: € 1,00 / Minimum 3 LM per aanvraag"
-              verplicht={true}
-              onInhoudGewijzigd={this.handleTempChange}
+            <FormulierGroep
+              data={[
+                {
+                  id: "aantalMeter",
+                  item: (
+                    <FormulierGroepNumeriekVak
+                      id="aantalMeter"
+                      omschrijving="Aantal meter"
+                      waarde="3"
+                      min="3"
+                      verplicht={true}
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+                {
+                  id: "prijsAangekochteLm",
+                  item: (
+                    <FormulierGroepNumeriekVak
+                      id="prijsAangekochteLm"
+                      omschrijving="Prijs aangekochte lm"
+                      waarde="3"
+                      enkelLezen={true}
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+              ]}
             />
-            <FormulierGroepTekstvak
-              id="aantalWagens"
-              omschrijving="Aantal wagens"
-              waarde=""
-              placeholder=""
-              verplicht={true}
-              onInhoudGewijzigd={this.handleTempChange}
+            <BelangrijkeMededeling
+              mededelingen={[
+                {
+                  id: "prijslm",
+                  inhoud: "Prijs per lopende meter:  € 1,00",
+                },
+              ]}
+              intent="primary"
             />
-            <FormulierGroepTekstvak
-              id="aantalAanhangwagens"
-              omschrijving="Aantal aanhangwagens"
-              waarde=""
-              placeholder=""
-              verplicht={true}
-              onInhoudGewijzigd={this.handleTempChange}
+            <BelangrijkeMededeling
+              mededelingen={[
+                {
+                  id: "mimimumlm",
+                  inhoud: "Minimum aan te kopen hoeveelheid lopende meter:  3 ",
+                },
+              ]}
+              intent="primary"
             />
-            <FormulierGroepTekstvak
-              id="aantalMobilhomes"
-              omschrijving="Aantal mobilhomes"
-              waarde=""
-              placeholder=""
-              verplicht={true}
-              onInhoudGewijzigd={this.handleTempChange}
+            <FormulierGroep
+              data={[
+                {
+                  id: "aantalWagens",
+                  item: (
+                    <FormulierGroepNumeriekVak
+                      id="aantalWagens"
+                      omschrijving="Aantal wagens"
+                      waarde=""
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+                {
+                  id: "aantalAanhangwagens",
+                  item: (
+                    <FormulierGroepNumeriekVak
+                      id="aantalAanhangwagens"
+                      omschrijving="Aantal aanhangwagens"
+                      waarde=""
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+                {
+                  id: "aantalMobilhomes",
+                  item: (
+                    <FormulierGroepNumeriekVak
+                      id="aantalMobilhomes"
+                      omschrijving="Aantal mobilhomes"
+                      waarde=""
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+              ]}
             />
-            <FormulierGroepTekstveld
-              id="opmerking"
-              omschrijving="Opmerking"
-              waarde=""
-              placeholder=""
-              verplicht={true}
-              onInhoudGewijzigd={this.handleTempChange}
+            <FormulierGroep
+              data={[
+                {
+                  id: "opmerking",
+                  item: (
+                    <FormulierGroepTekstveld
+                      id="opmerking"
+                      omschrijving="Opmerking"
+                      waarde=""
+                      placeholder=""
+                      verplicht={true}
+                      onInhoudGewijzigd={this.handleTempChange}
+                    />
+                  ),
+                },
+              ]}
             />
           </div>
           <div>

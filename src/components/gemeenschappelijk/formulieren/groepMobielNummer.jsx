@@ -11,8 +11,8 @@ const FormulierGroepMobielNummer = ({
   onInhoudGewijzigdMobielNummer,
 }) => {
   return (
-    <div>
-      <div>
+    <div className="formulier-groep-altijdSamen">
+      <div className="formulier-groep-item-landnummer">
         <FormulierGroepTekstvak
           id={idPrefix}
           omschrijving="Landnummer"
@@ -22,7 +22,7 @@ const FormulierGroepMobielNummer = ({
           onInhoudGewijzigd={onInhoudGewijzigdPrefix}
         />
       </div>
-      <div>
+      <div className="formulier-groep-item-mobielnummer">
         <FormulierGroepTekstvak
           id={idMobielNummer}
           omschrijving="Mobiel nummer"

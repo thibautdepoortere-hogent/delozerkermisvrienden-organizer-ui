@@ -97,3 +97,44 @@ body {
 }
 
 /* ------------------------------- */
+.formulier-groep {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.formulier-groep-altijdSamen {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.formulier-groep-item-alleen {
+  flex-grow: 1;
+  min-width: 400px;
+}
+
+.formulier-groep-item-twee {
+  flex-grow: 1;
+  min-width: 200px;
+}
+
+.formulier-groep-item-drie {
+  flex-grow: 1;
+  min-width: 133.33px;
+}
+
+.formulier-groep-item-landnummer {
+  width: 100px;
+  min-width: 100px;
+}
+
+.formulier-groep-item-mobielnummer {
+  flex-grow: 1;
+  min-width: 300px;
+}
+
+.belangrijkeMededeling {
+  padding-right: 10px;
+  margin-bottom: 20px;
+}
