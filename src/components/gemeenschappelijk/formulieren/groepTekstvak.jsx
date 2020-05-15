@@ -1,6 +1,6 @@
 import React from "react";
-import FormulierGroepItem_Label from "./groepItem-label";
-import FormulierGroepItem_Tekstvak from "./groepItem-tekstvak";
+import FormulierGroepItemLabel from "./groepItem-label";
+import FormulierGroepItemTekstvak from "./groepItem-tekstvak";
 
 const FormulierGroepTekstvak = ({
   id,
@@ -10,21 +10,23 @@ const FormulierGroepTekstvak = ({
   placeholder,
   verplicht,
   helperOmschrijving,
+  foutOmschrijving,
   onInhoudGewijzigd,
 }) => {
   return (
     <div className="bp3-form-group">
-      <FormulierGroepItem_Label
+      <FormulierGroepItemLabel
         id={id}
         omschrijving={omschrijving}
         extraInfo={extraInfo(verplicht)}
       />
-      <FormulierGroepItem_Tekstvak
+      <FormulierGroepItemTekstvak
         id={id}
         waarde={waarde}
         placeholder={placeholder}
         icoon={icoon}
         helperOmschrijving={helperOmschrijving}
+        foutOmschrijving={foutOmschrijving}
         onInhoudGewijzigd={onInhoudGewijzigd}
       />
     </div>

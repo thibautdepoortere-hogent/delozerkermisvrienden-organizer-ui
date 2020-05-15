@@ -1,11 +1,14 @@
 import React from "react";
+import BelangrijkeMededeling from "./../belangrijkeMededeling";
+import FormulierGroepItemErrorMededeling from "./groepItem-errorMededeling";
 
-const FormulierGroepItem_Tekstvak = ({
+const FormulierGroepItemTekstvak = ({
   id,
   waarde,
   placeholder,
   icoon,
   helperOmschrijving,
+  foutOmschrijving,
   onInhoudGewijzigd,
 }) => {
   return (
@@ -18,11 +21,16 @@ const FormulierGroepItem_Tekstvak = ({
           className="bp3-input"
           placeholder={placeholder}
           value={waarde}
-          onChange={(e) => onInhoudGewijzigd(e.currentTarget.value)}
+          onChange={(e) => onInhoudGewijzigd(e)}
         />
       </div>
       {helperOmschrijving && (
-        <div className="bp3-form-helper-text">{helperOmschrijving}</div>
+        <div className="bp3-form-helper-text bp3-intent-danger">
+          {helperOmschrijving}
+        </div>
+      )}
+      {foutOmschrijving && (
+        <FormulierGroepItemErrorMededeling inhoud={foutOmschrijving} />
       )}
     </div>
   );
@@ -32,4 +40,4 @@ function icoonKlasse(icoon) {
   return "bp3-icon bp3-icon-" + icoon;
 }
 
-export default FormulierGroepItem_Tekstvak;
+export default FormulierGroepItemTekstvak;

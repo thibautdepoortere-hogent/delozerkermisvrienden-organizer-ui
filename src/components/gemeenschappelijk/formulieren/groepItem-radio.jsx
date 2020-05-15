@@ -1,23 +1,39 @@
 import React from "react";
 import { Radio, RadioGroup } from "@blueprintjs/core";
+import BelangrijkeMededeling from "./../belangrijkeMededeling";
 
-const FormulierGroepItem_Radio = ({
+const FormulierGroepItemRadio = ({
   id,
   waarde,
   opties,
+  foutOmschrijving,
   onInhoudGewijzigd,
 }) => {
   return (
-    <RadioGroup
-      id={id}
-      onChange={(e) => onInhoudGewijzigd(e.currentTarget.value)}
-      selectedValue={waarde}
-    >
-      {opties.map((optie) => (
-        <Radio key={optie.id} label={optie.naam} value={optie.id} />
-      ))}
-    </RadioGroup>
+    <div>
+      <RadioGroup
+        id={id}
+        onChange={(e) => onInhoudGewijzigd(e)}
+        selectedValue={waarde}
+      >
+        {opties.map((optie) => (
+          <Radio id={id} key={optie.id} label={optie.naam} value={optie.id} />
+        ))}
+      </RadioGroup>
+      {foutOmschrijving && (
+        <BelangrijkeMededeling
+          mededelingen={[
+            {
+              id: "error",
+              inhoud: foutOmschrijving,
+            },
+          ]}
+          intent="Danger"
+          icoon="error"
+        />
+      )}
+    </div>
   );
 };
 
-export default FormulierGroepItem_Radio;
+export default FormulierGroepItemRadio;

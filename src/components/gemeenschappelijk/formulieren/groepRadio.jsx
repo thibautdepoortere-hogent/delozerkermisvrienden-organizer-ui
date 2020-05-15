@@ -1,7 +1,6 @@
 import React from "react";
-import FormulierGroepItem_Label from "./groepItem-label";
-import FormulierGroepItem_Tekstvak from "./groepItem-tekstvak";
-import FormulierGroepItem_Radio from "./groepItem-radio";
+import FormulierGroepItemLabel from "./groepItem-label";
+import FormulierGroepItemRadio from "./groepItem-radio";
 
 const FormulierGroepRadio = ({
   id,
@@ -9,19 +8,21 @@ const FormulierGroepRadio = ({
   waarde,
   data,
   verplicht,
+  foutOmschrijving,
   onInhoudGewijzigd,
 }) => {
   return (
     <div className="bp3-form-group">
-      <FormulierGroepItem_Label
+      <FormulierGroepItemLabel
         id={id}
         omschrijving={omschrijving}
         extraInfo={extraInfo(verplicht)}
       />
-      <FormulierGroepItem_Radio
+      <FormulierGroepItemRadio
         id={id}
         waarde={waarde}
         opties={data}
+        foutOmschrijving={foutOmschrijving}
         onInhoudGewijzigd={onInhoudGewijzigd}
       />
     </div>

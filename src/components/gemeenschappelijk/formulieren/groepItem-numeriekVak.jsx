@@ -1,20 +1,20 @@
 import React from "react";
 import { NumericInput } from "@blueprintjs/core";
+import FormulierGroepItemErrorMededeling from "./groepItem-errorMededeling";
 
-const FormulierGroepItem_NumeriekVak = ({
+const FormulierGroepItemNumeriekVak = ({
   id,
   enkelLezen,
   waarde,
   min,
   max,
-  icoon,
   helperOmschrijving,
+  foutOmschrijving,
   onInhoudGewijzigd,
 }) => {
   return (
     <div className="bp3-form-content filter-component-item">
       <div>
-        {icoon && <span className={icoonKlasse(icoon)}></span>}
         <NumericInput
           id={id}
           disabled={enkelLezen}
@@ -22,11 +22,15 @@ const FormulierGroepItem_NumeriekVak = ({
           value={waarde}
           min={min}
           max={max}
-          onChange={(e) => onInhoudGewijzigd(e.currentTarget.value)}
+          // onChange={(e) => onInhoudGewijzigd(e)}  currentTarget
+          onValueChange={onInhoudGewijzigd}
         />
       </div>
       {helperOmschrijving && (
         <div className="bp3-form-helper-text">{helperOmschrijving}</div>
+      )}
+      {foutOmschrijving && (
+        <FormulierGroepItemErrorMededeling inhoud={foutOmschrijving} />
       )}
     </div>
   );
@@ -36,4 +40,4 @@ function icoonKlasse(icoon) {
   return "bp3-icon bp3-icon-" + icoon;
 }
 
-export default FormulierGroepItem_NumeriekVak;
+export default FormulierGroepItemNumeriekVak;

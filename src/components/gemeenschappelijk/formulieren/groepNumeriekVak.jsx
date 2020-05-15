@@ -1,6 +1,6 @@
 import React from "react";
-import FormulierGroepItem_Label from "./groepItem-label";
-import FormulierGroepItem_NumeriekVak from "./groepItem-numeriekVak";
+import FormulierGroepItemLabel from "./groepItem-label";
+import FormulierGroepItemNumeriekVak from "./groepItem-numeriekVak";
 
 const FormulierGroepNumeriekVak = ({
   id,
@@ -9,26 +9,26 @@ const FormulierGroepNumeriekVak = ({
   waarde,
   min,
   max,
-  icoon,
   verplicht,
   helperOmschrijving,
+  foutOmschrijving,
   onInhoudGewijzigd,
 }) => {
   return (
     <div className="bp3-form-group">
-      <FormulierGroepItem_Label
+      <FormulierGroepItemLabel
         id={id}
         omschrijving={omschrijving}
         extraInfo={extraInfo(verplicht)}
       />
-      <FormulierGroepItem_NumeriekVak
+      <FormulierGroepItemNumeriekVak
         id={id}
         enkelLezen={enkelLezen}
         waarde={waarde}
         min={min}
         max={max}
-        icoon={icoon}
         helperOmschrijving={helperOmschrijving}
+        foutOmschrijving={foutOmschrijving}
         onInhoudGewijzigd={onInhoudGewijzigd}
       />
     </div>

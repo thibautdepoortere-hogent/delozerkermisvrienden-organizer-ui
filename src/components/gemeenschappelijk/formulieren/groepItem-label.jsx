@@ -1,6 +1,6 @@
 import React from "react";
 
-const FormulierGroepItem_Label = ({
+const FormulierGroepItemLabel = ({
   id,
   omschrijving,
   extraInfo,
@@ -21,4 +21,4 @@ const FormulierGroepItem_Label = ({
   );
 };
 
-export default FormulierGroepItem_Label;
+export default FormulierGroepItemLabel;

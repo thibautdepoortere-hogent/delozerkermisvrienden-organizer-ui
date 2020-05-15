@@ -1,6 +1,6 @@
 import React from "react";
-import FormulierGroepItem_Label from "./groepItem-label";
-import FormulierGroepItem_Tekstveld from "./groepItem-tekstveld";
+import FormulierGroepItemLabel from "./groepItem-label";
+import FormulierGroepItemTekstveld from "./groepItem-tekstveld";
 
 const FormulierGroepTekstveld = ({
   id,
@@ -9,19 +9,22 @@ const FormulierGroepTekstveld = ({
   icoon,
   placeholder,
   verplicht,
+  foutOmschrijving,
   onInhoudGewijzigd,
 }) => {
   return (
     <div className="bp3-form-group">
-      <FormulierGroepItem_Label
+      <FormulierGroepItemLabel
         id={id}
         omschrijving={omschrijving}
         extraInfo={extraInfo(verplicht)}
       />
-      <FormulierGroepItem_Tekstveld
+      <FormulierGroepItemTekstveld
         id={id}
         waarde={waarde}
+        icoon={icoon}
         placeholder={placeholder}
+        foutOmschrijving={foutOmschrijving}
         onInhoudGewijzigd={onInhoudGewijzigd}
       />
     </div>

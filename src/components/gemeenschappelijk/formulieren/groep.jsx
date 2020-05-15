@@ -5,10 +5,10 @@ const FormulierGroep = ({ data: formulierItems }) => {
     <div className="formulier-groep">
       {formulierItems.map((formulierItem) => (
         <div
-          key={formulierItem.id}
+          key={formulierItem.props.id}
           className={klasseGenereren(formulierItems.length)}
         >
-          {formulierItem.item}
+          {formulierItem}
         </div>
       ))}
     </div>
