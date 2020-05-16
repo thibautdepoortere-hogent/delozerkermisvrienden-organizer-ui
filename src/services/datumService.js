@@ -1,5 +1,3 @@
-import React from "react";
-
 const getDatumBelgischeNotatie = (datum) => {
   return (
     datum.getDate() + "/" + (datum.getMonth() + 1) + "/" + datum.getFullYear()

@@ -13,3 +13,7 @@ export function inschrijvingenOphalen() {
 export function inschrijvingVerwijderen(inschrijvingsId) {
   return http.delete(urlMetId(inschrijvingsId));
 }
+
+export function aanvraagIndienen(aanvraag) {
+  return http.post(url, aanvraag);
+}

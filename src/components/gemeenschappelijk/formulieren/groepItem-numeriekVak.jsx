@@ -22,7 +22,6 @@ const FormulierGroepItemNumeriekVak = ({
           value={waarde}
           min={min}
           max={max}
-          // onChange={(e) => onInhoudGewijzigd(e)}  currentTarget
           onValueChange={onInhoudGewijzigd}
         />
       </div>
@@ -35,9 +34,5 @@ const FormulierGroepItemNumeriekVak = ({
     </div>
   );
 };
-
-function icoonKlasse(icoon) {
-  return "bp3-icon bp3-icon-" + icoon;
-}
 
 export default FormulierGroepItemNumeriekVak;

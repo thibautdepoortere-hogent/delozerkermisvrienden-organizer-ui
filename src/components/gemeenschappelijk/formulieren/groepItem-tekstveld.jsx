@@ -1,5 +1,5 @@
 import React from "react";
-import BelangrijkeMededeling from "./../belangrijkeMededeling";
+import FormulierGroepItemErrorMededeling from "./groepItem-errorMededeling";
 
 const FormulierGroepItemTekstveld = ({
   id,
@@ -26,16 +26,7 @@ const FormulierGroepItemTekstveld = ({
         <div className="bp3-form-helper-text">{helperOmschrijving}</div>
       )}
       {foutOmschrijving && (
-        <BelangrijkeMededeling
-          mededelingen={[
-            {
-              id: "error",
-              inhoud: foutOmschrijving,
-            },
-          ]}
-          intent="Danger"
-          icoon="error"
-        />
+        <FormulierGroepItemErrorMededeling inhoud={foutOmschrijving} />
       )}
     </div>
   );

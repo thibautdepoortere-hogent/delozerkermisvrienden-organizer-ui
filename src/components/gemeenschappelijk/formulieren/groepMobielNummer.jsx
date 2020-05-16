@@ -1,6 +1,6 @@
 import React from "react";
 import FormulierGroepTekstvak from "./groepTekstvak";
-import BelangrijkeMededeling from "./../belangrijkeMededeling";
+import FormulierGroepItemErrorMededeling from "./groepItem-errorMededeling";
 
 const FormulierGroepMobielNummer = ({
   idPrefix,
@@ -38,16 +38,7 @@ const FormulierGroepMobielNummer = ({
         </div>
       </div>
       {foutOmschrijving && (
-        <BelangrijkeMededeling
-          mededelingen={[
-            {
-              id: "error",
-              inhoud: foutOmschrijving,
-            },
-          ]}
-          intent="Danger"
-          icoon="error"
-        />
+        <FormulierGroepItemErrorMededeling inhoud={foutOmschrijving} />
       )}
     </div>
   );

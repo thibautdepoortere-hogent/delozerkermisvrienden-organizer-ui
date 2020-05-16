@@ -1,5 +1,4 @@
 import React from "react";
-import BelangrijkeMededeling from "./../belangrijkeMededeling";
 import FormulierGroepItemErrorMededeling from "./groepItem-errorMededeling";
 
 const FormulierGroepItemTekstvak = ({

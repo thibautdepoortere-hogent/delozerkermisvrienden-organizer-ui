@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Joi from "joi-browser";
+import { Spinner } from "@blueprintjs/core";
 import FormulierGroep from "./groep";
 import FormulierGroepRadio from "./groepRadio";
 import FormulierGroepTekstvak from "./groepTekstvak";
@@ -119,6 +120,7 @@ class Formulier extends Component {
     verplicht,
     enkelLezen,
     helperOmschrijving,
+    specifiekeWaarde,
     specifiekOnInhoudGewijzigdEvent
   ) {
     const { data, errors } = this.state;
@@ -127,7 +129,7 @@ class Formulier extends Component {
         id={id}
         enkelLezen={enkelLezen}
         omschrijving={omschrijving}
-        waarde={data[id]}
+        waarde={specifiekeWaarde ? specifiekeWaarde : data[id]}
         min={min}
         max={max}
         verplicht={verplicht}
@@ -184,8 +186,46 @@ class Formulier extends Component {
     );
   }
 
-  genereerKnop(omschrijving) {
-    return <button disabled={this.valideer()}>{omschrijving}</button>;
+  genereerVerzendKnop(omschrijving) {
+    return (
+      <button
+        className="bp3-button bp3-intent-success"
+        disabled={this.valideer()}
+      >
+        {omschrijving}
+      </button>
+    );
+  }
+
+  genereerSpinner(intent) {
+    return <Spinner intent={intent} size="30" />;
+  }
+
+  genereerVerzendFormulierMetExtras(
+    waardeOpdrachtNietVerwerkt,
+    waardeOpdrachtVerwerken,
+    omschrijvingVerzendKnop,
+    titelFoutmeldingIndienenFormulier,
+    inhoudFoutmeldingIndienenFormulier
+  ) {
+    return (
+      <div>
+        <div className="belangrijkeMededeling-AanvraagNietIngediend">
+          {waardeOpdrachtNietVerwerkt &&
+            this.genereerBelangrijkeMededeling(
+              titelFoutmeldingIndienenFormulier,
+              inhoudFoutmeldingIndienenFormulier,
+              "Danger"
+            )}
+        </div>
+        <div className="formulier-groep-altijdSamen">
+          {this.genereerVerzendKnop(omschrijvingVerzendKnop)}
+          <div className="spinner">
+            {waardeOpdrachtVerwerken && this.genereerSpinner("Success")}
+          </div>
+        </div>
+      </div>
+    );
   }
 }
 
