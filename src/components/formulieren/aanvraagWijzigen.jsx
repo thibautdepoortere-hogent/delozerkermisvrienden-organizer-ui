@@ -82,21 +82,16 @@ class FormulierAanvraagWijzigen extends Formulier {
   async componentDidMount() {
     const inschrijvingsId = this.props.match.params.id;
     const guid = guidService.getGuidFormaat(inschrijvingsId);
-    if (guidService.isGuid(guid)) {
-      if (inschrijvingenService.bestaatInschrijving(guid)) {
-        this.setState({ inschrijvingsId: this.props.match.params.id });
-      } else {
-        this.props.history.push("/not-found");
-      }
-    } else {
+    if (!(await inschrijvingenService.bestaatInschrijving(guid))) {
       this.props.history.push("/not-found");
+    } else {
+      this.setState({ inschrijvingsId: guid });
+      await this.instellingenInladen();
+      await this.inschrijvingInladen(this.state.inschrijvingsId);
+      this.evenementInladen(this.state.data.evenementId);
+      await this.betaalmethodenInladen();
+      await this.betaalTransactiesInladen(this.state.inschrijvingsId);
     }
-    this.setState({ inschrijvingsId: this.props.match.params.id });
-    await this.instellingenInladen();
-    await this.inschrijvingInladen(this.state.inschrijvingsId);
-    this.evenementInladen(this.state.data.evenementId);
-    await this.betaalmethodenInladen();
-    await this.betaalTransactiesInladen(this.state.inschrijvingsId);
   }
 
   render() {
@@ -273,6 +268,19 @@ class FormulierAanvraagWijzigen extends Formulier {
       </div>
     );
   }
+
+  // bestaatInschrijvingsId = async (id) => {
+  //   const guid = guidService.getGuidFormaat(id);
+  //   if (guidService.isGuid(guid)) {
+  //     if (inschrijvingenService.bestaatInschrijving(guid)) {
+  //       this.setState({ inschrijvingsId: this.props.match.params.id });
+  //     } else {
+  //       this.props.history.push("/not-found");
+  //     }
+  //   } else {
+  //     this.props.history.push("/not-found");
+  //   }
+  // };
 
   instellingenInladen = async () => {
     try {

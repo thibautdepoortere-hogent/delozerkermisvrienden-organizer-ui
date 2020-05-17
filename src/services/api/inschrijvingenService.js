@@ -1,5 +1,6 @@
 import http from "./httpService";
 import * as responseErrorMeldingService from "../api/responseErrorMeldingService";
+import * as guidService from "../../services/guidService";
 
 const url = "/inschrijvingen";
 
@@ -8,22 +9,30 @@ function urlMetId(id) {
 }
 
 export async function bestaatInschrijving(inschrijvingsId) {
-  try {
-    await http.head(urlMetId(inschrijvingsId));
-    return true;
-  } catch (error) {
-    if (error.response !== "404") {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        "Er is een fout opgetreden bij het inladen van de inschrijving."
-      );
+  if (guidService.isGuid(inschrijvingsId)) {
+    try {
+      await http.head(urlMetId(inschrijvingsId));
+      return true;
+    } catch (error) {
+      if (error && error.response.status === 404) {
+        // niet gevonden
+      } else {
+        responseErrorMeldingService.ToonFoutmelding(
+          error,
+          "Er is een fout opgetreden bij het inladen van het evenement."
+        );
+      }
+      return false;
     }
-    return false;
   }
 }
 
 export function inschrijvingenOphalen() {
   return http.get(url);
+}
+
+export function inschrijvingenViaQrCodeOphalen(qrCode) {
+  return http.get(url + "?qrcode=" + qrCode);
 }
 
 export function inschrijvingOphalen(inschrijvingsId) {
