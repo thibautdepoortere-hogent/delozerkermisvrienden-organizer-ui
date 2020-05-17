@@ -1,6 +1,6 @@
 import React from "react";
 
-const OverzichtTitelMetActies = ({ omschrijving, acties }) => {
+const TitelMetActies = ({ omschrijving, acties }) => {
   return (
     <div className="titelMetAcites">
       <h1 className="titelMetActies-titel">{omschrijving}</h1>
@@ -31,4 +31,4 @@ function klassesInladen(standaardKlasse, intent) {
   return klasse;
 }
 
-export default OverzichtTitelMetActies;
+export default TitelMetActies;

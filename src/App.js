@@ -6,7 +6,7 @@ import Fabrieksinstellingen from "./components/fabrieksinstellingen/fabrieksinst
 import Lijsten from "./components/lijsten/lijsten";
 import FormulierNieuweAanvraag from "./components/formulieren/nieuweAanvraag";
 import Inschrijvingen from "./components/lijsten/lijstItems/inschrijvingen";
-import AanvraagIngediend from "./components/aanvraagIngediend";
+import FormulierAanvraagWijzigen from "./components/formulieren/aanvraagWijzigen";
 
 function App() {
   return (
@@ -16,14 +16,14 @@ function App() {
         <div className="wrapper">
           <div className="inhoud">
             <Switch>
-              <Route
-                path="/inschrijvingen/ingediend/:id"
-                component={AanvraagIngediend}
-              />
               <Route path="/inschrijvingen/opzoeken" component={NotFound} />
               <Route
                 path="/inschrijvingen/nieuw"
                 component={FormulierNieuweAanvraag}
+              />
+              <Route
+                path="/inschrijvingen/:id"
+                component={FormulierAanvraagWijzigen}
               />
               <Route
                 path="/lijsten/inschrijvingen"

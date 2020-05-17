@@ -10,16 +10,16 @@
 
   /* ------------------------------- */
   /* --- GEMEENSCHAPPELIJK --------- */
-  .titelMetAcites {
+  .titel {
     /* Flex - parent */
     flex-direction: column;
   }
 
-  .titelMetAcites-acties {
+  .titel-acties {
     margin-left: 0;
   }
 
-  .titelMetAcites-acties-actie {
+  .titel-acties-actie {
     margin-bottom: 5px;
   }
 }

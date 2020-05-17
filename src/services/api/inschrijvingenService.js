@@ -10,6 +10,10 @@ export function inschrijvingenOphalen() {
   return http.get(url);
 }
 
+export function inschrijvingOphalen(inschrijvingsId) {
+  return http.get(urlMetId(inschrijvingsId));
+}
+
 export function inschrijvingVerwijderen(inschrijvingsId) {
   return http.delete(urlMetId(inschrijvingsId));
 }

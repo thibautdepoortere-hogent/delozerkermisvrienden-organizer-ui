@@ -22,6 +22,12 @@ class NavBar extends Component {
             onMenuItemClick={this.handleMenuItemClick}
           />
           <NavBarItem
+            linkUrl="/inschrijvingen/a17c29b6-4cc2-4cc8-9a84-592ae2bafbc7"
+            linkNaam="Inschrijving aanpassen"
+            icoonNaam="edit"
+            onMenuItemClick={this.handleMenuItemClick}
+          />
+          <NavBarItem
             linkUrl="/inschrijvingen/opzoeken"
             linkNaam="Inschrijving opzoeken"
             icoonNaam="search"

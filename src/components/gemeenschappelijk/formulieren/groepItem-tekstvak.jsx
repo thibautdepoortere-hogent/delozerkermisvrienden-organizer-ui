@@ -6,6 +6,7 @@ const FormulierGroepItemTekstvak = ({
   waarde,
   placeholder,
   icoon,
+  inactief,
   helperOmschrijving,
   foutOmschrijving,
   onInhoudGewijzigd,
@@ -20,6 +21,7 @@ const FormulierGroepItemTekstvak = ({
           className="bp3-input"
           placeholder={placeholder}
           value={waarde}
+          disabled={inactief ? inactief : false}
           onChange={(e) => onInhoudGewijzigd(e)}
         />
       </div>

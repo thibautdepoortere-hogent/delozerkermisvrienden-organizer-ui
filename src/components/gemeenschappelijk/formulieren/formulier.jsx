@@ -78,17 +78,20 @@ class Formulier extends Component {
     icoon,
     placeholder,
     verplicht,
-    helperOmschrijving
+    inactief,
+    helperOmschrijving,
+    specifiekeWaarde
   ) {
     const { data, errors } = this.state;
     return (
       <FormulierGroepTekstvak
         id={id}
         omschrijving={omschrijving}
-        waarde={data[id]}
+        waarde={specifiekeWaarde ? specifiekeWaarde : data[id] ? data[id] : ""}
         icoon={icoon}
         placeholder={placeholder}
         verplicht={verplicht}
+        inactief={inactief}
         helperOmschrijving={helperOmschrijving}
         foutOmschrijving={errors[id]}
         onInhoudGewijzigd={this.handleWijziging}
@@ -102,7 +105,7 @@ class Formulier extends Component {
       <FormulierGroepTekstveld
         id={id}
         omschrijving={omschrijving}
-        waarde={data[id]}
+        waarde={data[id] ? data[id] : ""}
         icoon={icoon}
         placeholder={placeholder}
         verplicht={verplicht}
@@ -129,7 +132,7 @@ class Formulier extends Component {
         id={id}
         enkelLezen={enkelLezen}
         omschrijving={omschrijving}
-        waarde={specifiekeWaarde ? specifiekeWaarde : data[id]}
+        waarde={specifiekeWaarde ? specifiekeWaarde : data[id] ? data[id] : 0}
         min={min}
         max={max}
         verplicht={verplicht}

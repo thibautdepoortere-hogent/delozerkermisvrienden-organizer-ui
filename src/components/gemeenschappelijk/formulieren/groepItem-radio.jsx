@@ -5,7 +5,7 @@ import BelangrijkeMededeling from "./../belangrijkeMededeling";
 const FormulierGroepItemRadio = ({
   id,
   waarde,
-  opties,
+  opties: keuzes,
   foutOmschrijving,
   onInhoudGewijzigd,
 }) => {
@@ -16,8 +16,14 @@ const FormulierGroepItemRadio = ({
         onChange={(e) => onInhoudGewijzigd(e)}
         selectedValue={waarde}
       >
-        {opties.map((optie) => (
-          <Radio id={id} key={optie.id} label={optie.naam} value={optie.id} />
+        {keuzes.map((optie) => (
+          <Radio
+            id={id}
+            key={optie.id}
+            label={optie.naam}
+            value={optie.id}
+            disabled={optie.inactief ? optie.inactief : false}
+          />
         ))}
       </RadioGroup>
       {foutOmschrijving && (

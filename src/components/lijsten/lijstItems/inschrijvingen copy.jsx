@@ -3,7 +3,7 @@ import * as api from "../../../services/api/inschrijvingenService";
 import * as toaster from "../../../services/toasterService";
 import Tabel from "../../gemeenschappelijk/tabellen/tabel";
 import FilterZoekTekstvak from "./../../gemeenschappelijk/filteren/zoeken";
-import OverzichtTitelMetActies from "../../gemeenschappelijk/overzichten/titelMetActies";
+import Titel from "../../gemeenschappelijk/titel";
 
 class InschrijvingenDuplicate extends Component {
   state = {
@@ -101,7 +101,7 @@ class InschrijvingenDuplicate extends Component {
     const { data } = this.gefilterdeInschrijvingenInladen();
     return (
       <React.Fragment>
-        <OverzichtTitelMetActies
+        <Titel
           omschrijving="Inschrijvingen"
           acties={[
             {

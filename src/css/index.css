@@ -43,7 +43,7 @@ body {
 }
 
 /* ------------------------------- */
-.titelMetAcites {
+.titel {
   /* Flex - parent */
   display: flex;
   flex-direction: row;
@@ -58,11 +58,11 @@ body {
   margin-bottom: 5px;
 }
 
-.titelMetAcites-acties {
+.titel-acties {
   margin-left: 10px;
 }
 
-.titelMetAcites-acties-actie {
+.titel-acties-actie {
   margin-right: 10px;
 }
 
@@ -145,4 +145,16 @@ body {
 
 .belangrijkeMededeling-AanvraagNietIngediend {
   margin-top: 10px;
+}
+
+.extraInfo {
+  margin-left: 5px;
+}
+
+.qrCode {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 30px;
 }

@@ -1,7 +1,16 @@
 const getDatumBelgischeNotatie = (datum) => {
-  return (
-    datum.getDate() + "/" + (datum.getMonth() + 1) + "/" + datum.getFullYear()
-  );
+  if (datum) {
+    const dag = datum.getDate();
+    const maand = datum.getMonth() + 1;
+    const jaar = datum.getFullYear();
+    return (
+      (dag > 9 ? dag : "0" + dag) +
+      "/" +
+      (maand > 9 ? maand : "0" + maand) +
+      "/" +
+      jaar
+    );
+  }
 };
 
 const getDagenVerschilInPeriode = (beginPeriode, eindePeriode) => {

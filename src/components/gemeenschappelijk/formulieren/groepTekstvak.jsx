@@ -9,6 +9,7 @@ const FormulierGroepTekstvak = ({
   icoon,
   placeholder,
   verplicht,
+  inactief,
   helperOmschrijving,
   foutOmschrijving,
   onInhoudGewijzigd,
@@ -25,6 +26,7 @@ const FormulierGroepTekstvak = ({
         waarde={waarde}
         placeholder={placeholder}
         icoon={icoon}
+        inactief={inactief}
         helperOmschrijving={helperOmschrijving}
         foutOmschrijving={foutOmschrijving}
         onInhoudGewijzigd={onInhoudGewijzigd}

@@ -1,28 +1,34 @@
 import React from "react";
 import Joi from "joi-browser";
 import * as toaster from "../../services/toasterService";
-import Formulier from "./../gemeenschappelijk/formulieren/formulier";
+import Formulier from "../gemeenschappelijk/formulieren/formulier";
 import * as betaalmethodenService from "../../services/api/betaalmethodenService";
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
+import * as evenementenService from "../../services/api/evenementenService";
+import * as betaaltransactiesService from "../../services/api/betaaltransactiesService";
 import * as instellingenService from "../../services/api/instellingenService";
+import * as qrCodeService from "../../services/qrCodeService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as datumService from "../../services/datumService";
+import Titel from "../gemeenschappelijk/titel";
 
-class FormulierNieuweAanvraag extends Formulier {
+class FormulierAanvraagWijzigen extends Formulier {
   state = {
+    inschrijvingsId: "",
     errors: {},
     evenement: {
-      id: "c4660a63-7e82-4e68-92c9-85f3c193f69e",
-      naam: "Rommelmarkt 2020",
-      datumStartEvenement: new Date("09/26/2020"),
+      id: "",
+      naam: "",
+      datumStartEvenement: undefined,
     },
     betaalmethoden: [],
+    betaaltransacties: [],
     data: {
       voornaam: "",
       achternaam: "",
       postcode: "",
       gemeente: "",
-      prefixMobielNummer: "+32",
+      prefixMobielNummer: "",
       mobielNummer: "",
       email: "",
       aantalMeter: 0,
@@ -31,11 +37,15 @@ class FormulierNieuweAanvraag extends Formulier {
       aantalAanhangwagens: 0,
       aantalMobilhomes: 0,
       opmerking: "",
+      standnummer: "",
       betaalmethodeId: "",
+      gestructureerdeMededeling: "",
+      qrCode: "",
       inschrijvingsstatusId: "",
       evenementId: "",
       lidId: "",
     },
+    openstaandBedrag: 0,
     minimumAantalMeter: 0,
     prijs: 0,
     opdrachtVerwerken: false,
@@ -69,11 +79,12 @@ class FormulierNieuweAanvraag extends Formulier {
   };
 
   async componentDidMount() {
-    const data = { ...this.state.data };
-    await this.instellingenInladen(data);
-    this.evenementIdOphalen(data);
-    this.setState({ data: data });
+    this.setState({ inschrijvingsId: this.props.match.params.id });
+    await this.instellingenInladen();
+    await this.inschrijvingInladen(this.state.inschrijvingsId);
+    this.evenementInladen(this.state.data.evenementId);
     await this.betaalmethodenInladen();
+    await this.betaalTransactiesInladen(this.state.inschrijvingsId);
   }
 
   render() {
@@ -86,19 +97,37 @@ class FormulierNieuweAanvraag extends Formulier {
     } = this.state;
     return (
       <div>
-        <h1>Nieuwe aanvraag</h1>
-        {this.genereerBelangrijkeMededeling(
-          evenement.naam,
-          "Dit evenement vindt plaats op " +
-            datumService.getDatumBelgischeNotatie(
-              evenement.datumStartEvenement
-            ),
-          "Success",
-          "timeline-events"
-        )}
+        <Titel
+          omschrijving="Inschrijving aanpassen"
+          extraInfo={this.state.inschrijvingsId}
+        />
+        {evenement &&
+          evenement.datumStartEvenement &&
+          this.genereerBelangrijkeMededeling(
+            evenement.naam,
+            "Dit evenement vindt plaats op " +
+              datumService.getDatumBelgischeNotatie(
+                evenement.datumStartEvenement
+              ) +
+              ".",
+            "Success",
+            "timeline-events"
+          )}
         <form onSubmit={this.handleVerzendFormulier}>
           <div>
             <h2>Persoonlijk:</h2>
+            {this.state.inschrijvingsId &&
+              this.state.data.datumInschrijving &&
+              this.genereerBelangrijkeMededeling(
+                "",
+                "Deze inschrijving werd ingediend op " +
+                  datumService.getDatumBelgischeNotatie(
+                    new Date(this.state.data.datumInschrijving)
+                  ) +
+                  ".",
+                "Primary",
+                "info-sign"
+              )}
             {this.genereerFormulierGroep([
               this.genereerTekstvak("voornaam", "Voornaam", "person", "", true),
               this.genereerTekstvak(
@@ -174,52 +203,73 @@ class FormulierNieuweAanvraag extends Formulier {
                 undefined
               ),
             ])}
-            {this.genereerBelangrijkeMededeling(
-              "",
-              "Bij het plannen van de standen zal er zoveel mogelijk rekening gehouden worden met de ingegeven voertuigen." +
-                " Let wel, mogelijks kunnen niet àlle ingevulde voertuigen aan de stand staan.",
-              "Primary",
-              "info-sign"
-            )}
             {this.genereerFormulierGroep([
               this.genereerTekstveld("opmerking", "Opmerking", "", ""),
             ])}
+            {this.genereerFormulierGroep([
+              this.genereerTekstvak("standnummer", "Standnummer"),
+            ])}
           </div>
           <div>
-            <h2>Betaalmethode</h2>
-            {this.genereerRadio(
-              "betaalmethodeId",
-              "Betaalmethode",
-              this.state.betaalmethoden,
-              true
+            <h2>Betaalmethode:</h2>
+            {this.genereerFormulierGroep([
+              this.genereerRadio(
+                "betaalmethodeId",
+                "Betaalmethode",
+                this.state.betaalmethoden,
+                true
+              ),
+            ])}
+            {this.genereerFormulierGroep([
+              this.genereerTekstvak(
+                "gestructureerdeMededeling",
+                "Gestructureerde mededeling",
+                "",
+                "",
+                "",
+                true,
+                "",
+                betaaltransactiesService.getGeformateerdeGestructureerdeMededeling(
+                  this.state.data.gestructureerdeMededeling
+                )
+              ),
+            ])}
+            <h2>Betalingen:</h2>
+            {this.genereerBelangrijkeMededeling(
+              this.state.openstaandBedrag >= 0
+                ? "Openstaand bedrag"
+                : "Terug te storten bedrag",
+              "€ " + Math.abs(this.state.openstaandBedrag),
+              this.state.openstaandBedrag > 0 ? "Warning" : "Success"
             )}
+            <h2>Check-ins:</h2>
+            {this.genereerFormulierGroep([
+              this.genereerTekstvak("qrCode", "QR Code", "", "", false, true),
+            ])}
+            <div className="qrCode">
+              {qrCodeService.getQrCode(this.state.data.qrCode)}
+            </div>
           </div>
           {this.genereerVerzendFormulierMetExtras(
             opdrachtNietVerwerkt,
             opdrachtVerwerken,
-            "Indienen",
+            "Opslaan",
             "Fout opgetreden",
-            "Deze aanvraag is niet ingediend."
+            "De aanpassingen zijn niet opgeslagen."
           )}
         </form>
       </div>
     );
   }
 
-  instellingenInladen = async (data) => {
+  instellingenInladen = async () => {
     try {
       const {
         data: instellingen,
       } = await instellingenService.instellingenAanvraagOphalen();
       const minimumAantalMeter = instellingen.minimumAantalMeter;
-      const meterPrijs = instellingen.meterPrijs;
-      const prijs = minimumAantalMeter * meterPrijs;
-      data.aantalMeter = minimumAantalMeter;
-      data.meterPrijs = meterPrijs;
-      data.inschrijvingsstatusId = instellingen.aanvraagInschrijvingssstatus;
       this.setState({
         minimumAantalMeter: minimumAantalMeter,
-        prijs: prijs,
       });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
@@ -229,9 +279,41 @@ class FormulierNieuweAanvraag extends Formulier {
     }
   };
 
-  evenementIdOphalen = (data) => {
-    const { evenement } = this.state;
-    data.evenementId = evenement.id;
+  inschrijvingInladen = async (inschrijvingsId) => {
+    try {
+      const {
+        data: inschrijving,
+      } = await inschrijvingenService.inschrijvingOphalen(inschrijvingsId);
+      const data = { ...this.state.data };
+      this.objectGegevensToekkennenAanInternObject(inschrijving, data);
+      const prijs = data.aantalMeter * data.meterPrijs;
+      this.setState({ data: data, prijs: prijs });
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmelding(
+        error,
+        "Er is een fout opgetreden bij het inladen van de inschrijving."
+      );
+    }
+  };
+
+  evenementInladen = async (evenementId) => {
+    try {
+      const {
+        data: opgehaaldEvenement,
+      } = await evenementenService.evenementOphalen(evenementId);
+      const evenement = { ...this.state.evenement };
+      evenement.id = opgehaaldEvenement.id;
+      evenement.naam = opgehaaldEvenement.naam;
+      evenement.datumStartEvenement = new Date(
+        opgehaaldEvenement.datumStartEvenement
+      );
+      this.setState({ evenement: evenement });
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmelding(
+        error,
+        "Er is een fout opgetreden bij het inladen van het evenement."
+      );
+    }
   };
 
   betaalmethodenInladen = async () => {
@@ -239,15 +321,37 @@ class FormulierNieuweAanvraag extends Formulier {
       const {
         data: alleBetaalmethoden,
       } = await betaalmethodenService.betaalmethodenOphalen();
+      const betaalmethoden = [...alleBetaalmethoden];
       const verschilInDagen = this.getVerschilInDagen();
-      const teGebruikenBetaalmethoden = alleBetaalmethoden.filter((b) =>
-        betaalmethodenService.isBetaalmethodeNogGeldig(b, verschilInDagen)
+      betaalmethoden.map(
+        (b) =>
+          (b.inactief = !betaalmethodenService.isBetaalmethodeNogGeldig(
+            b,
+            verschilInDagen
+          ))
       );
-      this.setState({ betaalmethoden: teGebruikenBetaalmethoden });
+      this.setState({ betaalmethoden: betaalmethoden });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
         "Er is een fout opgetreden bij het inladen van de betaalmethoden."
+      );
+    }
+  };
+
+  betaalTransactiesInladen = async (inschrijvingsId) => {
+    try {
+      const {
+        data: betaaltransacties,
+      } = await betaaltransactiesService.betaaltransactiesVanInschrijvingOphalen(
+        inschrijvingsId
+      );
+      this.setState({ betaaltransacties: betaaltransacties });
+      this.berekenOpenstaandBedrag();
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmelding(
+        error,
+        "Er is een fout opgetreden bij het inladen van de betaaltransacties."
       );
     }
   };
@@ -288,11 +392,23 @@ class FormulierNieuweAanvraag extends Formulier {
     }
   };
 
+  objectGegevensToekkennenAanInternObject = (opgehaaldObject, internObject) => {
+    Object.entries(opgehaaldObject).map(([key, value]) => {
+      internObject[key] = value;
+    });
+  };
+
   getVerschilInDagen = () => {
     const beginPeriode = new Date();
     const eindePeriode = this.state.evenement.datumStartEvenement;
     return datumService.getDagenVerschilInPeriode(beginPeriode, eindePeriode);
   };
+
+  berekenOpenstaandBedrag = () => {
+    var openstaandBedrag = this.state.prijs;
+    this.state.betaaltransacties.map((b) => (openstaandBedrag -= b.bedrag));
+    this.setState({ openstaandBedrag: openstaandBedrag });
+  };
 }
 
-export default FormulierNieuweAanvraag;
+export default FormulierAanvraagWijzigen;

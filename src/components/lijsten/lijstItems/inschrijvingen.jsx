@@ -3,7 +3,7 @@ import * as api from "../../../services/api/inschrijvingenService";
 import * as toaster from "../../../services/toasterService";
 import Tabel from "../../gemeenschappelijk/tabellen/tabel";
 import FilterZoekTekstvak from "./../../gemeenschappelijk/filteren/zoeken";
-import OverzichtTitelMetActies from "../../gemeenschappelijk/overzichten/titelMetActies";
+import Titel from "../../gemeenschappelijk/titel";
 import NotFound from "./../../notFound";
 
 class Inschrijvingen extends Component {
