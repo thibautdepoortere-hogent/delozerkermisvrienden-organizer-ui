@@ -10,6 +10,7 @@ import * as instellingenService from "../../services/api/instellingenService";
 import * as qrCodeService from "../../services/qrCodeService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as datumService from "../../services/datumService";
+import * as guidService from "../../services/guidService";
 import Titel from "../gemeenschappelijk/titel";
 
 class FormulierAanvraagWijzigen extends Formulier {
@@ -79,6 +80,17 @@ class FormulierAanvraagWijzigen extends Formulier {
   };
 
   async componentDidMount() {
+    const inschrijvingsId = this.props.match.params.id;
+    const guid = guidService.getGuidFormaat(inschrijvingsId);
+    if (guidService.isGuid(guid)) {
+      if (inschrijvingenService.bestaatInschrijving(guid)) {
+        this.setState({ inschrijvingsId: this.props.match.params.id });
+      } else {
+        this.props.history.push("/not-found");
+      }
+    } else {
+      this.props.history.push("/not-found");
+    }
     this.setState({ inschrijvingsId: this.props.match.params.id });
     await this.instellingenInladen();
     await this.inschrijvingInladen(this.state.inschrijvingsId);
@@ -247,7 +259,7 @@ class FormulierAanvraagWijzigen extends Formulier {
               this.genereerTekstvak("qrCode", "QR Code", "", "", false, true),
             ])}
             <div className="qrCode">
-              {qrCodeService.getQrCode(this.state.data.qrCode)}
+              {qrCodeService.genereerQrCode(this.state.data.qrCode)}
             </div>
           </div>
           {this.genereerVerzendFormulierMetExtras(
@@ -289,6 +301,9 @@ class FormulierAanvraagWijzigen extends Formulier {
       const prijs = data.aantalMeter * data.meterPrijs;
       this.setState({ data: data, prijs: prijs });
     } catch (error) {
+      if (error.response === "404") {
+        this.props.history.push("/not-found");
+      }
       responseErrorMeldingService.ToonFoutmelding(
         error,
         "Er is een fout opgetreden bij het inladen van de inschrijving."

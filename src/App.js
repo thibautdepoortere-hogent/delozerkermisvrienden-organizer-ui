@@ -7,6 +7,7 @@ import Lijsten from "./components/lijsten/lijsten";
 import FormulierNieuweAanvraag from "./components/formulieren/nieuweAanvraag";
 import Inschrijvingen from "./components/lijsten/lijstItems/inschrijvingen";
 import FormulierAanvraagWijzigen from "./components/formulieren/aanvraagWijzigen";
+import FormulierInschrijvingOpzoeken from "./components/formulieren/inschrijvingOpzoeken";
 
 function App() {
   return (
@@ -16,7 +17,10 @@ function App() {
         <div className="wrapper">
           <div className="inhoud">
             <Switch>
-              <Route path="/inschrijvingen/opzoeken" component={NotFound} />
+              <Route
+                path="/inschrijvingen/opzoeken"
+                component={FormulierInschrijvingOpzoeken}
+              />
               <Route
                 path="/inschrijvingen/nieuw"
                 component={FormulierNieuweAanvraag}
