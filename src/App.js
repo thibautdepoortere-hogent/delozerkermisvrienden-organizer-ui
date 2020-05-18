@@ -13,7 +13,9 @@ function App() {
   return (
     <BrowserRouter>
       <div className="flexbox">
-        <NavBar />
+        <div>
+          <NavBar />
+        </div>
         <div className="wrapper">
           <div className="inhoud">
             <Switch>

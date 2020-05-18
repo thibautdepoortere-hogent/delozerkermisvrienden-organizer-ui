@@ -236,9 +236,11 @@ class FormulierAanvraagWijzigen extends Formulier {
                 "",
                 true,
                 "",
-                betaaltransactiesService.getGeformateerdeGestructureerdeMededeling(
-                  this.state.data.gestructureerdeMededeling
-                )
+                this.state.data.gestructureerdeMededeling
+                  ? betaaltransactiesService.getGeformateerdeGestructureerdeMededeling(
+                      this.state.data.gestructureerdeMededeling
+                    )
+                  : ""
               ),
             ])}
             <h2>Betalingen:</h2>
@@ -253,9 +255,11 @@ class FormulierAanvraagWijzigen extends Formulier {
             {this.genereerFormulierGroep([
               this.genereerTekstvak("qrCode", "QR Code", "", "", false, true),
             ])}
-            <div className="qrCode">
-              {qrCodeService.genereerQrCode(this.state.data.qrCode)}
-            </div>
+            {this.state.data.qrCode && (
+              <div className="qrCode">
+                {qrCodeService.genereerQrCode(this.state.data.qrCode)}
+              </div>
+            )}
           </div>
           {this.genereerVerzendFormulierMetExtras(
             opdrachtNietVerwerkt,
