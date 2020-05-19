@@ -2,48 +2,47 @@ import React from "react";
 import FormulierGroepItemLabel from "./groepItem-label";
 import FormulierGroepItemTekstvak from "./groepItem-tekstvak";
 import Knop from "../knop";
-import KnopMetLabel from "./../knopMetLabel";
 
 const FormulierGroepTekstvakMetKnop = ({
   id,
-  omschrijving,
   waarde,
-  icoon,
+  inhoud,
+  inhoudKnop,
+  inhoudHelper,
+  inhoudFout,
   placeholder,
+  icoon,
+  intentKnop,
+  alleenLezen,
   verplicht,
-  inactief,
-  helperOmschrijving,
-  foutOmschrijving,
-  onInhoudGewijzigd,
-  knopOmschrijving,
-  knopIntent,
-  onKlik,
+  onWaardeGewijzigd,
+  onKlikKnop,
 }) => {
   return (
     <div className="formulier-groep-altijdSamen">
       <div className="bp3-form-group">
         <FormulierGroepItemLabel
           id={id}
-          omschrijving={omschrijving}
-          extraInfo={extraInfo(verplicht)}
+          inhoud={inhoud}
+          inhoudExtraInfo={extraInfo(verplicht)}
         />
         <FormulierGroepItemTekstvak
           id={id}
           waarde={waarde}
+          inhoudHelper={inhoudHelper}
+          inhoudFout={inhoudFout}
           placeholder={placeholder}
           icoon={icoon}
-          inactief={inactief}
-          helperOmschrijving={helperOmschrijving}
-          foutOmschrijving={foutOmschrijving}
-          onInhoudGewijzigd={onInhoudGewijzigd}
+          alleenLezen={alleenLezen}
+          onWaardeGewijzigd={onWaardeGewijzigd}
         />
       </div>
       <div className="formulier-groep-tekstvakKnop-knop">
-        <KnopMetLabel
-          omschrijving="."
-          omschrijvingKnop={knopOmschrijving}
-          intent={knopIntent}
-          onKlik={onKlik}
+        <Knop
+          id={id + "Knop"}
+          inhoud={inhoudKnop}
+          intent={intentKnop}
+          onKlik={onKlikKnop}
         />
       </div>
     </div>

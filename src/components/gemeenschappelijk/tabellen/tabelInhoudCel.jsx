@@ -1,6 +1,6 @@
 import React from "react";
 import { formatteerCell } from "../../../services/formatteerService";
-import KnopOud from "../knopOud";
+// import KnopOud from "../knopOud";
 
 const TabelInhoudCel = ({ kolom, object }) => {
   return (
@@ -25,18 +25,18 @@ const tabelInhoudCelAanmaken = (kolom, object) => {
     return formatteerCell(inhoudCel, kolom.formatteer);
   }
 
-  let actie = "";
-  if (kolom.actie && kolom.actieEvent) {
-    actie = actieKnopAanmaken(
-      kolom.actie,
-      kolom.actieNaam,
-      kolom.actieEvent,
-      object
-    );
-  }
-  if (actie) {
-    return actie;
-  }
+  // let actie = "";
+  // if (kolom.actie && kolom.actieEvent) {
+  //   actie = actieKnopAanmaken(
+  //     kolom.actie,
+  //     kolom.actieNaam,
+  //     kolom.actieEvent,
+  //     object
+  //   );
+  // }
+  // if (actie) {
+  //   return actie;
+  // }
 };
 
 const veldenCombineren = (velden, scheidingsteken, object) => {
@@ -52,15 +52,15 @@ const veldenCombineren = (velden, scheidingsteken, object) => {
   return samengevoegdVeld;
 };
 
-const actieKnopAanmaken = (actie, actieNaam, actieEvent, object) => {
-  return (
-    <KnopOud
-      naam={actieNaam}
-      clickEvent={actieEvent}
-      object={object}
-      functie={actie}
-    />
-  );
-};
+// const actieKnopAanmaken = (actie, actieNaam, actieEvent, object) => {
+//   return (
+//     // <KnopOud
+//     //   naam={actieNaam}
+//     //   clickEvent={actieEvent}
+//     //   object={object}
+//     //   functie={actie}
+//     // />
+//   );
+// };
 
 export default TabelInhoudCel;

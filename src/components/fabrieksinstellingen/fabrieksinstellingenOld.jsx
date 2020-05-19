@@ -12,9 +12,10 @@ const FabrieksinstellingenOld = () => {
         laden.
       </p>
       <Knop
-        omschrijving="Fabrieksinstellingen terugzetten"
-        onKlik={handleClick}
+        id="fabrieksinstellingenKnop"
+        inhoud="Fabrieksinstellingen terugzetten"
         intent="danger"
+        onKlik={handleClick}
       />
     </React.fragmet>
   );

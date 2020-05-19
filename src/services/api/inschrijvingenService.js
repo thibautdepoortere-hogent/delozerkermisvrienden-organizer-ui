@@ -35,9 +35,19 @@ export function inschrijvingenViaQrCodeOphalen(qrCode) {
   return http.get(url + "?qrcode=" + qrCode);
 }
 
-export function inschrijvingenViaFiltersOphalen(opties) {
+export function inschrijvingenViaFiltersOphalen(filters) {
   let parameters = "";
-  parameters += opties.voornaam ? "voornaam=" + opties.voornaam : "";
+  parameters += filters.voornaam ? "voornaam=" + filters.voornaam + "&" : "";
+  parameters += filters.achternaam
+    ? "achternaam=" + filters.achternaam + "&"
+    : "";
+  parameters += filters.standnummer
+    ? "standnummer=" + filters.standnummer + "&"
+    : "";
+  parameters += filters.inschrijvingsnummer
+    ? "id=" + filters.inschrijvingsnummer + "&"
+    : "";
+  console.log(parameters);
   return http.get(url + "?" + parameters);
 }
 

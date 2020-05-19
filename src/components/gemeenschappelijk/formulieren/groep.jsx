@@ -1,6 +1,6 @@
 import React from "react";
 
-const FormulierGroep = ({ data: formulierItems }) => {
+const FormulierGroep = ({ formulierItems }) => {
   return (
     <div className="formulier-groep">
       {formulierItems.map((formulierItem) => (

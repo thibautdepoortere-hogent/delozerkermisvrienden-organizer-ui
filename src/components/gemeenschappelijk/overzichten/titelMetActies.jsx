@@ -13,9 +13,9 @@ const TitelMetActies = ({ omschrijving, acties }) => {
               "bp3-button bp3-outlined titelMetAcites-acties-actie",
               actie.intent
             )}
-            onClick={() => actie.onActieGeklikt()}
+            onClick={() => actie.onKlik()}
           >
-            {actie.omschrijving}
+            {actie.inhoud}
           </button>
         ))}
       </div>

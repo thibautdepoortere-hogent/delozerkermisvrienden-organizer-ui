@@ -1,40 +1,39 @@
 import React from "react";
 import FormulierGroepItemLabel from "./groepItem-label";
 import FormulierGroepItemTekstveld from "./groepItem-tekstveld";
+import * as formulierService from "../../../services/formulierService";
 
 const FormulierGroepTekstveld = ({
   id,
-  omschrijving,
   waarde,
-  icoon,
+  inhoud,
+  inhoudHelper,
+  inhoudFout,
   placeholder,
+  icoon,
+  alleenLezen,
   verplicht,
-  foutOmschrijving,
-  onInhoudGewijzigd,
+  onWaardeGewijzigd,
 }) => {
   return (
     <div className="bp3-form-group">
       <FormulierGroepItemLabel
         id={id}
-        omschrijving={omschrijving}
-        extraInfo={extraInfo(verplicht)}
+        inhoud={inhoud}
+        inhoudExtraInfo={formulierService.inhoudVerplichtOphalen(verplicht)}
       />
       <FormulierGroepItemTekstveld
         id={id}
         waarde={waarde}
-        icoon={icoon}
+        inhoudHelper={inhoudHelper}
+        inhoudFout={inhoudFout}
         placeholder={placeholder}
-        foutOmschrijving={foutOmschrijving}
-        onInhoudGewijzigd={onInhoudGewijzigd}
+        icoon={icoon}
+        alleenLezen={alleenLezen}
+        onWaardeGewijzigd={onWaardeGewijzigd}
       />
     </div>
   );
 };
-
-function extraInfo(verplicht) {
-  if (verplicht) {
-    return "Verplicht";
-  }
-}
 
 export default FormulierGroepTekstveld;

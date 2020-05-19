@@ -1,18 +1,16 @@
 import React from "react";
 import FormulierGroepItemLabel from "./groepItem-label";
-import FormulierGroepItemNumeriekVak from "./groepItem-numeriekVak";
+import FormulierGroepItemKeuzelijst from "./groepItem-keuzelijst";
 import * as formulierService from "../../../services/formulierService";
 
-const FormulierGroepNumeriekVak = ({
+const FormulierGroepKeuzelijst = ({
   id,
-  waarde,
   inhoud,
+  waarde,
+  opties,
   inhoudHelper,
   inhoudFout,
   placeholder,
-  min,
-  max,
-  alleenLezen,
   verplicht,
   onWaardeGewijzigd,
 }) => {
@@ -23,19 +21,17 @@ const FormulierGroepNumeriekVak = ({
         inhoud={inhoud}
         inhoudExtraInfo={formulierService.inhoudVerplichtOphalen(verplicht)}
       />
-      <FormulierGroepItemNumeriekVak
+      <FormulierGroepItemKeuzelijst
         id={id}
         waarde={waarde}
+        opties={opties}
         inhoudHelper={inhoudHelper}
         inhoudFout={inhoudFout}
         placeholder={placeholder}
-        min={min}
-        max={max}
-        alleenLezen={alleenLezen}
         onWaardeGewijzigd={onWaardeGewijzigd}
       />
     </div>
   );
 };
 
-export default FormulierGroepNumeriekVak;
+export default FormulierGroepKeuzelijst;

@@ -1,39 +1,37 @@
 import React from "react";
-import FormulierGroepItemErrorMededeling from "./groepItem-errorMededeling";
+import FormulierGroepItemFout from "./groepItem-fout";
+import FormulierGroepItemIcoon from "./groepItem-icoon";
+import FormulierGroepItemHelper from "./groepItem-helper";
 
 const FormulierGroepItemTekstveld = ({
   id,
   waarde,
+  inhoudHelper,
+  inhoudFout,
   placeholder,
   icoon,
-  helperOmschrijving,
-  foutOmschrijving,
-  onInhoudGewijzigd,
+  alleenLezen,
+  onWaardeGewijzigd,
 }) => {
   return (
     <div className="bp3-form-content filter-component-item">
       <div className="bp3-input-group">
-        {icoon && <span className={icoonKlasse(icoon)}></span>}
+        {icoon && <FormulierGroepItemIcoon id={id} waarde={icoon} />}
         <textarea
           id={id}
-          className="bp3-input"
-          placeholder={placeholder}
           value={waarde}
-          onChange={(e) => onInhoudGewijzigd(e)}
+          placeholder={placeholder}
+          disabled={alleenLezen}
+          onChange={(e) => onWaardeGewijzigd(e)}
+          className="bp3-input"
         />
       </div>
-      {helperOmschrijving && (
-        <div className="bp3-form-helper-text">{helperOmschrijving}</div>
+      {inhoudHelper && (
+        <FormulierGroepItemHelper id={id} inhoud={inhoudHelper} />
       )}
-      {foutOmschrijving && (
-        <FormulierGroepItemErrorMededeling inhoud={foutOmschrijving} />
-      )}
+      {inhoudFout && <FormulierGroepItemFout id={id} inhoud={inhoudFout} />}
     </div>
   );
 };
-
-function icoonKlasse(icoon) {
-  return "bp3-icon bp3-icon-" + icoon;
-}
 
 export default FormulierGroepItemTekstveld;

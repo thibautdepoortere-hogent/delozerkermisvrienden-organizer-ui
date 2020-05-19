@@ -4,66 +4,120 @@ import * as qrCodeService from "../../services/qrCodeService";
 import Formulier from "./../gemeenschappelijk/formulieren/formulier";
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
-import FormulierGroepTekstvakMetKnop from "./../gemeenschappelijk/formulieren/groepTekstvakMetKnop";
 import Joi from "joi-browser";
+import FormulierGroepTekstvak from "./../gemeenschappelijk/formulieren/groepTekstvak";
+import Knop from "./../gemeenschappelijk/knop";
 
 class FormulierInschrijvingOpzoeken extends Formulier {
   state = {
+    errors: {},
     scannerZichtbaar: false,
     fout: "",
     inschrijvingen: [],
-    data: { voornaam: "" },
+    data: {
+      voornaam: "",
+      achternaam: "",
+      standnummer: "",
+      inschrijvingsnummer: "",
+    },
   };
 
   schema = {
     voornaam: Joi.string().max(150).allow(null).allow("").label("Voornaam"),
+    achternaam: Joi.string().max(150).allow(null).allow("").label("Achternaam"),
+    standnummer: Joi.string()
+      .max(10)
+      .allow(null)
+      .allow("")
+      .label("Standnummer"),
+    inschrijvingsnummer: Joi.string()
+      .max(36)
+      .allow(null)
+      .allow("")
+      .label("Inschrijvingsnummer"),
   };
 
   render() {
     const { scannerZichtbaar, inschrijvingen, fout } = this.state;
     return (
       <div>
-        <Titel omschrijving="Inschrijving opzoeken" />
-        <FormulierGroepTekstvakMetKnop
-          id="voornaam"
-          omschrijving="Voornaam"
-          waarde={this.state.data.voornaam}
-          icoon="person"
-          onInhoudGewijzigd={this.handleWijziging}
-          knopOmschrijving="Zoek"
-          knopIntent="primary"
-          onKlik={this.handleZoekenOpvoornaam}
-        />
-        <div>
-          <button onClick={this.scan}>Scannen</button>
-        </div>
-        <div>
-          {scannerZichtbaar &&
-            qrCodeService.genereerQrCodeLezer(
-              this.handleOnFout,
+        {this.geneerTitel("inschrijvingOpzoeken", "Inschrijving opzoeken")}
+        {this.genereerFormulierGroep([
+          this.genereerTekstvak("voornaam", "Voornaam", "", "", "person"),
+          this.genereerTekstvak("achternaam", "Achternaam", "", "", "person"),
+        ])}
+        {this.genereerFormulierGroep([
+          this.genereerTekstvak(
+            "standnummer",
+            "Standnummer",
+            "",
+            "",
+            "numbered-list"
+          ),
+          this.genereerTekstvak(
+            "inschrijvingsnummer",
+            "Inschrijvingsnummer",
+            "",
+            "aaf9ed6c-e52b-4838-b241-431d9d7d547a",
+            "tag"
+          ),
+        ])}
+        {this.genereerFormulierGroep([
+          <Knop
+            id="zoeken"
+            inhoud="Zoeken"
+            intent="success"
+            vullen={true}
+            onKlik={this.handleZoeken}
+          />,
+          <Knop
+            id="filtersWissen"
+            inhoud="Filters wissen"
+            intent="danger"
+            vullen={true}
+            onKlik={this.handleFiltersWissen}
+          />,
+          <Knop
+            id="scanQr"
+            inhoud="Scan QR"
+            intent="primary"
+            vullen={true}
+            onKlik={this.handleScanQr}
+          />,
+        ])}
+        {fout &&
+          this.genereerFormulierGroep([
+            this.genereerMededeling(
+              "foutTijdensZoeken",
+              "Fout tijdens zoeken:",
+              fout,
+              "error",
+              "Danger"
+            ),
+          ])}
+        {scannerZichtbaar && (
+          <div className="qrCode-scanner">
+            {qrCodeService.genereerQrCodeLezer(
+              this.handleOnFoutQr,
               this.handleOnScan
             )}
-        </div>
-
-        {fout &&
-          this.genereerBelangrijkeMededeling(
-            "Fout tijdens scannen:",
-            fout,
-            "Danger",
-            "error"
+          </div>
+        )}
+        <div>
+          {(!inschrijvingen ||
+            (inschrijvingen && inschrijvingen.length === 0)) && (
+            <p>Er zijn geen inschrijvingen gevonden.</p>
           )}
-        {inschrijvingen && inschrijvingen.map((i) => <p key={i.id}>{i.id}</p>)}
+          {inschrijvingen &&
+            inschrijvingen.map((i) => (
+              <p key={i.id}>
+                {i.id} - {i.voornaam} - {i.achternaam} - {i.qrcode}
+              </p>
+            ))}
+        </div>
       </div>
     );
   }
-
-  scan = () => {
-    this.setState({
-      fout: "",
-      inschrijvingen: [],
-      scannerZichtbaar: !this.state.scannerZichtbaar,
-    });
-  };
 
   handleOnScan = async (data) => {
     if (data) {
@@ -71,7 +125,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     }
   };
 
-  handleOnFout = (err) => {
+  handleOnFoutQr = (err) => {
     this.setState({
       fout: err,
       inschrijvingen: [],
@@ -79,14 +133,28 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     });
   };
 
-  handleZoekenOpvoornaam = () => {
-    this.inschrijvingenOphalenViaFilters();
+  handleZoeken = async () => {
+    await this.inschrijvingenOphalenViaFilters();
   };
 
-  onVoornaamGewijzigd = (voornaam) => {
-    const filters = { ...this.state.filters };
-    filters.voornaam = voornaam;
-    this.setState({ filters: filters });
+  handleFiltersWissen = () => {
+    this.setState({
+      data: {
+        voornaam: "",
+        achternaam: "",
+        standnummer: "",
+        inschrijvingsnummer: "",
+      },
+      inschrijvingen: [],
+    });
+  };
+
+  handleScanQr = () => {
+    this.setState({
+      fout: "",
+      inschrijvingen: [],
+      scannerZichtbaar: !this.state.scannerZichtbaar,
+    });
   };
 
   inschrijvingenOphalenViaFilters = async () => {
@@ -100,10 +168,16 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       if (inschrijvingen) {
         if (inschrijvingen.length === 1) {
           this.props.history.push("/inschrijvingen/" + inschrijvingen[0].id);
-        } else {
+        } else if (inschrijvingen.length > 1) {
           this.setState({
             inschrijvingen: inschrijvingen,
             fout: "",
+            scannerZichtbaar: false,
+          });
+        } else {
+          this.setState({
+            inschrijvingen: [],
+            fout: "Er zijn geen inschrijvingen gevonden met deze filters",
             scannerZichtbaar: false,
           });
         }
@@ -132,9 +206,15 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       if (inschrijvingen) {
         if (inschrijvingen.length === 1) {
           this.props.history.push("/inschrijvingen/" + inschrijvingen[0].id);
-        } else {
+        } else if (inschrijvingen.length > 1) {
           this.setState({
             inschrijvingen: inschrijvingen,
+            fout: "",
+            scannerZichtbaar: false,
+          });
+        } else {
+          this.setState({
+            inschrijvingen: [],
             fout:
               "Er zijn geen inschrijvingen gevonden met de QR-code '" +
               qrCode +
@@ -151,7 +231,8 @@ class FormulierInschrijvingOpzoeken extends Formulier {
           qrCode +
           "'";
       } else {
-        fout = "Er is een fout opgetreden bij het inladen van het evenement.";
+        fout =
+          "Er is een fout opgetreden bij het inladen van de inschrijvingen.";
         responseErrorMeldingService.ToonFoutmelding(error, fout);
       }
       this.setState({

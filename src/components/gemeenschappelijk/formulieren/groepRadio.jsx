@@ -1,38 +1,33 @@
 import React from "react";
 import FormulierGroepItemLabel from "./groepItem-label";
 import FormulierGroepItemRadio from "./groepItem-radio";
+import * as formulierService from "../../../services/formulierService";
 
 const FormulierGroepRadio = ({
   id,
-  omschrijving,
+  inhoud,
   waarde,
-  data,
+  opties,
+  inhoudFout,
   verplicht,
-  foutOmschrijving,
-  onInhoudGewijzigd,
+  onWaardeGewijzigd,
 }) => {
   return (
     <div className="bp3-form-group">
       <FormulierGroepItemLabel
         id={id}
-        omschrijving={omschrijving}
-        extraInfo={extraInfo(verplicht)}
+        inhoud={inhoud}
+        inhoudExtraInfo={formulierService.inhoudVerplichtOphalen(verplicht)}
       />
       <FormulierGroepItemRadio
         id={id}
         waarde={waarde}
-        opties={data}
-        foutOmschrijving={foutOmschrijving}
-        onInhoudGewijzigd={onInhoudGewijzigd}
+        opties={opties}
+        inhoudFout={inhoudFout}
+        onWaardeGewijzigd={onWaardeGewijzigd}
       />
     </div>
   );
 };
-
-function extraInfo(verplicht) {
-  if (verplicht) {
-    return "Verplicht";
-  }
-}
 
 export default FormulierGroepRadio;

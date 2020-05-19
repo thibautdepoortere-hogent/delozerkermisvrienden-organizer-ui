@@ -1,22 +1,20 @@
 import React from "react";
+import FormulierGroepItemLabelExtraInfo from "./groepItem-label-extraInfo";
 
 const FormulierGroepItemLabel = ({
   id,
-  omschrijving,
-  extraInfo,
+  inhoud,
+  inhoudExtraInfo,
   onKlikExtraInfo,
 }) => {
   return (
-    <label className="bp3-label" htmlFor={id}>
-      {omschrijving + " "}
-      {extraInfo && !onKlikExtraInfo && (
-        <span className="bp3-text-muted cursorHandje">({extraInfo})</span>
-      )}
-      {extraInfo && onKlikExtraInfo && (
-        <span className="bp3-text-muted cursorHandje" onClick={onKlikExtraInfo}>
-          ({extraInfo})
-        </span>
-      )}
+    <label id={id + "Label"} className="bp3-label" htmlFor={id}>
+      {inhoud + " "}
+      <FormulierGroepItemLabelExtraInfo
+        id={id + "Label"}
+        inhoud={inhoudExtraInfo}
+        onKlik={onKlikExtraInfo}
+      />
     </label>
   );
 };

@@ -7,7 +7,9 @@ import FormulierGroepTekstvak from "./groepTekstvak";
 import FormulierGroepTekstveld from "./groepTekstveld";
 import FormulierGroepNumeriekVak from "./groepNumeriekVak";
 import FormulierGroepMobielNummer from "./groepMobielNummer";
-import BelangrijkeMededeling from "./../belangrijkeMededeling";
+import Mededeling from "./../mededeling";
+import Knop from "./../knop";
+import Titel from "../titel";
 
 class Formulier extends Component {
   state = { data: {}, errors: {} };
@@ -68,86 +70,116 @@ class Formulier extends Component {
     this.verzendFormulier();
   };
 
-  genereerFormulierGroep(data) {
-    return <FormulierGroep data={data} />;
+  geneerTitel(id, inhoud, inhoudExtraInfo, acties) {
+    return (
+      <Titel
+        id={id}
+        inhoud={inhoud}
+        inhoudExtraInfo={inhoudExtraInfo}
+        acties={acties}
+      />
+    );
+  }
+
+  genereerFormulierGroep(formulierItems) {
+    return <FormulierGroep formulierItems={formulierItems} />;
   }
 
   genereerTekstvak(
     id,
-    omschrijving,
-    icoon,
+    inhoud,
+    inhoudHelper,
     placeholder,
+    icoon,
+    alleenLezen,
     verplicht,
-    inactief,
-    helperOmschrijving,
     specifiekeWaarde
   ) {
     const { data, errors } = this.state;
     return (
       <FormulierGroepTekstvak
         id={id}
-        omschrijving={omschrijving}
         waarde={specifiekeWaarde ? specifiekeWaarde : data[id] ? data[id] : ""}
-        icoon={icoon}
+        inhoud={inhoud}
+        inhoudHelper={inhoudHelper}
+        inhoudFout={errors[id]}
         placeholder={placeholder}
+        icoon={icoon}
+        alleenLezen={alleenLezen}
         verplicht={verplicht}
-        inactief={inactief}
-        helperOmschrijving={helperOmschrijving}
-        foutOmschrijving={errors[id]}
-        onInhoudGewijzigd={this.handleWijziging}
+        onWaardeGewijzigd={this.handleWijziging}
       />
     );
   }
 
-  genereerTekstveld(id, omschrijving, icoon, placeholder, verplicht) {
+  genereerTekstveld(
+    id,
+    inhoud,
+    inhoudHelper,
+    placeholder,
+    icoon,
+    alleenLezen,
+    verplicht,
+    specifiekeWaarde
+  ) {
     const { data, errors } = this.state;
     return (
       <FormulierGroepTekstveld
         id={id}
-        omschrijving={omschrijving}
-        waarde={data[id] ? data[id] : ""}
-        icoon={icoon}
+        waarde={specifiekeWaarde ? specifiekeWaarde : data[id] ? data[id] : ""}
+        inhoud={inhoud}
+        inhoudHelper={inhoudHelper}
+        inhoudFout={errors[id]}
         placeholder={placeholder}
+        icoon={icoon}
+        alleenLezen={alleenLezen}
         verplicht={verplicht}
-        foutOmschrijving={errors[id]}
-        onInhoudGewijzigd={this.handleWijziging}
+        onWaardeGewijzigd={this.handleWijziging}
       />
     );
   }
 
   genereerNumeriekVak(
     id,
-    omschrijving,
+    inhoud,
+    inhoudHelper,
+    placeholder,
     min,
     max,
+    alleenLezen,
     verplicht,
-    enkelLezen,
-    helperOmschrijving,
     specifiekeWaarde,
-    specifiekOnInhoudGewijzigdEvent
+    specifiekeOnWaardeGewijzigd
   ) {
     const { data, errors } = this.state;
     return (
       <FormulierGroepNumeriekVak
         id={id}
-        enkelLezen={enkelLezen}
-        omschrijving={omschrijving}
         waarde={specifiekeWaarde ? specifiekeWaarde : data[id] ? data[id] : 0}
+        inhoud={inhoud}
+        inhoudHelper={inhoudHelper}
+        inhoudFout={errors[id]}
+        placeholder={placeholder}
         min={min}
         max={max}
+        alleenLezen={alleenLezen}
         verplicht={verplicht}
-        helperOmschrijving={helperOmschrijving}
-        foutOmschrijving={errors[id]}
-        onInhoudGewijzigd={
-          specifiekOnInhoudGewijzigdEvent
-            ? specifiekOnInhoudGewijzigdEvent
+        onWaardeGewijzigd={
+          specifiekeOnWaardeGewijzigd
+            ? specifiekeOnWaardeGewijzigd
             : this.hanldeNummerWijziging
         }
       />
     );
   }
 
-  genereerMobielNummer(idPrefix, idMobielNummer, verplicht) {
+  genereerMobielNummer(
+    idPrefix,
+    idMobielNummer,
+    inhoudHelper,
+    alleenLezen,
+    verplicht
+  ) {
     const { data, errors } = this.state;
     return (
       <FormulierGroepMobielNummer
@@ -155,59 +187,62 @@ class Formulier extends Component {
         idMobielNummer={idMobielNummer}
         waardePrefix={data[idPrefix]}
         waardeMobielNummer={data[idMobielNummer]}
-        verplicht={true}
-        foutOmschrijving={errors[idPrefix] || errors[idMobielNummer]}
-        onInhoudGewijzigdPrefix={this.handleWijziging}
-        onInhoudGewijzigdMobielNummer={this.handleWijziging}
+        inhoudHelper={inhoudHelper}
+        inhoudFout={errors[idPrefix] || errors[idMobielNummer]}
+        alleenLezen={alleenLezen}
+        verplicht={verplicht}
+        onWaardeGewijzigdPrefix={this.handleWijziging}
+        onWaardeGewijzigdMobielNummer={this.handleWijziging}
       />
     );
   }
 
-  genereerRadio(id, omschrijving, opties, verplicht) {
+  genereerRadio(id, inhoud, opties, verplicht) {
     const { data, errors } = this.state;
     return (
       <FormulierGroepRadio
         id={id}
-        omschrijving={omschrijving}
+        inhoud={inhoud}
         waarde={data[id]}
-        data={opties}
+        opties={opties}
+        inhoudFout={errors[id]}
         verplicht={verplicht}
-        foutOmschrijving={errors[id]}
-        onInhoudGewijzigd={this.handleWijziging}
+        onWaardeGewijzigd={this.handleWijziging}
       />
     );
   }
 
-  genereerBelangrijkeMededeling(titel, inhoud, intent, icoon) {
+  genereerMededeling(id, titel, inhoud, icoon, intent) {
     return (
-      <BelangrijkeMededeling
+      <Mededeling
+        id={id}
         titel={titel}
-        mededeling={inhoud}
-        intent={intent}
+        inhoud={inhoud}
         icoon={icoon}
+        intent={intent}
       />
     );
   }
 
-  genereerVerzendKnop(omschrijving) {
+  genereerVerzendKnop(inhoud) {
     return (
-      <button
-        className="bp3-button bp3-intent-success"
-        disabled={this.valideer()}
-      >
-        {omschrijving}
-      </button>
+      <Knop
+        id="verzendKnop"
+        inhoud={inhoud}
+        intent="success"
+        alleenLezen={this.valideer()}
+      />
     );
   }
 
-  genereerSpinner(intent) {
-    return <Spinner intent={intent} size="30" />;
+  genereerSpinner() {
+    return <Spinner intent="success" size="30" />;
   }
 
-  genereerVerzendFormulierMetExtras(
+  genereerVerzendKnopMetAttributen(
     waardeOpdrachtNietVerwerkt,
     waardeOpdrachtVerwerken,
-    omschrijvingVerzendKnop,
+    inhoudVerzendKnop,
     titelFoutmeldingIndienenFormulier,
     inhoudFoutmeldingIndienenFormulier
   ) {
@@ -215,16 +250,16 @@ class Formulier extends Component {
       <div>
         <div className="belangrijkeMededeling-AanvraagNietIngediend">
           {waardeOpdrachtNietVerwerkt &&
-            this.genereerBelangrijkeMededeling(
+            this.genereerMededeling(
               titelFoutmeldingIndienenFormulier,
               inhoudFoutmeldingIndienenFormulier,
               "Danger"
             )}
         </div>
         <div className="formulier-groep-altijdSamen">
-          {this.genereerVerzendKnop(omschrijvingVerzendKnop)}
+          {this.genereerVerzendKnop(inhoudVerzendKnop)}
           <div className="spinner">
-            {waardeOpdrachtVerwerken && this.genereerSpinner("Success")}
+            {waardeOpdrachtVerwerken && this.genereerSpinner()}
           </div>
         </div>
       </div>

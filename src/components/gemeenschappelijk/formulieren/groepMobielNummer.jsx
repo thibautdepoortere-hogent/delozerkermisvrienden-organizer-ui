@@ -1,16 +1,19 @@
 import React from "react";
 import FormulierGroepTekstvak from "./groepTekstvak";
-import FormulierGroepItemErrorMededeling from "./groepItem-errorMededeling";
+import FormulierGroepItemFout from "./groepItem-fout";
+import FormulierGroepItemHelper from "./groepItem-helper";
 
 const FormulierGroepMobielNummer = ({
   idPrefix,
   idMobielNummer,
   waardePrefix,
   waardeMobielNummer,
+  inhoudHelper,
+  inhoudFout,
+  alleenLezen,
   verplicht,
-  foutOmschrijving,
-  onInhoudGewijzigdPrefix,
-  onInhoudGewijzigdMobielNummer,
+  onWaardeGewijzigdPrefix,
+  onWaardeGewijzigdMobielNummer,
 }) => {
   return (
     <div>
@@ -18,27 +21,32 @@ const FormulierGroepMobielNummer = ({
         <div className="formulier-groep-item-landnummer">
           <FormulierGroepTekstvak
             id={idPrefix}
-            omschrijving="Landnummer"
+            inhoud="Landnummer"
             waarde={waardePrefix}
-            icoon="plus"
             placeholder="32"
-            onInhoudGewijzigd={onInhoudGewijzigdPrefix}
+            icoon="plus"
+            alleenLezen={alleenLezen}
+            onWaardeGewijzigd={onWaardeGewijzigdPrefix}
           />
         </div>
         <div className="formulier-groep-item-mobielnummer">
           <FormulierGroepTekstvak
             id={idMobielNummer}
-            omschrijving="Mobiel nummer"
+            inhoud="Mobiel nummer"
             waarde={waardeMobielNummer}
-            icoon="phone"
             placeholder="474123456"
+            icoon="phone"
+            alleenLezen={alleenLezen}
             verplicht={verplicht}
-            onInhoudGewijzigd={onInhoudGewijzigdMobielNummer}
+            onWaardeGewijzigd={onWaardeGewijzigdMobielNummer}
           />
         </div>
       </div>
-      {foutOmschrijving && (
-        <FormulierGroepItemErrorMededeling inhoud={foutOmschrijving} />
+      {inhoudHelper && (
+        <FormulierGroepItemHelper id={idMobielNummer} inhoud={inhoudHelper} />
+      )}
+      {inhoudFout && (
+        <FormulierGroepItemFout id={idMobielNummer} inhoud={inhoudFout} />
       )}
     </div>
   );

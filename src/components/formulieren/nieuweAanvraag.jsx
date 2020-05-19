@@ -87,39 +87,76 @@ class FormulierNieuweAanvraag extends Formulier {
     return (
       <div>
         <h1>Nieuwe aanvraag</h1>
-        {this.genereerBelangrijkeMededeling(
+        {this.genereerMededeling(
+          "evenementDatum",
           evenement.naam,
           "Dit evenement vindt plaats op " +
             datumService.getDatumBelgischeNotatie(
               evenement.datumStartEvenement
             ),
-          "Success",
-          "timeline-events"
+          "timeline-events",
+          "Success"
         )}
         <form onSubmit={this.handleVerzendFormulier}>
           <div>
             <h2>Persoonlijk:</h2>
             {this.genereerFormulierGroep([
-              this.genereerTekstvak("voornaam", "Voornaam", "person", "", true),
+              this.genereerTekstvak(
+                "voornaam",
+                "Voornaam",
+                "",
+                "",
+                "person",
+                false,
+                true
+              ),
               this.genereerTekstvak(
                 "achternaam",
                 "Achternaam",
-                "person",
                 "",
+                "",
+                "person",
+                false,
                 true
               ),
             ])}
             {this.genereerFormulierGroep([
-              this.genereerTekstvak("postcode", "Postcode", "home", "", true),
-              this.genereerTekstvak("gemeente", "Gemeente", "home", "", true),
+              this.genereerTekstvak(
+                "postcode",
+                "Postcode",
+                "",
+                "",
+                "home",
+                false,
+                true
+              ),
+              this.genereerTekstvak(
+                "gemeente",
+                "Gemeente",
+                "",
+                "",
+                "home",
+                false,
+                true
+              ),
             ])}
             {this.genereerMobielNummer(
               "prefixMobielNummer",
               "mobielNummer",
+              "",
+              false,
               true
             )}
             {this.genereerFormulierGroep([
-              this.genereerTekstvak("email", "E-mail", "envelope", "", true),
+              this.genereerTekstvak(
+                "email",
+                "E-mail",
+                "",
+                "",
+                "envelope",
+                false,
+                true
+              ),
             ])}
           </div>
           <div>
@@ -128,61 +165,68 @@ class FormulierNieuweAanvraag extends Formulier {
               this.genereerNumeriekVak(
                 "aantalMeter",
                 "Aantal meter",
+                "",
+                "",
                 minimumAantalMeter,
                 undefined,
-                true,
                 false,
-                "",
+                true,
                 undefined,
                 this.handleWijzigingAantalMeter
               ),
               this.genereerNumeriekVak(
                 "prijs",
                 "Prijs (€)",
-                undefined,
-                undefined,
-                false,
-                true,
                 "",
+                "",
+                undefined,
+                undefined,
+                true,
+                false,
                 prijs
               ),
             ])}
-            {this.genereerBelangrijkeMededeling(
+            {this.genereerMededeling(
+              "minimumAanTeKopenHoeveleheid",
               "",
               "Minimum aan te kopen hoeveelheid (lopende meter):  " +
                 minimumAantalMeter,
-              "Primary",
-              "info-sign"
+              "info-sign",
+              "Primary"
             )}
             {this.genereerFormulierGroep([
               this.genereerNumeriekVak(
                 "aantalWagens",
                 "Aantal wagens",
-                0,
-                undefined
+                "",
+                "",
+                0
               ),
               this.genereerNumeriekVak(
                 "aantalAanhangwagens",
                 "Aantal aanhangwagens",
-                0,
-                undefined
+                "",
+                "",
+                0
               ),
               this.genereerNumeriekVak(
                 "aantalMobilhomes",
                 "Aantal mobilhomes",
-                0,
-                undefined
+                "",
+                "",
+                0
               ),
             ])}
-            {this.genereerBelangrijkeMededeling(
+            {this.genereerMededeling(
+              "aantalVoertuigenTijdensPlannen",
               "",
               "Bij het plannen van de standen zal er zoveel mogelijk rekening gehouden worden met de ingegeven voertuigen." +
                 " Let wel, mogelijks kunnen niet àlle ingevulde voertuigen aan de stand staan.",
-              "Primary",
-              "info-sign"
+              "info-sign",
+              "Primary"
             )}
             {this.genereerFormulierGroep([
-              this.genereerTekstveld("opmerking", "Opmerking", "", ""),
+              this.genereerTekstveld("opmerking", "Opmerking"),
             ])}
           </div>
           <div>
@@ -194,7 +238,7 @@ class FormulierNieuweAanvraag extends Formulier {
               true
             )}
           </div>
-          {this.genereerVerzendFormulierMetExtras(
+          {this.genereerVerzendKnopMetAttributen(
             opdrachtNietVerwerkt,
             opdrachtVerwerken,
             "Indienen",
