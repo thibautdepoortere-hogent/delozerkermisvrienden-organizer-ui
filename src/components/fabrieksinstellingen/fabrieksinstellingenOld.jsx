@@ -11,7 +11,11 @@ const FabrieksinstellingenOld = () => {
         Gebruik deze functie om de standaardwaarden in de database terug in te
         laden.
       </p>
-      <Knop naam="Fabrieksinstellingen terugzetten" clickEvent={handleClick} />
+      <Knop
+        omschrijving="Fabrieksinstellingen terugzetten"
+        onKlik={handleClick}
+        intent="danger"
+      />
     </React.fragmet>
   );
 };

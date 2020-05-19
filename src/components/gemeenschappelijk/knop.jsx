@@ -1,53 +1,27 @@
 import React from "react";
-import { Icon } from "@blueprintjs/core";
 
-const Knop = ({ naam, clickEvent, functie, object, extraClasses }) => {
-  const icoon = icoonAanmaken(functie);
+const Knop = ({ id, omschrijving, icoon, intent, onKlik }) => {
   return (
     <button
+      id={id}
       type="button"
-      className={classesAanmaken(functie, extraClasses)}
-      onClick={object ? () => clickEvent(object) : () => clickEvent()}
+      className={klasseOpbouwen(icoon, intent)}
+      onClick={onKlik}
     >
-      {icoon && !naam && <Icon icon={icoonAanmaken(functie)} />}
-      {naam ? naam : ""}
+      {omschrijving}
     </button>
   );
 };
 
-const classesAanmaken = (functie, extraClasses) => {
+function klasseOpbouwen(icoon, intent) {
   let classes = "bp3-button ";
-  if (extraClasses) {
-    classes = classes + extraClasses + " ";
+  if (icoon) {
+    classes = classes + "bp3-icon-" + icoon;
   }
-  switch (functie) {
-    case "bewerken":
-      classes += "bp3-intent-primary";
-      break;
-    case "verwijderen":
-      classes += "bp3-intent-danger";
-      break;
-    default:
-      break;
+  if (intent) {
+    classes = classes + "bp3-intent-" + intent;
   }
-
   return classes;
-};
-
-const icoonAanmaken = (functie) => {
-  let icoon = "";
-  switch (functie) {
-    case "bewerken":
-      icoon = "edit";
-      break;
-    case "verwijderen":
-      icoon = "cross";
-      break;
-    default:
-      break;
-  }
-
-  return icoon;
-};
+}
 
 export default Knop;

@@ -1,5 +1,6 @@
 {
   "name": "delozerkermisvrienden-organizer-ui",
+  "homepage": "https://delozerkermisvrienden-organizer-ui.azurewebsites.net/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -9,10 +10,13 @@
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.19.2",
     "joi-browser": "^13.4.0",
+    "qr-code-scanner": "^1.0.7",
     "qrcode.react": "^1.0.0",
     "react": "^16.13.1",
+    "react-app-polyfill": "^1.0.6",
     "react-dom": "^16.13.1",
     "react-qr-reader": "^2.2.1",
+    "react-qr-scanner": "0.0.9",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "uuid-validate": "0.0.3"

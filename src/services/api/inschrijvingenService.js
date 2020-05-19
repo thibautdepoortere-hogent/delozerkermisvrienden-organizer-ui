@@ -35,6 +35,12 @@ export function inschrijvingenViaQrCodeOphalen(qrCode) {
   return http.get(url + "?qrcode=" + qrCode);
 }
 
+export function inschrijvingenViaFiltersOphalen(opties) {
+  let parameters = "";
+  parameters += opties.voornaam ? "voornaam=" + opties.voornaam : "";
+  return http.get(url + "?" + parameters);
+}
+
 export function inschrijvingOphalen(inschrijvingsId) {
   return http.get(urlMetId(inschrijvingsId));
 }

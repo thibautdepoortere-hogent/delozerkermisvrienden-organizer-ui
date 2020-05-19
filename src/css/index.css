@@ -23,6 +23,10 @@ body {
   height: 100%;
 }
 
+.wrapper-nav {
+  background-color: #182026;
+}
+
 .wrapper {
   width: 100%;
   padding: 20px;
@@ -132,6 +136,11 @@ body {
 .formulier-groep-item-mobielnummer {
   flex-grow: 1;
   min-width: 300px;
+}
+
+.formulier-groep-tekstvakKnop-knop {
+  width: 100px;
+  min-width: 100px;
 }
 
 .belangrijkeMededeling {

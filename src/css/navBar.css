@@ -36,6 +36,7 @@
   display: flex;
   flex-direction: column;
   flex-basis: 18rem;
+  padding-bottom: 15px;
 }
 
 .nav-item {

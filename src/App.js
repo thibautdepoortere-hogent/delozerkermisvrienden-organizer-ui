@@ -13,7 +13,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="flexbox">
-        <div>
+        <div className="wrapper-nav">
           <NavBar />
         </div>
         <div className="wrapper">

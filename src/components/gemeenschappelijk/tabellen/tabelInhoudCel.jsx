@@ -1,6 +1,6 @@
 import React from "react";
 import { formatteerCell } from "../../../services/formatteerService";
-import Knop from "../knop";
+import KnopOud from "../knopOud";
 
 const TabelInhoudCel = ({ kolom, object }) => {
   return (
@@ -54,7 +54,7 @@ const veldenCombineren = (velden, scheidingsteken, object) => {
 
 const actieKnopAanmaken = (actie, actieNaam, actieEvent, object) => {
   return (
-    <Knop
+    <KnopOud
       naam={actieNaam}
       clickEvent={actieEvent}
       object={object}

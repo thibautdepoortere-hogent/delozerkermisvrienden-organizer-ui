@@ -13,9 +13,9 @@ const Fabrieksinstellingen = () => {
           laden.
         </p>
         <Knop
-          naam="Terugzetten naar fabrieksinstellingen"
-          clickEvent={handleClick}
-          functie="verwijderen"
+          omschrijving="Terugzetten naar fabrieksinstellingen"
+          onKlik={handleClick}
+          intent="danger"
         />
       </div>
     </React.Fragment>

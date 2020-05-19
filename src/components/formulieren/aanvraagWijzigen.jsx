@@ -88,7 +88,7 @@ class FormulierAanvraagWijzigen extends Formulier {
       this.setState({ inschrijvingsId: guid });
       await this.instellingenInladen();
       await this.inschrijvingInladen(this.state.inschrijvingsId);
-      this.evenementInladen(this.state.data.evenementId);
+      await this.evenementInladen(this.state.data.evenementId);
       await this.betaalmethodenInladen();
       await this.betaalTransactiesInladen(this.state.inschrijvingsId);
     }

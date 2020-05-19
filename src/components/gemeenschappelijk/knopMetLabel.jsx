@@ -4,15 +4,12 @@ import Knop from "./knop";
 const KnopMetLabel = ({
   id,
   omschrijving,
+  omschrijvingKnop,
   extraInfo,
-  value,
-  placeholder,
   icoon,
+  intent,
   helperInfo,
-  onChange,
-  functie,
-  object,
-  extraClasses,
+  onKlik,
 }) => {
   return (
     <div className="bp3-form-group">
@@ -23,11 +20,11 @@ const KnopMetLabel = ({
       <div className="bp3-form-content">
         <div className="bp3-input-group">
           <Knop
-            naam={omschrijving}
-            clickEvent={onChange}
-            functie={functie}
-            object={object}
-            extraClasses={extraClasses}
+            id={id}
+            omschrijving={omschrijvingKnop}
+            icoon={icoon}
+            intent={intent}
+            onKlik={onKlik}
           />
         </div>
         {helperInfo && <div className="bp3-form-helper-text">{helperInfo}</div>}
@@ -35,14 +32,5 @@ const KnopMetLabel = ({
     </div>
   );
 };
-
-function icoonClasses(icoon) {
-  let classes = "bp3-icon ";
-  if (icoon) {
-    return classes + "bp3-icon-" + icoon;
-  } else {
-    return classes;
-  }
-}
 
 export default KnopMetLabel;
