@@ -6,8 +6,10 @@ import Fabrieksinstellingen from "./components/fabrieksinstellingen/fabrieksinst
 import Lijsten from "./components/lijsten/lijsten";
 import FormulierNieuweAanvraag from "./components/formulieren/nieuweAanvraag";
 import Inschrijvingen from "./components/lijsten/lijstItems/inschrijvingen";
-import FormulierAanvraagWijzigen from "./components/formulieren/aanvraagWijzigen";
+import FormulierinschrijvingWijzigen from "./components/formulieren/inschrijvingWijzigen";
 import FormulierInschrijvingOpzoeken from "./components/formulieren/inschrijvingOpzoeken";
+import FormulierAuthenticatieStandhouder from "./components/formulieren/authenticatieStandhouder";
+import FormulierAuthenticatieAdministrator from "./components/formulieren/authenticatieAdministrator";
 
 function App() {
   return (
@@ -20,6 +22,14 @@ function App() {
           <div className="inhoud">
             <Switch>
               <Route
+                path="/authenticatie/standhouder"
+                component={FormulierAuthenticatieStandhouder}
+              />
+              <Route
+                path="/authenticatie/administrator"
+                component={FormulierAuthenticatieAdministrator}
+              />
+              <Route
                 path="/inschrijvingen/opzoeken"
                 component={FormulierInschrijvingOpzoeken}
               />
@@ -29,7 +39,7 @@ function App() {
               />
               <Route
                 path="/inschrijvingen/:id"
-                component={FormulierAanvraagWijzigen}
+                component={FormulierinschrijvingWijzigen}
               />
               <Route
                 path="/lijsten/inschrijvingen"

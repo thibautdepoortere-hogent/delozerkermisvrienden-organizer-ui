@@ -13,7 +13,7 @@ import * as datumService from "../../services/datumService";
 import * as guidService from "../../services/guidService";
 import Titel from "../gemeenschappelijk/titel";
 
-class FormulierAanvraagWijzigen extends Formulier {
+class FormulierinschrijvingWijzigen extends Formulier {
   state = {
     inschrijvingsId: "",
     errors: {},
@@ -45,6 +45,7 @@ class FormulierAanvraagWijzigen extends Formulier {
       inschrijvingsstatusId: "",
       evenementId: "",
       lidId: "",
+      datumInschrijving: "",
     },
     openstaandBedrag: 0,
     minimumAantalMeter: 0,
@@ -66,9 +67,15 @@ class FormulierAanvraagWijzigen extends Formulier {
       .required()
       .label("Aantal meter"),
     meterPrijs: Joi.number().required().label("Meterprijs"),
-    aantalWagens: Joi.number().min(0).label("Aantal wagens"),
-    aantalAanhangwagens: Joi.number().min(0).label("Aantal aanhangwagens"),
-    aantalMobilhomes: Joi.number().min(0).label("Aantal mobilhomes"),
+    aantalWagens: Joi.number().min(0).allow(null).label("Aantal wagens"),
+    aantalAanhangwagens: Joi.number()
+      .min(0)
+      .allow(null)
+      .label("Aantal aanhangwagens"),
+    aantalMobilhomes: Joi.number()
+      .min(0)
+      .allow(null)
+      .label("Aantal mobilhomes"),
     opmerking: Joi.string().max(200).allow(null).allow("").label("Opmerking"),
     inschrijvingsstatusId: Joi.string()
       .guid()
@@ -77,6 +84,13 @@ class FormulierAanvraagWijzigen extends Formulier {
     betaalmethodeId: Joi.string().guid().required().label("Betaalmethode"),
     evenementId: Joi.string().guid().required().label("Evenement"),
     lidId: Joi.string().guid().allow(null).allow("").label("Lid"),
+    datumInschrijving: Joi.date().label("Datum inschrijving"),
+    gestructureerdeMededeling: Joi.string()
+      .allow(null)
+      .allow("")
+      .label("Gestructureerde mededeling"),
+    qrCode: Joi.string().allow(null).allow("").label("QR Code"),
+    redenAfkeuring: Joi.strin().allow(null).allow("").label("Reden afekeuring"),
   };
 
   async componentDidMount() {
@@ -366,7 +380,7 @@ class FormulierAanvraagWijzigen extends Formulier {
       const prijs = data.aantalMeter * data.meterPrijs;
       this.setState({ data: data, prijs: prijs });
     } catch (error) {
-      if (error.response === "404") {
+      if (error.response.status === "404") {
         this.props.history.push("/not-found");
       }
       responseErrorMeldingService.ToonFoutmelding(
@@ -491,4 +505,4 @@ class FormulierAanvraagWijzigen extends Formulier {
   };
 }
 
-export default FormulierAanvraagWijzigen;
+export default FormulierinschrijvingWijzigen;

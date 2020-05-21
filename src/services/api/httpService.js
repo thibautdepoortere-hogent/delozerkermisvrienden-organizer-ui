@@ -18,7 +18,7 @@ axios.interceptors.response.use(null, (error) => {
   return Promise.reject(error);
 });
 
-export function postHeaders() {
+export function Headers() {
   return { "Content-Type": "application/json", Accepts: "application/json" };
 }
 

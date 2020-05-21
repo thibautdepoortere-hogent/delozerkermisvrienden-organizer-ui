@@ -26,6 +26,7 @@ class Formulier extends Component {
     for (let item of error.details) {
       errors[item.path[0]] = item.message;
     }
+    console.log(errors);
     return errors;
   };
 
@@ -60,7 +61,6 @@ class Formulier extends Component {
 
   handleVerzendFormulier = (e) => {
     e.preventDefault();
-
     const errors = this.valideer();
     this.setState({ errors: errors || {} });
     if (errors) {
@@ -70,7 +70,7 @@ class Formulier extends Component {
     this.verzendFormulier();
   };
 
-  geneerTitel(id, inhoud, inhoudExtraInfo, acties) {
+  genereerTitel(id, inhoud, inhoudExtraInfo, acties) {
     return (
       <Titel
         id={id}
@@ -93,7 +93,8 @@ class Formulier extends Component {
     icoon,
     alleenLezen,
     verplicht,
-    specifiekeWaarde
+    specifiekeWaarde,
+    specifiekeFout
   ) {
     const { data, errors } = this.state;
     return (
@@ -102,7 +103,7 @@ class Formulier extends Component {
         waarde={specifiekeWaarde ? specifiekeWaarde : data[id] ? data[id] : ""}
         inhoud={inhoud}
         inhoudHelper={inhoudHelper}
-        inhoudFout={errors[id]}
+        inhoudFout={errors[id] && specifiekeFout ? specifiekeFout : errors[id]}
         placeholder={placeholder}
         icoon={icoon}
         alleenLezen={alleenLezen}
@@ -231,6 +232,7 @@ class Formulier extends Component {
         inhoud={inhoud}
         intent="success"
         alleenLezen={this.valideer()}
+        onKlik={this.handleVerzendFormulier}
       />
     );
   }
@@ -248,11 +250,13 @@ class Formulier extends Component {
   ) {
     return (
       <div>
-        <div className="belangrijkeMededeling-AanvraagNietIngediend">
+        <div className="belangrijkeMededeling-VerzendenFormulierNietGeslaagd">
           {waardeOpdrachtNietVerwerkt &&
             this.genereerMededeling(
+              "meldingVerzendFormulierNietGelukt",
               titelFoutmeldingIndienenFormulier,
               inhoudFoutmeldingIndienenFormulier,
+              "error",
               "Danger"
             )}
         </div>

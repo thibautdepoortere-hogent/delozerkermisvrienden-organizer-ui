@@ -41,60 +41,75 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     const { scannerZichtbaar, inschrijvingen, fout } = this.state;
     return (
       <div>
-        {this.geneerTitel("inschrijvingOpzoeken", "Inschrijving opzoeken")}
-        {this.genereerFormulierGroep([
-          this.genereerTekstvak("voornaam", "Voornaam", "", "", "person"),
-          this.genereerTekstvak("achternaam", "Achternaam", "", "", "person"),
-        ])}
-        {this.genereerFormulierGroep([
-          this.genereerTekstvak(
-            "standnummer",
-            "Standnummer",
-            "",
-            "",
-            "numbered-list"
-          ),
-          this.genereerTekstvak(
-            "inschrijvingsnummer",
-            "Inschrijvingsnummer",
-            "",
-            "aaf9ed6c-e52b-4838-b241-431d9d7d547a",
-            "tag"
-          ),
-        ])}
-        {this.genereerFormulierGroep([
-          <Knop
-            id="zoeken"
-            inhoud="Zoeken"
-            intent="success"
-            vullen={true}
-            onKlik={this.handleZoeken}
-          />,
-          <Knop
-            id="filtersWissen"
-            inhoud="Filters wissen"
-            intent="danger"
-            vullen={true}
-            onKlik={this.handleFiltersWissen}
-          />,
-          <Knop
-            id="scanQr"
-            inhoud="Scan QR"
-            intent="primary"
-            vullen={true}
-            onKlik={this.handleScanQr}
-          />,
-        ])}
-        {fout &&
-          this.genereerFormulierGroep([
-            this.genereerMededeling(
-              "foutTijdensZoeken",
-              "Fout tijdens zoeken:",
-              fout,
-              "error",
-              "Danger"
-            ),
+        <div>
+          {!scannerZichtbaar && (
+            <div>
+              {this.genereerTitel(
+                "inschrijvingOpzoeken",
+                "Inschrijving opzoeken"
+              )}
+              {this.genereerFormulierGroep([
+                this.genereerTekstvak("voornaam", "Voornaam", "", "", "person"),
+                this.genereerTekstvak(
+                  "achternaam",
+                  "Achternaam",
+                  "",
+                  "",
+                  "person"
+                ),
+              ])}
+              {this.genereerFormulierGroep([
+                this.genereerTekstvak(
+                  "standnummer",
+                  "Standnummer",
+                  "",
+                  "",
+                  "numbered-list"
+                ),
+                this.genereerTekstvak(
+                  "inschrijvingsnummer",
+                  "Inschrijvingsnummer",
+                  "",
+                  "aaf9ed6c-e52b-4838-b241-431d9d7d547a",
+                  "tag"
+                ),
+              ])}
+            </div>
+          )}
+          {this.genereerFormulierGroep([
+            <Knop
+              id="zoeken"
+              inhoud="Zoeken"
+              intent="success"
+              vullen={true}
+              onKlik={this.handleZoeken}
+            />,
+            <Knop
+              id="filtersWissen"
+              inhoud="Filters wissen"
+              intent="danger"
+              vullen={true}
+              onKlik={this.handleFiltersWissen}
+            />,
+            <Knop
+              id="scanQr"
+              inhoud={scannerZichtbaar ? "Verberg QR" : "Scan QR"}
+              intent="primary"
+              vullen={true}
+              onKlik={this.handleScanQr}
+            />,
           ])}
+          {fout &&
+            this.genereerFormulierGroep([
+              this.genereerMededeling(
+                "foutTijdensZoeken",
+                "Fout tijdens zoeken:",
+                fout,
+                "error",
+                "Danger"
+              ),
+            ])}
+        </div>
         {scannerZichtbaar && (
           <div className="qrCode-scanner">
             {qrCodeService.genereerQrCodeLezer(
@@ -104,11 +119,8 @@ class FormulierInschrijvingOpzoeken extends Formulier {
           </div>
         )}
         <div>
-          {(!inschrijvingen ||
-            (inschrijvingen && inschrijvingen.length === 0)) && (
-            <p>Er zijn geen inschrijvingen gevonden.</p>
-          )}
-          {inschrijvingen &&
+          {!scannerZichtbaar &&
+            inschrijvingen &&
             inschrijvingen.map((i) => (
               <p key={i.id}>
                 {i.id} - {i.voornaam} - {i.achternaam} - {i.qrcode}
@@ -145,7 +157,9 @@ class FormulierInschrijvingOpzoeken extends Formulier {
         standnummer: "",
         inschrijvingsnummer: "",
       },
+      fout: "",
       inschrijvingen: [],
+      scannerZichtbaar: false,
     });
   };
 
@@ -166,9 +180,22 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       );
       console.log(inschrijvingen);
       if (inschrijvingen) {
-        if (inschrijvingen.length === 1) {
-          this.props.history.push("/inschrijvingen/" + inschrijvingen[0].id);
-        } else if (inschrijvingen.length > 1) {
+        // if (inschrijvingen.length === 1) {
+        //   this.props.history.push("/inschrijvingen/" + inschrijvingen[0].id);
+        // } else if (inschrijvingen.length > 1) {
+        //   this.setState({
+        //     inschrijvingen: inschrijvingen,
+        //     fout: "",
+        //     scannerZichtbaar: false,
+        //   });
+        // } else {
+        //   this.setState({
+        //     inschrijvingen: [],
+        //     fout: "Er zijn geen inschrijvingen gevonden met deze filters",
+        //     scannerZichtbaar: false,
+        //   });
+        // }
+        if (inschrijvingen.length > 0) {
           this.setState({
             inschrijvingen: inschrijvingen,
             fout: "",

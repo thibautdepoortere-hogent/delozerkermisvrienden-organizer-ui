@@ -34,6 +34,18 @@ class NavBar extends Component {
             onMenuItemClick={this.handleMenuItemClick}
           />
           <NavBarItem
+            linkUrl="/authenticatie/standhouder"
+            linkNaam="Authenticatie standhouder"
+            icoonNaam="search"
+            onMenuItemClick={this.handleMenuItemClick}
+          />
+          <NavBarItem
+            linkUrl="/authenticatie/administrator"
+            linkNaam="Authenticatie administrator"
+            icoonNaam="search"
+            onMenuItemClick={this.handleMenuItemClick}
+          />
+          <NavBarItem
             linkUrl="/lijsten"
             linkNaam="Lijsten"
             icoonNaam="list"
