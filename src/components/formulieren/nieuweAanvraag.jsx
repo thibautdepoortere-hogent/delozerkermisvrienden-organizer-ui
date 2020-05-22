@@ -36,10 +36,12 @@ class FormulierNieuweAanvraag extends Formulier {
       evenementId: "",
       lidId: "",
     },
+    nieuwsbrief: false,
     minimumAantalMeter: 0,
     prijs: 0,
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
+    schema: this.schema,
   };
 
   schema = {
@@ -69,6 +71,7 @@ class FormulierNieuweAanvraag extends Formulier {
   };
 
   async componentDidMount() {
+    this.setState({ schema: this.schema });
     const data = { ...this.state.data };
     await this.instellingenInladen(data);
     this.evenementIdOphalen(data);
@@ -86,20 +89,26 @@ class FormulierNieuweAanvraag extends Formulier {
     } = this.state;
     return (
       <div>
-        <h1>Nieuwe aanvraag</h1>
-        {this.genereerMededeling(
-          "evenementDatum",
-          evenement.naam,
-          "Dit evenement vindt plaats op " +
-            datumService.getDatumBelgischeNotatie(
-              evenement.datumStartEvenement
-            ),
-          "timeline-events",
-          "Success"
-        )}
         <form onSubmit={this.handleVerzendFormulier}>
+          {this.genereerTitel("nieuweAanvraagH1", "Nieuwe aanvraag")}
+          {this.genereerMededeling(
+            "evenementDatum",
+            evenement.naam,
+            "Dit evenement vindt plaats op " +
+              datumService.getDatumBelgischeNotatie(
+                evenement.datumStartEvenement
+              ),
+            "timeline-events",
+            "Success"
+          )}
           <div>
-            <h2>Persoonlijk:</h2>
+            {this.genereerTitel(
+              "persoonlijkH2",
+              "Persoonlijk:",
+              "",
+              undefined,
+              2
+            )}
             {this.genereerFormulierGroep([
               this.genereerTekstvak(
                 "voornaam",
@@ -160,7 +169,7 @@ class FormulierNieuweAanvraag extends Formulier {
             ])}
           </div>
           <div>
-            <h2>Praktisch:</h2>
+            {this.genereerTitel("praktischH2", "Praktisch:", "", undefined, 2)}
             {this.genereerFormulierGroep([
               this.genereerNumeriekVak(
                 "aantalMeter",
@@ -230,12 +239,35 @@ class FormulierNieuweAanvraag extends Formulier {
             ])}
           </div>
           <div>
-            <h2>Betaalmethode</h2>
+            {this.genereerTitel(
+              "betaalmethodeH2",
+              "Betaalmethode:",
+              "",
+              undefined,
+              2
+            )}
             {this.genereerRadio(
               "betaalmethodeId",
               "Betaalmethode",
               this.state.betaalmethoden,
               true
+            )}
+          </div>
+          <div>
+            {this.genereerTitel(
+              "nieuwsbriefH2",
+              "Nieuwsbrief:",
+              "",
+              undefined,
+              2
+            )}
+            {this.genereerCheckbox(
+              "nieuwsbrief",
+              "Ik wil graag op de hoogte gehouden worden van jullie toekomstige evenementen via mail.",
+              "",
+              false,
+              undefined,
+              this.handleNieuwsbrief
             )}
           </div>
           {this.genereerVerzendKnopMetAttributen(
@@ -336,6 +368,10 @@ class FormulierNieuweAanvraag extends Formulier {
     const beginPeriode = new Date();
     const eindePeriode = this.state.evenement.datumStartEvenement;
     return datumService.getDagenVerschilInPeriode(beginPeriode, eindePeriode);
+  };
+
+  handleNieuwsbrief = () => {
+    this.setState({ nieuwsbrief: !this.state.nieuwsbrief });
   };
 }
 

@@ -20,6 +20,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       standnummer: "",
       inschrijvingsnummer: "",
     },
+    schema: this.schema,
   };
 
   schema = {
@@ -36,6 +37,10 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       .allow("")
       .label("Inschrijvingsnummer"),
   };
+
+  componentDidMount() {
+    this.setState({ schema: this.schema });
+  }
 
   render() {
     const { scannerZichtbaar, inschrijvingen, fout } = this.state;
@@ -178,7 +183,6 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       } = await inschrijvingenService.inschrijvingenViaFiltersOphalen(
         this.state.data
       );
-      console.log(inschrijvingen);
       if (inschrijvingen) {
         // if (inschrijvingen.length === 1) {
         //   this.props.history.push("/inschrijvingen/" + inschrijvingen[0].id);

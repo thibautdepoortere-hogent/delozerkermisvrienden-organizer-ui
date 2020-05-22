@@ -4,7 +4,6 @@ import * as toaster from "../../services/toasterService";
 import Formulier from "../gemeenschappelijk/formulieren/formulier";
 import * as authenticatieService from "../../services/api/authenticatieService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
-import * as azureKeyVaultService from "../../services/azureKeyVaultService";
 
 const regEx = /^(?=.*[A-Z])(?=.*[\W])(?=.*[0-9])(?=.*[a-z]).{8,128}$/;
 class FormulierAuthenticatieAdministrator extends Formulier {
@@ -16,6 +15,7 @@ class FormulierAuthenticatieAdministrator extends Formulier {
       email: "",
       wachtwoord: "",
     },
+    schema: this.schema,
   };
 
   schema = {
@@ -25,7 +25,14 @@ class FormulierAuthenticatieAdministrator extends Formulier {
   };
 
   componentDidMount() {
-    azureKeyVaultService.getSecret();
+    this.setState({ schema: this.schema });
+    //
+    const data = {
+      email: "thibaut.depoortere@student.hogent.be",
+      wachtwoord: "Rul3r of this region!",
+    };
+    this.setState({ data: data });
+    //
   }
 
   render() {
@@ -74,22 +81,24 @@ class FormulierAuthenticatieAdministrator extends Formulier {
   }
 
   verzendFormulier = async () => {
+    const { email, wachtwoord } = this.state.data;
     this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
-    authenticatieService.versleutelWachtwoord(
+    const wachtwoordServer = await this.authenticeerAdministratorEmail();
+    authenticatieService.controleerWachtwoord(
       this.state.data.wachtwoord,
-      this.onHashed
+      wachtwoordServer,
+      this.onControleUitgevoerd
     );
   };
 
-  onHashed = async (hash) => {
-    console.log("hash: ", hash);
+  onControleUitgevoerd = async (resultaat) => {
     const dataAuthenticatie = { ...this.state.data };
-    dataAuthenticatie.wachtwoord = hash;
+    dataAuthenticatie.wachtwoord = resultaat.hashedWachtwoord;
     const token = await this.authenticeerAdministrator(dataAuthenticatie);
     console.log("Token: ", token);
     if (token) {
       this.setState({
-        token: token,
+        token: token.token,
         opdrachtNietVerwerkt: false,
         opdrachtVerwerken: false,
       });
@@ -102,40 +111,20 @@ class FormulierAuthenticatieAdministrator extends Formulier {
     }
   };
 
-  // onControleUitgevoerd = async (resultaat) => {
-  //   const dataAuthenticatie = { ...this.state.data };
-  //   dataAuthenticatie.wachtwoord = resultaat.hashedWachtwoord;
-  //   const token = await this.authenticeerAdministrator(dataAuthenticatie);
-  //   console.log("Token: ", token);
-  //   if (token) {
-  //     this.setState({
-  //       token: token,
-  //       opdrachtNietVerwerkt: false,
-  //       opdrachtVerwerken: false,
-  //     });
-  //   } else {
-  //     this.setState({
-  //       token: "",
-  //       opdrachtNietVerwerkt: true,
-  //       opdrachtVerwerken: false,
-  //     });
-  //   }
-  // };
-
-  // authenticeerAdministratorEmail = async () => {
-  //   try {
-  //     const {
-  //       data: wachtwoord,
-  //     } = await authenticatieService.authenticeerAdministratorEmail(
-  //       this.state.data.email
-  //     );
-  //     return wachtwoord;
-  //   } catch (error) {
-  //     if (error.response.status !== 404) {
-  //       responseErrorMeldingService.ToonFoutmelding(error, error);
-  //     }
-  //   }
-  // };
+  authenticeerAdministratorEmail = async () => {
+    try {
+      const {
+        data: wachtwoord,
+      } = await authenticatieService.authenticeerAdministratorEmail(
+        this.state.data.email
+      );
+      return wachtwoord.wachtwoord;
+    } catch (error) {
+      if (error.response.status !== 404) {
+        responseErrorMeldingService.ToonFoutmelding(error, error);
+      }
+    }
+  };
 
   authenticeerAdministrator = async (dataAuthenticatie) => {
     try {

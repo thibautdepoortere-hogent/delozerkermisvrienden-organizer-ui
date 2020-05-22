@@ -13,12 +13,16 @@ const FormulierGroepItemRadio = ({
     <div>
       <RadioGroup
         id={id}
-        onChange={(e) => onWaardeGewijzigd(e)}
+        onChange={(e) => {
+          const returnE = { ...e };
+          returnE.currentTarget.id = id;
+          onWaardeGewijzigd(returnE);
+        }}
         selectedValue={waarde}
       >
         {opties.map((optie) => (
           <Radio
-            id={id}
+            id={id + optie.id}
             key={optie.id}
             label={optie.naam}
             value={optie.id}

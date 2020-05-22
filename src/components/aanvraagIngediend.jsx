@@ -5,7 +5,7 @@ const AanvraagIngediend = (props) => {
   return (
     <Card className="card" elevation={Elevation.TWO}>
       <h1>Aanvraag ingediend</h1>
-      <p>{props.match.params.id}</p>
+      <p>{props.match.params.inschrijvingsId}</p>
       <p>
         Uw aanvraag is succesvol ingediend. U ontvangt een bevestigingsmail van
         uw aanvraag.

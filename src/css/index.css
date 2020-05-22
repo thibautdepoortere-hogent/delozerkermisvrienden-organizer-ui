@@ -50,24 +50,47 @@ body {
 .titel {
   /* Flex - parent */
   display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  /* Rest */
+  margin-bottom: 15px;
+}
+
+.titel-inhoud {
+  /* Flex - parent */
+  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: baseline;
   /* Rest */
-  margin-bottom: 20px;
+  margin: 0 0 5px 0;
 }
 
-.titelMetActies-titel {
+.titel-titel1 {
+  margin-bottom: 5px;
+}
+
+.titel-titel2 {
   margin-bottom: 5px;
 }
 
 .titel-acties {
-  margin-left: 10px;
+  /* Flex - parent */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  /* Rest */
+  margin: 5px 0 0 0;
 }
 
 .titel-acties-actie {
-  margin-right: 10px;
+  margin-right: 0;
+  align-self: flex-start;
 }
 
 /* ------------------------------- */

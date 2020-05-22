@@ -14,6 +14,7 @@ class FormulierAuthenticatieStandhouder extends Formulier {
       inschrijvingsId: "",
       email: "",
     },
+    schema: this.schema,
   };
 
   schema = {
@@ -23,6 +24,10 @@ class FormulierAuthenticatieStandhouder extends Formulier {
       .label("Inschrijvingsnummer"),
     email: Joi.string().email().max(200).required().label("E-mail"),
   };
+
+  componentDidMount() {
+    this.setState({ schema: this.schema });
+  }
 
   render() {
     const { opdrachtNietVerwerkt, opdrachtVerwerken } = this.state;

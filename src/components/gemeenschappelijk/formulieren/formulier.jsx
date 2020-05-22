@@ -10,13 +10,23 @@ import FormulierGroepMobielNummer from "./groepMobielNummer";
 import Mededeling from "./../mededeling";
 import Knop from "./../knop";
 import Titel from "../titel";
+import FormulierGroepDatumVak from "./groepDatumVak";
+import FormulierGroepItemCheckbox from "./groepItem-checkbox";
 
 class Formulier extends Component {
-  state = { data: {}, errors: {} };
+  state = {
+    data: {},
+    errors: {},
+    schema: this.schema,
+  };
+
+  getSchema = () => {
+    return this.state.schema ? this.state.schema : this.schema;
+  };
 
   valideer = () => {
     const options = { abortEarly: false };
-    const { error } = Joi.validate(this.state.data, this.schema, options);
+    const { error } = Joi.validate(this.state.data, this.getSchema(), options);
 
     if (!error) {
       return null;
@@ -26,13 +36,12 @@ class Formulier extends Component {
     for (let item of error.details) {
       errors[item.path[0]] = item.message;
     }
-    console.log(errors);
     return errors;
   };
 
   validatieEigenschap = ({ id, value }) => {
     const obj = { [id]: value };
-    const schema = { [id]: this.schema[id] };
+    const schema = { [id]: this.getSchema()[id] };
     const { error } = Joi.validate(obj, schema);
     return error ? error.details[0].message : null;
   };
@@ -42,6 +51,11 @@ class Formulier extends Component {
   };
 
   hanldeNummerWijziging = (waardeAlsNummer, waardeAlsTekst, invoer) => {
+    this.updateData(invoer);
+  };
+
+  handleDatumWijziging = (selectedDate, isUserChange, id) => {
+    const invoer = { id: id, value: selectedDate };
     this.updateData(invoer);
   };
 
@@ -70,13 +84,14 @@ class Formulier extends Component {
     this.verzendFormulier();
   };
 
-  genereerTitel(id, inhoud, inhoudExtraInfo, acties) {
+  genereerTitel(id, inhoud, inhoudExtraInfo, acties, niveau) {
     return (
       <Titel
         id={id}
         inhoud={inhoud}
         inhoudExtraInfo={inhoudExtraInfo}
         acties={acties}
+        niveau={niveau ? niveau : 1}
       />
     );
   }
@@ -198,7 +213,7 @@ class Formulier extends Component {
     );
   }
 
-  genereerRadio(id, inhoud, opties, verplicht) {
+  genereerRadio(id, inhoud, opties, verplicht, extraActie) {
     const { data, errors } = this.state;
     return (
       <FormulierGroepRadio
@@ -208,7 +223,59 @@ class Formulier extends Component {
         opties={opties}
         inhoudFout={errors[id]}
         verplicht={verplicht}
-        onWaardeGewijzigd={this.handleWijziging}
+        onWaardeGewijzigd={extraActie || this.handleWijziging}
+      />
+    );
+  }
+
+  genereerCheckbox(
+    id,
+    inhoud,
+    inhoudHelper,
+    alleenLezen,
+    specifiekeWaarde,
+    specifiekeActie
+  ) {
+    const { data, errors } = this.state;
+    return (
+      <FormulierGroepItemCheckbox
+        id={id}
+        waarde={specifiekeWaarde ? specifiekeWaarde : data[id]}
+        inhoud={inhoud}
+        inhoudHelper={inhoudHelper}
+        inhoudFout={errors[id]}
+        alleenLezen={alleenLezen}
+        onWaardeGewijzigd={
+          specifiekeActie ? specifiekeActie : this.handleWijziging
+        }
+      />
+    );
+  }
+
+  genereerDatumVak(
+    id,
+    inhoud,
+    inhoudHelper,
+    icoon,
+    alleenLezen,
+    verplicht,
+    specifiekeWaarde,
+    specifiekeFout,
+    onFout
+  ) {
+    const { data, errors } = this.state;
+    return (
+      <FormulierGroepDatumVak
+        id={id}
+        waarde={specifiekeWaarde ? specifiekeWaarde : data[id] ? data[id] : ""}
+        inhoud={inhoud}
+        inhoudHelper={inhoudHelper}
+        inhoudFout={errors[id] && specifiekeFout ? specifiekeFout : errors[id]}
+        icoon={icoon}
+        alleenLezen={alleenLezen}
+        verplicht={verplicht}
+        onWaardeGewijzigd={this.handleDatumWijziging}
+        onFout={onFout}
       />
     );
   }
@@ -249,7 +316,7 @@ class Formulier extends Component {
     inhoudFoutmeldingIndienenFormulier
   ) {
     return (
-      <div>
+      <div style={{ marginTop: "30px" }}>
         <div className="belangrijkeMededeling-VerzendenFormulierNietGeslaagd">
           {waardeOpdrachtNietVerwerkt &&
             this.genereerMededeling(

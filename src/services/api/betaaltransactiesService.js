@@ -14,20 +14,8 @@ export function betaaltransactiesVanInschrijvingOphalen(inschrijvingsId) {
   return http.get(url + "?inschrijving=" + inschrijvingsId);
 }
 
-export function getGeformateerdeGestructureerdeMededeling(
-  gestructureerdeMededeling
-) {
-  if (gestructureerdeMededeling.length === 12) {
-    return (
-      "+++ " +
-      gestructureerdeMededeling.substr(0, 3) +
-      " / " +
-      gestructureerdeMededeling.substr(3, 4) +
-      " / " +
-      gestructureerdeMededeling.substr(7, 5) +
-      " +++"
-    );
-  }
+export function betaaltransactieToevoegen(betaaltransactie) {
+  return http.post(url, betaaltransactie);
 }
 
 // export function betaaltransactieOphalen(betaaltransactieId) {

@@ -7,7 +7,7 @@ import * as toaster from "../../services/toasterService";
 const Fabrieksinstellingen = () => {
   return (
     <React.Fragment>
-      <Titel omschrijving="Fabrieksinstellingen" />
+      <Titel id="fabrieksinstellingen" inhoud="Fabrieksinstellingen" />
       <div>
         <p>
           Gebruik deze functie om de standaardwaarden in de database terug in te

@@ -57,4 +57,50 @@ const formatteerTelefoon = (cellInhoud) => {
   }
 };
 
-export { formatteerCell };
+const getGeformateerdeGestructureerdeMededeling = (
+  gestructureerdeMededeling
+) => {
+  let g = "";
+  if (gestructureerdeMededeling.length > 0) {
+    g =
+      g +
+      "+++ " +
+      gestructureerdeMededeling.substr(
+        0,
+        gestructureerdeMededeling.length > 3
+          ? 3
+          : gestructureerdeMededeling.length
+      );
+  }
+
+  if (gestructureerdeMededeling.length > 3) {
+    g =
+      g +
+      " / " +
+      gestructureerdeMededeling.substr(
+        3,
+        gestructureerdeMededeling.length > 7
+          ? 4
+          : gestructureerdeMededeling.length - 3
+      );
+  }
+
+  if (gestructureerdeMededeling.length > 7) {
+    g =
+      g +
+      " / " +
+      gestructureerdeMededeling.substr(
+        3,
+        gestructureerdeMededeling.length > 12
+          ? 5
+          : gestructureerdeMededeling.length - 7
+      );
+  }
+
+  if (gestructureerdeMededeling.length >= 12) {
+    g = g + " +++";
+  }
+  return g;
+};
+
+export { formatteerCell, getGeformateerdeGestructureerdeMededeling };

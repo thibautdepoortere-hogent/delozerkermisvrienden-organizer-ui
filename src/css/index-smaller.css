@@ -10,18 +10,6 @@
 
   /* ------------------------------- */
   /* --- GEMEENSCHAPPELIJK --------- */
-  .titel {
-    /* Flex - parent */
-    flex-direction: column;
-  }
-
-  .titel-acties {
-    margin-left: 0;
-  }
-
-  .titel-acties-actie {
-    margin-bottom: 5px;
-  }
 }
 
 @media all and (max-width: 560px) {

@@ -47,7 +47,6 @@ export function inschrijvingenViaFiltersOphalen(filters) {
   parameters += filters.inschrijvingsnummer
     ? "id=" + filters.inschrijvingsnummer + "&"
     : "";
-  console.log(parameters);
   return http.get(url + "?" + parameters);
 }
 
@@ -59,6 +58,19 @@ export function inschrijvingVerwijderen(inschrijvingsId) {
   return http.delete(urlMetId(inschrijvingsId));
 }
 
+export function inschrijvingUpdaten(inschrijving) {
+  return http.put(urlMetId(inschrijving.id), inschrijving);
+}
+
 export function aanvraagIndienen(aanvraag) {
   return http.post(url, aanvraag);
+}
+
+export async function controleInschrijvingsId(inschrijvingsId) {
+  const guid = guidService.getGuidFormaat(inschrijvingsId);
+  if (!(await this.bestaatInschrijving(guid))) {
+    return "";
+  } else {
+    return guid;
+  }
 }
