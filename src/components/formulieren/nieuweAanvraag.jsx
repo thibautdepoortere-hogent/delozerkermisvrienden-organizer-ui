@@ -7,6 +7,8 @@ import * as inschrijvingenService from "../../services/api/inschrijvingenService
 import * as instellingenService from "../../services/api/instellingenService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as datumService from "../../services/datumService";
+import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
+import * as nieuwsbriefService from "../../services/api/nieuwsbriefService";
 
 class FormulierNieuweAanvraag extends Formulier {
   state = {
@@ -41,6 +43,7 @@ class FormulierNieuweAanvraag extends Formulier {
     prijs: 0,
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
+    gegevensInladen: false,
     schema: this.schema,
   };
 
@@ -71,12 +74,14 @@ class FormulierNieuweAanvraag extends Formulier {
   };
 
   async componentDidMount() {
+    this.setState({ gegevensInladen: true });
     this.setState({ schema: this.schema });
     const data = { ...this.state.data };
     await this.instellingenInladen(data);
     this.evenementIdOphalen(data);
     this.setState({ data: data });
     await this.betaalmethodenInladen();
+    this.setState({ gegevensInladen: false });
   }
 
   render() {
@@ -89,6 +94,7 @@ class FormulierNieuweAanvraag extends Formulier {
     } = this.state;
     return (
       <div>
+        {this.state.gegevensInladen && <SpinnerInladenGegevens />}
         <form onSubmit={this.handleVerzendFormulier}>
           {this.genereerTitel("nieuweAanvraagH1", "Nieuwe aanvraag")}
           {this.genereerMededeling(
@@ -149,13 +155,15 @@ class FormulierNieuweAanvraag extends Formulier {
                 true
               ),
             ])}
-            {this.genereerMobielNummer(
-              "prefixMobielNummer",
-              "mobielNummer",
-              "",
-              false,
-              true
-            )}
+            {this.genereerFormulierGroep([
+              this.genereerMobielNummer(
+                "prefixMobielNummer",
+                "mobielNummer",
+                "",
+                false,
+                true
+              ),
+            ])}
             {this.genereerFormulierGroep([
               this.genereerTekstvak(
                 "email",
@@ -300,6 +308,7 @@ class FormulierNieuweAanvraag extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de instellingen."
       );
     }
@@ -323,6 +332,7 @@ class FormulierNieuweAanvraag extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de betaalmethoden."
       );
     }
@@ -338,12 +348,37 @@ class FormulierNieuweAanvraag extends Formulier {
 
   verzendFormulier = async () => {
     this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+    if (this.state.nieuwsbrief) {
+      await this.nieuwsbriefToevoegen();
+    }
     const id = await this.aanvraagIndienen();
     if (id) {
       this.setState({ opdrachtVerwerken: false });
       this.props.history.push("/inschrijvingen/" + id);
     } else {
       this.setState({ opdrachtVerwerken: false });
+    }
+  };
+
+  nieuwsbriefToevoegen = async () => {
+    try {
+      const nieuwsbrief = {
+        email: this.state.data.email,
+        evenementId: this.state.data.evenementId,
+      };
+      const { data: response } = await nieuwsbriefService.nieuwsbriefToevoegen(
+        nieuwsbrief
+      );
+      toaster.infoToastAanmaken("Nieuwsbrief toegevoegd.");
+      return true;
+    } catch (error) {
+      this.setState({ opdrachtNietVerwerkt: true });
+      responseErrorMeldingService.ToonFoutmelding(
+        error,
+        true,
+        "De aanvraag is niet goed opgebouwd."
+      );
+      return false;
     }
   };
 
@@ -358,6 +393,7 @@ class FormulierNieuweAanvraag extends Formulier {
       this.setState({ opdrachtNietVerwerkt: true });
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "De aanvraag is niet goed opgebouwd."
       );
       return undefined;

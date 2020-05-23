@@ -84,6 +84,9 @@ class FormulierAuthenticatieStandhouder extends Formulier {
         opdrachtNietVerwerkt: false,
         opdrachtVerwerken: false,
       });
+      this.props.history.push(
+        "/inschrijvingen/" + this.state.data.inschrijvingsId + "/status"
+      );
     } else {
       this.setState({
         token: "",
@@ -101,7 +104,7 @@ class FormulierAuthenticatieStandhouder extends Formulier {
       return token;
     } catch (error) {
       if (error.response.status !== 404) {
-        responseErrorMeldingService.ToonFoutmelding(error, error);
+        responseErrorMeldingService.ToonFoutmelding(error, true, error);
       }
     }
   };

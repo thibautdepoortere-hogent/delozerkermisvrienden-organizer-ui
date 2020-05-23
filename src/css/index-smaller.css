@@ -8,6 +8,11 @@
     flex-direction: column;
   }
 
+  .spinner-inladenGegevens {
+    left: 50%;
+    top: 30%;
+  }
+
   /* ------------------------------- */
   /* --- GEMEENSCHAPPELIJK --------- */
 }
@@ -43,5 +48,14 @@
   .formulier-groep-item-mobielnummer {
     min-width: 200px;
     flex-grow: 1;
+  }
+
+  .card-knoppen {
+    /* Flex - child */
+    align-self: flex-end;
+    /* Flex - parent */
+    display: flex;
+    flex-direction: column;
+    align-content: flex-end;
   }
 }

@@ -121,7 +121,7 @@ class FormulierAuthenticatieAdministrator extends Formulier {
       return wachtwoord.wachtwoord;
     } catch (error) {
       if (error.response.status !== 404) {
-        responseErrorMeldingService.ToonFoutmelding(error, error);
+        responseErrorMeldingService.ToonFoutmelding(error, true, error);
       }
     }
   };
@@ -136,7 +136,7 @@ class FormulierAuthenticatieAdministrator extends Formulier {
       return token;
     } catch (error) {
       if (error.response.status !== 404) {
-        responseErrorMeldingService.ToonFoutmelding(error, error);
+        responseErrorMeldingService.ToonFoutmelding(error, true, error);
       }
     }
   };

@@ -1,24 +1,24 @@
 import React from "react";
 import { formatteerCell } from "../../../services/formatteerService";
-// import KnopOud from "../knopOud";
 
-const TabelInhoudCel = ({ kolom, object }) => {
+const TabelInhoudCel = ({ kolom, rij }) => {
   return (
     <td
-      key={object.id + "_" + kolom.id}
+      key={rij.id + "_" + kolom.id}
       className={kolom.verbergBijSmaller ? "verbergBijSmaller" : ""}
     >
-      {tabelInhoudCelAanmaken(kolom, object)}
+      {/* {tabelInhoudCelAanmaken(kolom, rij)} */}
+      {rij[kolom.veld]}
     </td>
   );
 };
 
-const tabelInhoudCelAanmaken = (kolom, object) => {
+const tabelInhoudCelAanmaken = (kolom, rij) => {
   let inhoudCel = "";
   if (kolom.velden) {
-    inhoudCel = veldenCombineren(kolom.velden, kolom.scheidingsteken, object);
+    inhoudCel = veldenCombineren(kolom.velden, kolom.scheidingsteken, rij);
   } else if (kolom.veld) {
-    inhoudCel = object[kolom.veld];
+    inhoudCel = rij[kolom.veld];
   }
 
   if (inhoudCel) {
@@ -31,7 +31,7 @@ const tabelInhoudCelAanmaken = (kolom, object) => {
   //     kolom.actie,
   //     kolom.actieNaam,
   //     kolom.actieEvent,
-  //     object
+  //     rij
   //   );
   // }
   // if (actie) {
@@ -39,25 +39,25 @@ const tabelInhoudCelAanmaken = (kolom, object) => {
   // }
 };
 
-const veldenCombineren = (velden, scheidingsteken, object) => {
+const veldenCombineren = (velden, scheidingsteken, rij) => {
   let samengevoegdVeld = "";
 
   if (velden.length > 0) {
-    samengevoegdVeld += object[velden[0]];
+    samengevoegdVeld += rij[velden[0]];
   }
   for (let index = 1; index < velden.length; index++) {
-    samengevoegdVeld += scheidingsteken + object[velden[index]];
+    samengevoegdVeld += scheidingsteken + rij[velden[index]];
   }
 
   return samengevoegdVeld;
 };
 
-// const actieKnopAanmaken = (actie, actieNaam, actieEvent, object) => {
+// const actieKnopAanmaken = (actie, actieNaam, actieEvent, rij) => {
 //   return (
 //     // <KnopOud
 //     //   naam={actieNaam}
 //     //   clickEvent={actieEvent}
-//     //   object={object}
+//     //   rij={rij}
 //     //   functie={actie}
 //     // />
 //   );

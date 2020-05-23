@@ -4,6 +4,7 @@ import FormulierGroepItemFout from "./groepItem-fout";
 import FormulierGroepItemHelper from "./groepItem-helper";
 
 const FormulierGroepMobielNummer = ({
+  id,
   idPrefix,
   idMobielNummer,
   waardePrefix,
@@ -16,14 +17,14 @@ const FormulierGroepMobielNummer = ({
   onWaardeGewijzigdMobielNummer,
 }) => {
   return (
-    <div>
+    <div id={id}>
       <div className="formulier-groep-altijdSamen">
         <div className="formulier-groep-item-landnummer">
           <FormulierGroepTekstvak
             id={idPrefix}
             inhoud="Landnummer"
             waarde={waardePrefix}
-            placeholder="32"
+            placeholder={alleenLezen ? "" : "32"}
             icoon="plus"
             alleenLezen={alleenLezen}
             onWaardeGewijzigd={onWaardeGewijzigdPrefix}
@@ -34,7 +35,7 @@ const FormulierGroepMobielNummer = ({
             id={idMobielNummer}
             inhoud="Mobiel nummer"
             waarde={waardeMobielNummer}
-            placeholder="474123456"
+            placeholder={alleenLezen ? "" : "474123456"}
             icoon="phone"
             alleenLezen={alleenLezen}
             verplicht={verplicht}

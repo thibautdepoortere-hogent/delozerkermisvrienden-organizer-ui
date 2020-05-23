@@ -11,6 +11,7 @@ import FormulierInschrijvingOpzoeken from "./components/formulieren/inschrijving
 import FormulierAuthenticatieStandhouder from "./components/formulieren/authenticatieStandhouder";
 import FormulierAuthenticatieAdministrator from "./components/formulieren/authenticatieAdministrator";
 import FormulierBetaaltransactieToevoegen from "./components/formulieren/betaaltransactieToevoegen";
+import StatusInschrijving from "./components/statusInschrijving";
 
 function App() {
   return (
@@ -31,16 +32,20 @@ function App() {
                 component={FormulierAuthenticatieAdministrator}
               />
               <Route
-                path="/inschrijvingen/:inschrijvingsId/betaaltransacties/nieuw"
-                component={FormulierBetaaltransactieToevoegen}
-              />
-              <Route
                 path="/inschrijvingen/opzoeken"
                 component={FormulierInschrijvingOpzoeken}
               />
               <Route
                 path="/inschrijvingen/nieuw"
                 component={FormulierNieuweAanvraag}
+              />
+              <Route
+                path="/inschrijvingen/:inschrijvingsId/betaaltransacties/nieuw"
+                component={FormulierBetaaltransactieToevoegen}
+              />
+              <Route
+                path="/inschrijvingen/:inschrijvingsId/status"
+                component={StatusInschrijving}
               />
               <Route
                 path="/inschrijvingen/:inschrijvingsId"
@@ -52,8 +57,6 @@ function App() {
               />
               <Route path="/lijsten/aanvragen" component={NotFound} />
               <Route path="/lijsten/" component={Lijsten} />
-              <Route path="/login" component={NotFound} />
-              <Route path="/home" component={NotFound} />
               <Route
                 path="/fabrieksinstellingen"
                 component={Fabrieksinstellingen}

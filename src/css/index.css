@@ -200,3 +200,67 @@ body {
   margin-right: 10px;
   margin-bottom: 10px;
 }
+
+.spinner-inladenGegevens {
+  /* Rest */
+  position: fixed;
+  z-index: 99;
+  width: 100px;
+  height: 100px;
+  top: 20%;
+  left: 65%;
+  margin-top: -50px;
+  margin-left: -50px;
+}
+
+.margin-rechts {
+  margin-right: 10px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 290px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.card-hoofding {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin: 0 0 10px 0;
+}
+
+.card-titel {
+  flex-grow: 1;
+}
+
+.card-titel h2 {
+  margin: 0;
+}
+
+.card-knoppen {
+  /* Flex - child */
+  align-self: flex-end;
+  /* Flex - parent */
+  display: flex;
+  flex-direction: row;
+  align-content: flex-end;
+}
+
+.card-knop {
+  width: 100px;
+  align-self: flex-start;
+}
+
+.card-eigenschappen {
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+}
+
+.tabel-100-procent {
+  width: 100%;
+}

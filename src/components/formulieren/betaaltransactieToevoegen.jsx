@@ -6,6 +6,8 @@ import * as responseErrorMeldingService from "../../services/api/responseErrorMe
 import * as betaaltransactiesService from "../../services/api/betaaltransactiesService";
 import Joi from "joi-browser";
 import * as toaster from "../../services/toasterService";
+import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
+import KaartInschrijving from "../gemeenschappelijk/kaartInschrijving";
 
 const regEx = /^(?=.*[0-9]).{12,12}$/;
 class FormulierBetaaltransactieToevoegen extends Formulier {
@@ -22,8 +24,10 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       inschrijvingsId: "",
       geldReedsInKas: false,
     },
+    inschrijving: {},
     betaalmethoden: [],
     betaalmethodeOverschrijving: {},
+    gegevensInladen: false,
     schema: this.schema,
   };
 
@@ -58,25 +62,31 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
   };
 
   async componentDidMount() {
-    this.setState({ schema: this.schema });
-    await this.controleInschrijving();
+    this.setState({ gegevensInladen: true, schema: this.schema });
     await this.betaalmethodenInladen();
     await this.betaalmethodeOverschrijvingInladen();
+    await this.controleInschrijving();
+    this.wijzigSchemaManueel();
+    this.setState({ gegevensInladen: false });
   }
 
   render() {
     const { opdrachtNietVerwerkt, opdrachtVerwerken } = this.state;
     return (
       <div>
-        {this.genereerTitel("betaling", "Nieuwe betaaltransactie")}
-        {this.genereerMededeling(
-          "Inschrijivngsnummer",
-          "Inschrijving:",
-          this.state.data.inschrijvingsId,
-          "",
-          "success"
-        )}
+        {this.state.gegevensInladen && <SpinnerInladenGegevens />}
+
         <form onSubmit={this.handleVerzendFormulier}>
+          {this.genereerTitel("betaling", "Nieuwe betaaltransactie")}
+          {this.state.inschrijving && (
+            <div className="margin-rechts">
+              <KaartInschrijving
+                inschrijving={this.state.inschrijving}
+                checkInZichtbaar={false}
+                {...this.props}
+              />
+            </div>
+          )}
           <div>
             {this.genereerFormulierGroep([
               this.genereerRadio(
@@ -84,7 +94,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
                 "Betaalmethode",
                 this.state.betaalmethoden,
                 true,
-                this.wijzigSchema
+                this.wijzigSchemaMetParameter
               ),
             ])}
             {this.genereerFormulierGroep([
@@ -143,13 +153,21 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     );
   }
 
-  wijzigSchema = (e) => {
-    if (this.gestructureerdeMededelingWeergevenMetParameter(e)) {
+  wijzigSchemaMetParameter = (e) => {
+    this.wijzigSchema(this.gestructureerdeMededelingWeergevenMetParameter(e));
+    this.handleWijziging(e);
+  };
+
+  wijzigSchemaManueel = () => {
+    this.wijzigSchema(this.gestructureerdeMededelingWeergeven());
+  };
+
+  wijzigSchema = (gestructureerdeMededelingAanwezig) => {
+    if (gestructureerdeMededelingAanwezig) {
       this.setState({ schema: this.schemaMetOverschrijving });
     } else {
       this.setState({ schema: this.schema });
     }
-    this.handleWijziging(e);
   };
 
   onFoutDatum = (fouteDatum) => {
@@ -182,6 +200,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       this.setState({ opdrachtNietVerwerkt: true });
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "De aanvraag is niet goed opgebouwd."
       );
       return false;
@@ -214,6 +233,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de betaalmethoden."
       );
     }
@@ -228,6 +248,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de betaalmathode voor overschrijving."
       );
     }
@@ -249,14 +270,14 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
             inschrijving.voornaam + " " + inschrijving.achternaam;
           data.gestructureerdeMededeling =
             inschrijving.gestructureerdeMededeling;
-          var schema = "";
-          if (data.gestructureerdeMededeling) {
-            schema = this.schemaMetOverschrijving;
-          } else {
-            schema = this.schema;
-          }
+          // var schema = "";
+          // if (data.gestructureerdeMededeling) {
+          //   schema = this.schemaMetOverschrijving;
+          // } else {
+          //   schema = this.schema;
+          // }
         }
-        this.setState({ data: data, schema: schema });
+        this.setState({ data: data, inschrijving: inschrijving });
       } else {
         this.props.history.push("/not-found");
       }
@@ -275,6 +296,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       }
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de inschrijving."
       );
     }

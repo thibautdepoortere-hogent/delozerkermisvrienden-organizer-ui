@@ -1,27 +1,26 @@
 @media all and (max-width: 991px) {
-  .nav {
-    /* flex-grow: 1; */
+  /* .nav {
     flex-basis: auto;
-  }
+  } */
 
-  .nav-header {
+  /* .nav-header {
     font-size: x-large;
     padding: 10px 10px 20px 20px;
     border-bottom: #f5f8fa 5px solid;
-  }
+  } */
 
-  .nav-item {
+  /* .nav-item {
     font-size: medium;
     padding: 30px 20px 00px 20px;
-  }
+  } */
 
-  .nav-item:hover {
+  /* .nav-item:hover {
     font-weight: normal;
-  }
+  } */
 
-  .active:hover {
+  /* .active:hover {
     font-weight: bold;
-  }
+  } */
 
   .verbergBijSmaller {
     display: none;
@@ -45,6 +44,10 @@
   .onzichtbaar {
     display: none;
     visibility: hidden;
+  }
+
+  .nav-items {
+    padding-bottom: 20px;
   }
 
   .nav-item {

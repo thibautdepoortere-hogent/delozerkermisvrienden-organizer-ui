@@ -19,6 +19,7 @@ export async function bestaatInschrijving(inschrijvingsId) {
       } else {
         responseErrorMeldingService.ToonFoutmelding(
           error,
+          true,
           "Er is een fout opgetreden bij het inladen van het evenement."
         );
       }
@@ -68,7 +69,7 @@ export function aanvraagIndienen(aanvraag) {
 
 export async function controleInschrijvingsId(inschrijvingsId) {
   const guid = guidService.getGuidFormaat(inschrijvingsId);
-  if (!(await this.bestaatInschrijving(guid))) {
+  if (!(await bestaatInschrijving(guid))) {
     return "";
   } else {
     return guid;

@@ -7,6 +7,7 @@ import * as responseErrorMeldingService from "../../services/api/responseErrorMe
 import Joi from "joi-browser";
 import FormulierGroepTekstvak from "./../gemeenschappelijk/formulieren/groepTekstvak";
 import Knop from "./../gemeenschappelijk/knop";
+import KaartInschrijving from "../gemeenschappelijk/kaartInschrijving";
 
 class FormulierInschrijvingOpzoeken extends Formulier {
   state = {
@@ -123,13 +124,11 @@ class FormulierInschrijvingOpzoeken extends Formulier {
             )}
           </div>
         )}
-        <div>
+        <div className="margin-rechts">
           {!scannerZichtbaar &&
             inschrijvingen &&
             inschrijvingen.map((i) => (
-              <p key={i.id}>
-                {i.id} - {i.voornaam} - {i.achternaam} - {i.qrcode}
-              </p>
+              <KaartInschrijving key={i.id} inschrijving={i} {...this.props} />
             ))}
         </div>
       </div>
@@ -184,21 +183,6 @@ class FormulierInschrijvingOpzoeken extends Formulier {
         this.state.data
       );
       if (inschrijvingen) {
-        // if (inschrijvingen.length === 1) {
-        //   this.props.history.push("/inschrijvingen/" + inschrijvingen[0].id);
-        // } else if (inschrijvingen.length > 1) {
-        //   this.setState({
-        //     inschrijvingen: inschrijvingen,
-        //     fout: "",
-        //     scannerZichtbaar: false,
-        //   });
-        // } else {
-        //   this.setState({
-        //     inschrijvingen: [],
-        //     fout: "Er zijn geen inschrijvingen gevonden met deze filters",
-        //     scannerZichtbaar: false,
-        //   });
-        // }
         if (inschrijvingen.length > 0) {
           this.setState({
             inschrijvingen: inschrijvingen,
@@ -215,12 +199,8 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       }
     } catch (error) {
       let fout = "";
-      if (error && error.response.status === 404) {
-        fout = "Er zijn geen inschrijvingen gevonden met deze filters";
-      } else {
-        fout = "Er is een fout opgetreden bij het zoeken naar inschrijvingen.";
-        responseErrorMeldingService.ToonFoutmelding(error, fout);
-      }
+      fout = "Er is een fout opgetreden bij het zoeken naar inschrijvingen.";
+      responseErrorMeldingService.ToonFoutmelding(error, true, fout);
       this.setState({
         fout: fout,
         inschrijvingen: [],
@@ -235,9 +215,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
         data: inschrijvingen,
       } = await inschrijvingenService.inschrijvingenViaQrCodeOphalen(qrCode);
       if (inschrijvingen) {
-        if (inschrijvingen.length === 1) {
-          this.props.history.push("/inschrijvingen/" + inschrijvingen[0].id);
-        } else if (inschrijvingen.length > 1) {
+        if (inschrijvingen.length > 0) {
           this.setState({
             inschrijvingen: inschrijvingen,
             fout: "",
@@ -264,7 +242,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       } else {
         fout =
           "Er is een fout opgetreden bij het inladen van de inschrijvingen.";
-        responseErrorMeldingService.ToonFoutmelding(error, fout);
+        responseErrorMeldingService.ToonFoutmelding(error, true, fout);
       }
       this.setState({
         fout: fout,

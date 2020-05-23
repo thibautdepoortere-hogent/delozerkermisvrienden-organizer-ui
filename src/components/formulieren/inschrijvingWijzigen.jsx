@@ -14,6 +14,7 @@ import * as guidService from "../../services/guidService";
 import Titel from "../gemeenschappelijk/titel";
 import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
 import * as formatteerService from "../../services/formatteerService";
+import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
 
 class FormulierinschrijvingWijzigen extends Formulier {
   state = {
@@ -57,6 +58,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     prijs: 0,
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
+    gegevensInladen: false,
     schema: this.schema,
   };
 
@@ -109,6 +111,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
   };
 
   async componentDidMount() {
+    this.setState({ gegevensInladen: true });
     this.setState({ schema: this.schema });
     const inschrijvingsId = this.props.match.params.inschrijvingsId;
     const guid = guidService.getGuidFormaat(inschrijvingsId);
@@ -123,6 +126,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
       await this.betaalTransactiesInladen(this.state.inschrijvingsId);
       await this.inschrijvingsStatussenInladen();
     }
+    this.setState({ gegevensInladen: false });
   }
 
   render() {
@@ -135,6 +139,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } = this.state;
     return (
       <div>
+        {this.state.gegevensInladen && <SpinnerInladenGegevens />}
         <form onSubmit={this.handleVerzendFormulier}>
           {this.genereerTitel(
             "inschrijvingAanpassen",
@@ -378,6 +383,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
                 ? "Openstaand bedrag"
                 : "Terug te storten bedrag",
               "€ " + Math.abs(this.state.openstaandBedrag),
+              "bank-account",
               this.state.openstaandBedrag > 0 ? "Warning" : "Success"
             )}
             <h2>Check-ins:</h2>
@@ -392,11 +398,16 @@ class FormulierinschrijvingWijzigen extends Formulier {
                 false
               ),
             ])}
-            {this.state.data.qrCode && (
-              <div className="qrCode">
-                {qrCodeService.genereerQrCode(this.state.data.qrCode)}
-              </div>
-            )}
+            {this.state.data.qrCode &&
+              this.genereerQrCode(this.state.data.qrCode)}
+            {!this.state.data.qrCode &&
+              this.genereerMededeling(
+                "qrCodeNietAanwezig",
+                "",
+                "De QR Code wordt pas gegenereerd wanneer de aanvraag is goedgekeurd.",
+                "info-sign",
+                "primary"
+              )}
           </div>
           {this.genereerVerzendKnopMetAttributen(
             opdrachtNietVerwerkt,
@@ -442,6 +453,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de instellingen."
       );
     }
@@ -462,6 +474,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
       }
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de inschrijving."
       );
     }
@@ -482,6 +495,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van het evenement."
       );
     }
@@ -505,6 +519,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de betaalmethoden."
       );
     }
@@ -522,6 +537,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de betaaltransacties."
       );
     }
@@ -557,6 +573,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
       this.setState({ opdrachtNietVerwerkt: true });
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "De aanvraag is niet goed opgebouwd."
       );
       return undefined;
@@ -592,6 +609,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmelding(
         error,
+        true,
         "Er is een fout opgetreden bij het inladen van de inschrijvingsstatussen."
       );
     }

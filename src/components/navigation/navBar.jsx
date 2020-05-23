@@ -10,7 +10,7 @@ class NavBar extends Component {
     return (
       <div className="nav">
         <NavBarHeader
-          linkUrl="/home"
+          linkUrl="/"
           linkNaam="De Lozerkermis Vrienden"
           onMenuClick={this.handleMenuClick}
         />
@@ -22,26 +22,8 @@ class NavBar extends Component {
             onMenuItemClick={this.handleMenuItemClick}
           />
           <NavBarItem
-            linkUrl="/inschrijvingen/a17c29b6-4cc2-4cc8-9a84-592ae2bafbc7"
-            linkNaam="Inschrijving aanpassen"
-            icoonNaam="edit"
-            onMenuItemClick={this.handleMenuItemClick}
-          />
-          <NavBarItem
-            linkUrl="/inschrijvingen/opzoeken"
-            linkNaam="Inschrijving opzoeken"
-            icoonNaam="search"
-            onMenuItemClick={this.handleMenuItemClick}
-          />
-          <NavBarItem
             linkUrl="/authenticatie/standhouder"
-            linkNaam="Authenticatie standhouder"
-            icoonNaam="search"
-            onMenuItemClick={this.handleMenuItemClick}
-          />
-          <NavBarItem
-            linkUrl="/authenticatie/administrator"
-            linkNaam="Authenticatie administrator"
+            linkNaam="Status controleren"
             icoonNaam="search"
             onMenuItemClick={this.handleMenuItemClick}
           />
@@ -52,6 +34,12 @@ class NavBar extends Component {
             onMenuItemClick={this.handleMenuItemClick}
           />
           <NavBarItem
+            linkUrl="/inschrijvingen/opzoeken"
+            linkNaam="Inschrijving opzoeken (Admin)"
+            icoonNaam="search"
+            onMenuItemClick={this.handleMenuItemClick}
+          />
+          <NavBarItem
             linkUrl="/fabrieksinstellingen"
             linkNaam="Fabrieksinstellingen"
             icoonNaam="reset"
@@ -59,7 +47,7 @@ class NavBar extends Component {
           />
           <div className="divider"></div>
           <NavBarItem
-            linkUrl="/login"
+            linkUrl="/authenticatie/administrator"
             linkNaam="Login"
             icoonNaam="log-in"
             onMenuItemClick={this.handleMenuItemClick}

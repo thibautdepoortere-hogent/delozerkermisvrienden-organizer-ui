@@ -1,11 +1,11 @@
 import React from "react";
 import TabelInhoudRij from "./tabelInhoudRij";
 
-const TabelInhoud = ({ kolommen, data: objecten }) => {
+const TabelInhoud = ({ kolommen, rijen }) => {
   return (
     <tbody>
-      {objecten.map((object) => (
-        <TabelInhoudRij key={object.id} kolommen={kolommen} object={object} />
+      {rijen.map((rij) => (
+        <TabelInhoudRij key={rij.id} kolommen={kolommen} rij={rij} />
       ))}
     </tbody>
   );
