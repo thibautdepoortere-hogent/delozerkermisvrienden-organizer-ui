@@ -1,33 +1,24 @@
 import React from "react";
 import Joi from "joi-browser";
-import * as toaster from "../../services/toasterService";
 import Formulier from "../gemeenschappelijk/formulieren/formulier";
+import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
+import * as toaster from "../../services/toasterService";
+import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
+import * as formatteerService from "../../services/formatteerService";
+import * as datumService from "../../services/datumService";
 import * as betaalmethodenService from "../../services/api/betaalmethodenService";
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
 import * as evenementenService from "../../services/api/evenementenService";
 import * as betaaltransactiesService from "../../services/api/betaaltransactiesService";
 import * as instellingenService from "../../services/api/instellingenService";
-import * as qrCodeService from "../../services/qrCodeService";
-import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
-import * as datumService from "../../services/datumService";
-import * as guidService from "../../services/guidService";
-import Titel from "../gemeenschappelijk/titel";
 import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
-import * as formatteerService from "../../services/formatteerService";
-import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
+import InschrijvingStatus from "./../inschrijvingStatus";
+import Tabel from "./../gemeenschappelijk/tabellen/tabel";
 
 class FormulierinschrijvingWijzigen extends Formulier {
   state = {
-    inschrijvingsId: "",
+    schema: this.schema,
     errors: {},
-    evenement: {
-      id: "",
-      naam: "",
-      datumStartEvenement: undefined,
-    },
-    inschrijvingsstatussen: [],
-    betaalmethoden: [],
-    betaaltransacties: [],
     data: {
       id: "",
       voornaam: "",
@@ -53,13 +44,21 @@ class FormulierinschrijvingWijzigen extends Formulier {
       lidId: "",
       datumInschrijving: "",
     },
+    evenement: {
+      id: "",
+      naam: "",
+      datumStartEvenement: undefined,
+    },
+    inschrijvingsId: "",
+    inschrijvingsstatus: { id: "", naam: "" },
+    betaalmethoden: [],
+    betaaltransacties: [],
     openstaandBedrag: 0,
     minimumAantalMeter: 0,
     prijs: 0,
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
     gegevensInladen: false,
-    schema: this.schema,
   };
 
   schema = {
@@ -111,22 +110,20 @@ class FormulierinschrijvingWijzigen extends Formulier {
   };
 
   async componentDidMount() {
-    this.setState({ gegevensInladen: true });
-    this.setState({ schema: this.schema });
+    this.setState({ gegevensInladen: true, schema: this.schema });
     const inschrijvingsId = this.props.match.params.inschrijvingsId;
-    const guid = guidService.getGuidFormaat(inschrijvingsId);
-    if (!(await inschrijvingenService.bestaatInschrijving(guid))) {
+    if (!(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))) {
       this.props.history.push("/not-found");
     } else {
-      this.setState({ inschrijvingsId: guid });
+      this.setState({ inschrijvingsId: inschrijvingsId });
       await this.instellingenInladen();
       await this.inschrijvingInladen(this.state.inschrijvingsId);
       await this.evenementInladen(this.state.data.evenementId);
       await this.betaalmethodenInladen();
       await this.betaalTransactiesInladen(this.state.inschrijvingsId);
-      await this.inschrijvingsStatussenInladen();
+      await this.inschrijvingsstatusInladen();
+      this.setState({ gegevensInladen: false });
     }
-    this.setState({ gegevensInladen: false });
   }
 
   render() {
@@ -142,21 +139,23 @@ class FormulierinschrijvingWijzigen extends Formulier {
         {this.state.gegevensInladen && <SpinnerInladenGegevens />}
         <form onSubmit={this.handleVerzendFormulier}>
           {this.genereerTitel(
-            "inschrijvingAanpassen",
+            "inschrijvingAanpassenH1",
             "Inschrijving aanpassen",
+            1,
             this.state.inschrijvingsId,
+            undefined,
             [
               {
                 id: "betalingToevoegenH1",
                 inhoud: "Betaling toevoegen",
                 intent: "primary",
-                onKlik: this.onKlikNieuweBetaling,
+                onKlik: this.handleKlikNieuweBetaling,
               },
               {
                 id: "IncheckenH1",
                 inhoud: "Inchecken",
                 intent: "primary",
-                onKlik: this.onKlikNieuweBetaling,
+                onKlik: this.handleKlikCheckIn,
               },
             ]
           )}
@@ -323,7 +322,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
                 "",
                 true,
                 true,
-                this.getOmschrijvingInschrijvingsstatus()
+                this.state.inschrijvingsstatus.naam
               ),
             ])}
             {this.state.data.redenAfkeuring &&
@@ -364,18 +363,19 @@ class FormulierinschrijvingWijzigen extends Formulier {
               ),
             ])}
             {this.genereerTitel(
-              "betalingen",
-              "Betalingen:",
+              "betalingenH2",
+              "Betalingen",
+              2,
               "",
+              undefined,
               [
                 {
                   id: "betalingToevoegen",
                   inhoud: "Nieuw",
-                  intent: "success",
-                  onKlik: this.onKlikNieuweBetaling,
+                  intent: "primary",
+                  onKlik: this.handleKlikNieuweBetaling,
                 },
-              ],
-              2
+              ]
             )}
             {this.genereerMededeling(
               "openstaandBedrag",
@@ -386,6 +386,11 @@ class FormulierinschrijvingWijzigen extends Formulier {
               "bank-account",
               this.state.openstaandBedrag > 0 ? "Warning" : "Success"
             )}
+            <Tabel
+              kolommen={this.kolommen()}
+              data={this.dataTabel()}
+              zonderHoofding={false}
+            />
             <h2>Check-ins:</h2>
             {this.genereerFormulierGroep([
               this.genereerTekstvak(
@@ -421,41 +426,62 @@ class FormulierinschrijvingWijzigen extends Formulier {
     );
   }
 
-  // bestaatInschrijvingsId = async (id) => {
-  //   const guid = guidService.getGuidFormaat(id);
-  //   if (guidService.isGuid(guid)) {
-  //     if (inschrijvingenService.bestaatInschrijving(guid)) {
-  //       this.setState({ inschrijvingsId: this.props.match.params.inschrijvingsId });
-  //     } else {
-  //       this.props.history.push("/not-found");
-  //     }
-  //   } else {
-  //     this.props.history.push("/not-found");
-  //   }
-  // };
-
-  onKlikNieuweBetaling = () => {
-    this.props.history.push(
-      "/inschrijvingen/" +
-        this.state.inschrijvingsId +
-        "/betaaltransacties/nieuw"
-    );
+  // === === === === ===
+  // Inladen
+  kolommen = () => {
+    return [
+      {
+        id: "datumBetaling",
+        naam: "Datum",
+        veld: "datum",
+        verbergBijSmaller: false,
+      },
+      {
+        id: "betaalmethode",
+        naam: "Betaalmethode",
+        veld: "betaalmethode",
+        verbergBijSmaller: true,
+      },
+      {
+        id: "verantwoordelijkeBetaling",
+        naam: "Verantwoordelijke",
+        veld: "verantwoordelijkeBetaling",
+        verbergBijSmaller: true,
+      },
+      {
+        id: "bedrag",
+        naam: "Bedrag",
+        veld: "bedrag",
+        verbergBijSmaller: false,
+      },
+    ];
   };
+
+  dataTabel = () => {
+    const betaaltransacties = [...this.state.betaaltransacties];
+
+    for (let index = 0; index < betaaltransacties.length; index++) {
+      const betaaltransactie = betaaltransacties[index];
+      betaaltransactie.datum = datumService.getDatumBelgischeNotatie(
+        betaaltransactie.datumBetaling
+      );
+      betaaltransactie.betaalmethode = this.naamBetaalmethode(
+        betaaltransactie.betaalmethodeId
+      );
+    }
+    return betaaltransacties;
+  };
+
   instellingenInladen = async () => {
     try {
       const {
         data: instellingen,
-      } = await instellingenService.instellingenAanvraagOphalen();
-      const minimumAantalMeter = instellingen.minimumAantalMeter;
+      } = await instellingenService.getInstellingenAanvraag();
       this.setState({
-        minimumAantalMeter: minimumAantalMeter,
+        minimumAantalMeter: instellingen.minimumAantalMeter,
       });
     } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de instellingen."
-      );
+      responseErrorMeldingService.ToonFoutmeldingVast();
     }
   };
 
@@ -463,50 +489,36 @@ class FormulierinschrijvingWijzigen extends Formulier {
     try {
       const {
         data: inschrijving,
-      } = await inschrijvingenService.inschrijvingOphalen(inschrijvingsId);
-      const data = { ...this.state.data };
-      this.objectGegevensToekkennenAanInternObject(inschrijving, data);
-      const prijs = data.aantalMeter * data.meterPrijs;
-      this.setState({ data: data, prijs: prijs });
+      } = await inschrijvingenService.getInschrijving(inschrijvingsId);
+      const prijs = inschrijving.aantalMeter * inschrijving.meterPrijs;
+      this.setState({ data: inschrijving, prijs: prijs });
     } catch (error) {
-      if (error.response.status === "404") {
-        this.props.history.push("/not-found");
-      }
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de inschrijving."
-      );
+      responseErrorMeldingService.ToonFoutmeldingVast();
     }
   };
 
   evenementInladen = async (evenementId) => {
     try {
-      const {
-        data: opgehaaldEvenement,
-      } = await evenementenService.evenementOphalen(evenementId);
+      const { data: evenementApi } = await evenementenService.getEvenement(
+        evenementId
+      );
       const evenement = { ...this.state.evenement };
-      evenement.id = opgehaaldEvenement.id;
-      evenement.naam = opgehaaldEvenement.naam;
+      evenement.id = evenementApi.id;
+      evenement.naam = evenementApi.naam;
       evenement.datumStartEvenement = new Date(
-        opgehaaldEvenement.datumStartEvenement
+        evenementApi.datumStartEvenement
       );
       this.setState({ evenement: evenement });
     } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van het evenement."
-      );
+      responseErrorMeldingService.ToonFoutmeldingVast();
     }
   };
 
   betaalmethodenInladen = async () => {
     try {
       const {
-        data: alleBetaalmethoden,
-      } = await betaalmethodenService.betaalmethodenOphalen();
-      const betaalmethoden = [...alleBetaalmethoden];
+        data: betaalmethoden,
+      } = await betaalmethodenService.getBetaalmethoden();
       const verschilInDagen = this.getVerschilInDagen();
       betaalmethoden.map(
         (b) =>
@@ -517,11 +529,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
       );
       this.setState({ betaalmethoden: betaalmethoden });
     } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de betaalmethoden."
-      );
+      responseErrorMeldingService.ToonFoutmeldingVast();
     }
   };
 
@@ -529,18 +537,45 @@ class FormulierinschrijvingWijzigen extends Formulier {
     try {
       const {
         data: betaaltransacties,
-      } = await betaaltransactiesService.betaaltransactiesVanInschrijvingOphalen(
+      } = await betaaltransactiesService.getBetaaltransactiesVanInschrijving(
         inschrijvingsId
       );
       this.setState({ betaaltransacties: betaaltransacties });
       this.berekenOpenstaandBedrag();
     } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de betaaltransacties."
-      );
+      responseErrorMeldingService.ToonFoutmeldingVast();
     }
+  };
+
+  inschrijvingsstatusInladen = async () => {
+    try {
+      const {
+        data: inschrijvingsstatus,
+      } = await inschrijvingsstatusService.getInschrijvingsstatus(
+        this.state.data.inschrijvingsstatusId
+      );
+      this.setState({ inschrijvingsstatus: inschrijvingsstatus });
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+    }
+  };
+
+  // === === === === ===
+  // Events
+  handleKlikNieuweBetaling = () => {
+    this.props.history.push(
+      "/inschrijvingen/" +
+        this.state.inschrijvingsId +
+        "/betaaltransacties/nieuw"
+    );
+  };
+
+  handleKlikCheckIn = () => {
+    this.props.history.push(
+      "/inschrijvingen/" +
+        this.state.inschrijvingsId +
+        "/betaaltransacties/nieuw"
+    );
   };
 
   handleWijzigingAantalMeter = (waardeAlsNummer, waardeAlsTekst, invoer) => {
@@ -551,41 +586,32 @@ class FormulierinschrijvingWijzigen extends Formulier {
     this.setState({ prijs: prijs });
   };
 
+  // === === === === ===
+  // Formulier verwerken
   verzendFormulier = async () => {
     this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
-    const id = await this.inschrijvingUpdaten();
-    if (id) {
+    const resultaat = await this.inschrijvingWijzigen();
+    if (resultaat) {
       this.setState({ opdrachtVerwerken: false });
-      this.props.history.push("/inschrijvingen/" + id);
+      this.props.history.push("/inschrijvingen/" + this.state.data.id);
     } else {
-      this.setState({ opdrachtVerwerken: false });
+      this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
     }
   };
 
-  inschrijvingUpdaten = async () => {
+  inschrijvingWijzigen = async () => {
     try {
-      const {
-        data: response,
-      } = await inschrijvingenService.inschrijvingUpdaten(this.state.data);
-      toaster.infoToastAanmaken("inschrijving aangepast.");
-      return response.id;
+      await inschrijvingenService.putInschrijving(this.state.data);
+      toaster.infoToastAanmaken("Wijzigingen opgeslagen.");
+      return true;
     } catch (error) {
-      this.setState({ opdrachtNietVerwerkt: true });
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "De aanvraag is niet goed opgebouwd."
-      );
-      return undefined;
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return false;
     }
   };
 
-  objectGegevensToekkennenAanInternObject = (opgehaaldObject, internObject) => {
-    Object.entries(opgehaaldObject).map(([key, value]) => {
-      internObject[key] = value;
-    });
-  };
-
+  // === === === === ===
+  // Helpers
   getVerschilInDagen = () => {
     const beginPeriode = new Date();
     const eindePeriode = this.state.evenement.datumStartEvenement;
@@ -598,29 +624,14 @@ class FormulierinschrijvingWijzigen extends Formulier {
     this.setState({ openstaandBedrag: openstaandBedrag });
   };
 
-  inschrijvingsStatussenInladen = async () => {
+  naamBetaalmethode = async (betaalmethodeId) => {
     try {
       const {
-        data: inschrijvingsstatussen,
-      } = await inschrijvingsstatusService.inschrijvingsstatussenOphalen();
-      if (inschrijvingsstatussen) {
-        this.setState({ inschrijvingsstatussen: inschrijvingsstatussen });
-      }
+        data: betaalmethode,
+      } = await betaalmethodenService.getBetaalmethode(betaalmethodeId);
+      return betaalmethode ? betaalmethode.naam : betaalmethodeId;
     } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de inschrijvingsstatussen."
-      );
-    }
-  };
-
-  getOmschrijvingInschrijvingsstatus = () => {
-    const inschrijvingsstatus = this.state.inschrijvingsstatussen.filter(
-      (i) => i.id === this.state.data.inschrijvingsstatusId
-    );
-    if (inschrijvingsstatus && inschrijvingsstatus.length > 0) {
-      return inschrijvingsstatus[0].naam;
+      responseErrorMeldingService.ToonFoutmeldingVast();
     }
   };
 }

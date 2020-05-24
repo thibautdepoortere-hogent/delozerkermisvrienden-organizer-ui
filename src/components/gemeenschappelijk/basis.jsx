@@ -11,14 +11,15 @@ import FormulierGroepMobielNummer from "./formulieren/groepMobielNummer";
 import * as qrCodeService from "../../services/qrCodeService";
 
 class Basis extends Component {
-  state = {};
+  state = { inschrijvingsstatusAangevraagdApi: undefined };
 
-  genereerTitel(id, inhoud, inhoudExtraInfo, acties, niveau) {
+  genereerTitel(id, inhoud, niveau, inhoudExtraInfo, tags, acties) {
     return (
       <Titel
         id={id}
         inhoud={inhoud}
         inhoudExtraInfo={inhoudExtraInfo}
+        tags={tags}
         acties={acties}
         niveau={niveau ? niveau : 1}
       />

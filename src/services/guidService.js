@@ -1,14 +1,14 @@
 import validate from "uuid-validate";
 
-function controleerVersie(guid) {
+export function controleerVersie(guid) {
   return validate.version(guid);
 }
 
-function isGuid(guid) {
+export function isGuid(guid) {
   return validate(guid);
 }
 
-function getGuidFormaat(guid) {
+export function getGuidFormaat(guid) {
   if (guid.length === 32) {
     return (
       guid.substr(0, 8) +
@@ -24,5 +24,3 @@ function getGuidFormaat(guid) {
   }
   return guid;
 }
-
-export { isGuid, getGuidFormaat };

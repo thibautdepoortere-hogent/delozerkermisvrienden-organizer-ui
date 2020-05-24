@@ -9,34 +9,25 @@ function urlMetId(id) {
 }
 
 export async function bestaatInschrijving(inschrijvingsId) {
-  if (guidService.isGuid(inschrijvingsId)) {
+  const guidInschrijvingsId = guidService.getGuidFormaat(inschrijvingsId);
+  if (guidService.isGuid(guidInschrijvingsId)) {
     try {
-      await http.head(urlMetId(inschrijvingsId));
+      await http.head(urlMetId(guidInschrijvingsId));
       return true;
     } catch (error) {
-      if (error && error.response.status === 404) {
-        // niet gevonden
-      } else {
-        responseErrorMeldingService.ToonFoutmelding(
-          error,
-          true,
-          "Er is een fout opgetreden bij het inladen van het evenement."
-        );
+      if (error && error.response.status !== 404) {
+        responseErrorMeldingService.ToonFoutmeldingVast();
       }
       return false;
     }
   }
 }
 
-export function inschrijvingenOphalen() {
-  return http.get(url);
-}
-
-export function inschrijvingenViaQrCodeOphalen(qrCode) {
+export function getInschrijvingenViaQrCode(qrCode) {
   return http.get(url + "?qrcode=" + qrCode);
 }
 
-export function inschrijvingenViaFiltersOphalen(filters) {
+export function getInschrijvingenViaFilters(filters) {
   let parameters = "";
   parameters += filters.voornaam ? "voornaam=" + filters.voornaam + "&" : "";
   parameters += filters.achternaam
@@ -51,27 +42,18 @@ export function inschrijvingenViaFiltersOphalen(filters) {
   return http.get(url + "?" + parameters);
 }
 
-export function inschrijvingOphalen(inschrijvingsId) {
+export function getInschrijving(inschrijvingsId) {
   return http.get(urlMetId(inschrijvingsId));
 }
 
-export function inschrijvingVerwijderen(inschrijvingsId) {
-  return http.delete(urlMetId(inschrijvingsId));
+export function getInschrijvingVoorStatus(inschrijvingsId) {
+  return http.get(urlMetId(inschrijvingsId) + "/status");
 }
 
-export function inschrijvingUpdaten(inschrijving) {
-  return http.put(urlMetId(inschrijving.id), inschrijving);
-}
-
-export function aanvraagIndienen(aanvraag) {
+export function postAanvraag(aanvraag) {
   return http.post(url, aanvraag);
 }
 
-export async function controleInschrijvingsId(inschrijvingsId) {
-  const guid = guidService.getGuidFormaat(inschrijvingsId);
-  if (!(await bestaatInschrijving(guid))) {
-    return "";
-  } else {
-    return guid;
-  }
+export function putInschrijving(inschrijving) {
+  return http.put(urlMetId(inschrijving.id), inschrijving);
 }

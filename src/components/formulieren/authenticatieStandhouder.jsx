@@ -1,20 +1,19 @@
 import React from "react";
 import Joi from "joi-browser";
-import * as toaster from "../../services/toasterService";
 import Formulier from "./../gemeenschappelijk/formulieren/formulier";
-import * as authenticatieService from "../../services/api/authenticatieService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
+import * as authenticatieService from "../../services/api/authenticatieService";
 
 class FormulierAuthenticatieStandhouder extends Formulier {
   state = {
+    schema: this.schema,
     errors: {},
-    opdrachtNietVerwerkt: false,
-    opdrachtVerwerken: false,
     data: {
       inschrijvingsId: "",
       email: "",
     },
-    schema: this.schema,
+    opdrachtNietVerwerkt: false,
+    opdrachtVerwerken: false,
   };
 
   schema = {
@@ -34,8 +33,9 @@ class FormulierAuthenticatieStandhouder extends Formulier {
     return (
       <div>
         {this.genereerTitel(
-          "authenticatieStandhouder",
-          "Authenticatie standhouder"
+          "authenticatieStandhouderH1",
+          "Authenticatie standhouder",
+          1
         )}
         <form onSubmit={this.handleVerzendFormulier}>
           <div>
@@ -74,16 +74,31 @@ class FormulierAuthenticatieStandhouder extends Formulier {
     );
   }
 
+  // === === === === ===
+  // Inladen / Acties
+  authenticeerStandhouder = async () => {
+    try {
+      const {
+        data: token,
+      } = await authenticatieService.authenticeerStandhouder(this.state.data);
+      return token;
+    } catch (error) {
+      if (error.response.status !== 404) {
+        responseErrorMeldingService.ToonFoutmeldingVast();
+      }
+    }
+  };
+
+  // === === === === ===
+  // Events
+
+  // === === === === ===
+  // Formulier verwerken
   verzendFormulier = async () => {
     this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
     const token = await this.authenticeerStandhouder();
     console.log(token);
     if (token) {
-      this.setState({
-        token: token,
-        opdrachtNietVerwerkt: false,
-        opdrachtVerwerken: false,
-      });
       this.props.history.push(
         "/inschrijvingen/" + this.state.data.inschrijvingsId + "/status"
       );
@@ -96,18 +111,8 @@ class FormulierAuthenticatieStandhouder extends Formulier {
     }
   };
 
-  authenticeerStandhouder = async () => {
-    try {
-      const {
-        data: token,
-      } = await authenticatieService.authenticeerStandhouder(this.state.data);
-      return token;
-    } catch (error) {
-      if (error.response.status !== 404) {
-        responseErrorMeldingService.ToonFoutmelding(error, true, error);
-      }
-    }
-  };
+  // === === === === ===
+  // Helpers
 }
 
 export default FormulierAuthenticatieStandhouder;

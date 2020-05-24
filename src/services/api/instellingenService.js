@@ -2,6 +2,6 @@ import http from "./httpService";
 
 const url = "/instellingen";
 
-export function instellingenAanvraagOphalen() {
+export function getInstellingenAanvraag() {
   return http.get(url + "/aanvraag");
 }

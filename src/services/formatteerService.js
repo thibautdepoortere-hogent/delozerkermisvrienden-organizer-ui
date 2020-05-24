@@ -1,6 +1,6 @@
 //import Moment from "moment";
 
-const formatteerCell = (cellInhoud, formateerMethode) => {
+export function formatteerCell(cellInhoud, formateerMethode) {
   switch (formateerMethode) {
     case "datum":
       return formatteerDatum(cellInhoud);
@@ -9,14 +9,14 @@ const formatteerCell = (cellInhoud, formateerMethode) => {
     default:
       return cellInhoud;
   }
-};
+}
 
-const formatteerDatum = (cellInhoud) => {
+export function formatteerDatum(cellInhoud) {
   return cellInhoud;
   //return Moment(cellInhoud).format("DD/MM/YYYY");
-};
+}
 
-const formatteerTelefoon = (cellInhoud) => {
+export function formatteerTelefoon(cellInhoud) {
   const locatieSpatie = cellInhoud.search(" ");
   if (locatieSpatie >= 0) {
     const preFix = cellInhoud.substring(0, locatieSpatie);
@@ -55,11 +55,11 @@ const formatteerTelefoon = (cellInhoud) => {
   } else {
     return cellInhoud;
   }
-};
+}
 
-const getGeformateerdeGestructureerdeMededeling = (
+export function getGeformateerdeGestructureerdeMededeling(
   gestructureerdeMededeling
-) => {
+) {
   let g = "";
   if (gestructureerdeMededeling.length > 0) {
     g =
@@ -101,6 +101,4 @@ const getGeformateerdeGestructureerdeMededeling = (
     g = g + " +++";
   }
   return g;
-};
-
-export { formatteerCell, getGeformateerdeGestructureerdeMededeling };
+}

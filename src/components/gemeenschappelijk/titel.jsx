@@ -1,7 +1,8 @@
 import React from "react";
 import Knop from "./knop";
+import Etiket from "./etiket";
 
-const Titel = ({ id, inhoud, inhoudExtraInfo, acties, niveau = 1 }) => {
+const Titel = ({ id, inhoud, inhoudExtraInfo, tags, acties, niveau = 1 }) => {
   return (
     <div className="titel">
       <div className="titel-inhoud">
@@ -9,22 +10,35 @@ const Titel = ({ id, inhoud, inhoudExtraInfo, acties, niveau = 1 }) => {
         {inhoudExtraInfo && (
           <span className="bp3-text-muted extraInfo">({inhoudExtraInfo})</span>
         )}
-      </div>
-      {acties && (
-        <div className="titel-acties">
-          {acties &&
-            acties.map((actie) => (
-              <div key={actie.id} className="titel-acties-actie">
-                <Knop
-                  key={actie.id}
-                  id={id + "Knop"}
-                  inhoud={actie.inhoud}
-                  intent={actie.intent}
-                  outlined={true}
-                  onKlik={() => actie.onKlik()}
+        {tags && (
+          <div className="titel-tags">
+            {tags.map((tag) => (
+              <div key={tag.id} className="titel-tags-tag">
+                <Etiket
+                  key={tag.id}
+                  id={id + "Tag"}
+                  inhoud={tag.inhoud}
+                  intent={tag.intent}
                 />
               </div>
             ))}
+          </div>
+        )}
+      </div>
+      {acties && (
+        <div className="titel-acties">
+          {acties.map((actie) => (
+            <div key={actie.id} className="titel-acties-actie">
+              <Knop
+                key={actie.id}
+                id={id + "Knop"}
+                inhoud={actie.inhoud}
+                intent={actie.intent}
+                outlined={true}
+                onKlik={() => actie.onKlik()}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { Position, Toaster } from "@blueprintjs/core";
 
 const appToaster = Toaster.create({
-  className: "toaster",
+  className: "toaster nietAfdrukken",
   position: Position.TOP_RIGHT,
 });
 

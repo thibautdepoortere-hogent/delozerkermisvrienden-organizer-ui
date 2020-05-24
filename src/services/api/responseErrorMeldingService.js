@@ -11,3 +11,7 @@ export function ToonFoutmelding(error, errorCodeWeergeven, foutmeldingInhoud) {
 
   !error && foutmeldingInhoud && toaster.errorToastAanmaken(foutmeldingInhoud);
 }
+
+export function ToonFoutmeldingVast() {
+  toaster.errorToastAanmaken("Fout bij inladen.");
+}

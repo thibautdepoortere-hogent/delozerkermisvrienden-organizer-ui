@@ -1,9 +1,9 @@
-import http, { Headers } from "./httpService";
 import bcrypt from "bcryptjs";
+import http, { Headers } from "./httpService";
 import * as toaster from "../../services/toasterService";
 
 const url = "/authenticatie";
-const salt = "(rmv#yy}/<eIHOQczV%{{QbhyH3=ff";
+// const salt = "(rmv#yy}/<eIHOQczV%{{QbhyH3=ff";
 
 export function authenticeerStandhouder(data) {
   return http.post(url + "/standhouder", data, { headers: Headers() });

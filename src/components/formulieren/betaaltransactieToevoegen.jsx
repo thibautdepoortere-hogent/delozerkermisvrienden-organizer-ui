@@ -1,20 +1,19 @@
 import React from "react";
-import Formulier from "./../gemeenschappelijk/formulieren/formulier";
-import * as betaalmethodenService from "../../services/api/betaalmethodenService";
-import * as inschrijvingenService from "../../services/api/inschrijvingenService";
-import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
-import * as betaaltransactiesService from "../../services/api/betaaltransactiesService";
 import Joi from "joi-browser";
-import * as toaster from "../../services/toasterService";
+import Formulier from "./../gemeenschappelijk/formulieren/formulier";
 import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
 import KaartInschrijving from "../gemeenschappelijk/kaartInschrijving";
+import * as toaster from "../../services/toasterService";
+import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
+import * as betaalmethodenService from "../../services/api/betaalmethodenService";
+import * as inschrijvingenService from "../../services/api/inschrijvingenService";
+import * as betaaltransactiesService from "../../services/api/betaaltransactiesService";
 
 const regEx = /^(?=.*[0-9]).{12,12}$/;
 class FormulierBetaaltransactieToevoegen extends Formulier {
   state = {
+    schema: this.schema,
     errors: {},
-    opdrachtNietVerwerkt: false,
-    opdrachtVerwerken: false,
     data: {
       betaalmethodeId: "",
       bedrag: 0,
@@ -28,7 +27,8 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     betaalmethoden: [],
     betaalmethodeOverschrijving: {},
     gegevensInladen: false,
-    schema: this.schema,
+    opdrachtNietVerwerkt: false,
+    opdrachtVerwerken: false,
   };
 
   schema = {
@@ -63,11 +63,18 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
 
   async componentDidMount() {
     this.setState({ gegevensInladen: true, schema: this.schema });
-    await this.betaalmethodenInladen();
-    await this.betaalmethodeOverschrijvingInladen();
-    await this.controleInschrijving();
-    this.wijzigSchemaManueel();
-    this.setState({ gegevensInladen: false });
+    const inschrijvingsId = this.props.match.params.inschrijvingsId;
+    if (!(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))) {
+      this.props.history.push("/not-found");
+    } else {
+      this.setState({ inschrijvingsId: inschrijvingsId });
+      await this.inschrijvingInladen(inschrijvingsId);
+      await this.betaalmethodenInladen();
+      await this.betaalmethodeOverschrijvingInladen();
+      await this.inschrijvingInladen(this.state.inschrijvingsId);
+      this.wijzigSchemaManueel();
+      this.setState({ gegevensInladen: false });
+    }
   }
 
   render() {
@@ -75,9 +82,8 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     return (
       <div>
         {this.state.gegevensInladen && <SpinnerInladenGegevens />}
-
         <form onSubmit={this.handleVerzendFormulier}>
-          {this.genereerTitel("betaling", "Nieuwe betaaltransactie")}
+          {this.genereerTitel("betalingH1", "Nieuwe betaaltransactie", 1)}
           {this.state.inschrijving && (
             <div className="margin-rechts">
               <KaartInschrijving
@@ -153,6 +159,82 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     );
   }
 
+  // === === === === ===
+  // Inladen
+  inschrijvingInladen = async (inschrijvingsId) => {
+    try {
+      const {
+        data: inschrijving,
+      } = await inschrijvingenService.getInschrijving(inschrijvingsId);
+      const data = { ...this.state.data };
+      data.inschrijvingsId = inschrijving.Id;
+      data.betaalmethodeId = inschrijving.betaalmethodeId;
+      data.verantwoordelijkeBetaling =
+        inschrijving.voornaam + " " + inschrijving.achternaam;
+      data.gestructureerdeMededeling = inschrijving.gestructureerdeMededeling;
+      this.setState({ data: data, inschrijving: inschrijving });
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+    }
+  };
+
+  betaalmethodenInladen = async () => {
+    try {
+      const {
+        data: betaalmethoden,
+      } = await betaalmethodenService.getBetaalmethoden();
+      this.setState({ betaalmethoden: betaalmethoden });
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+    }
+  };
+
+  betaalmethodeOverschrijvingInladen = async () => {
+    try {
+      const {
+        data: betaalmethode,
+      } = await betaalmethodenService.getBetaalmethodeOverschrijving();
+      this.setState({ betaalmethodeOverschrijving: betaalmethode });
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+    }
+  };
+
+  // === === === === ===
+  // Events
+  onFoutDatum = (fouteDatum) => {
+    console.log(fouteDatum);
+  };
+
+  // === === === === ===
+  // Formulier verwerken
+  verzendFormulier = async () => {
+    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+    const resultaat = await this.betaaltransactieToevoegen();
+    if (resultaat) {
+      this.setState({ opdrachtVerwerken: false });
+      this.props.history.push(
+        "/inschrijvingen/" + this.state.data.inschrijvingsId
+      );
+    } else {
+      this.setState({ opdrachtVerwerken: false });
+    }
+  };
+
+  betaaltransactieToevoegen = async () => {
+    try {
+      await betaaltransactiesService.postBetaaltransactie(this.state.data);
+      toaster.infoToastAanmaken("Betaaltransactie toegevoegd.");
+      return true;
+    } catch (error) {
+      this.setState({ opdrachtNietVerwerkt: true });
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return false;
+    }
+  };
+
+  // === === === === ===
+  // Helpers
   wijzigSchemaMetParameter = (e) => {
     this.wijzigSchema(this.gestructureerdeMededelingWeergevenMetParameter(e));
     this.handleWijziging(e);
@@ -170,40 +252,11 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     }
   };
 
-  onFoutDatum = (fouteDatum) => {
-    console.log(fouteDatum);
-  };
-
-  verzendFormulier = async () => {
-    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
-    const resultaat = await this.betaaltransactieToevoegen();
-    if (resultaat) {
-      this.setState({ opdrachtVerwerken: false });
-      this.props.history.push(
-        "/inschrijvingen/" + this.state.data.inschrijvingsId
-      );
-    } else {
-      this.setState({ opdrachtVerwerken: false });
-    }
-  };
-
-  betaaltransactieToevoegen = async () => {
-    try {
-      const {
-        data: response,
-      } = await betaaltransactiesService.betaaltransactieToevoegen(
-        this.state.data
-      );
-      toaster.infoToastAanmaken("Betaaltransactie toegevoegd.");
+  gestructureerdeMededelingWeergevenMetParameter = ({
+    currentTarget: invoer,
+  }) => {
+    if (invoer.value === this.state.betaalmethodeOverschrijving.id) {
       return true;
-    } catch (error) {
-      this.setState({ opdrachtNietVerwerkt: true });
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "De aanvraag is niet goed opgebouwd."
-      );
-      return false;
     }
   };
 
@@ -213,92 +266,6 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       this.state.betaalmethodeOverschrijving.id
     ) {
       return true;
-    }
-  };
-
-  gestructureerdeMededelingWeergevenMetParameter = ({
-    currentTarget: invoer,
-  }) => {
-    if (invoer.value === this.state.betaalmethodeOverschrijving.id) {
-      return true;
-    }
-  };
-
-  betaalmethodenInladen = async () => {
-    try {
-      const {
-        data: alleBetaalmethoden,
-      } = await betaalmethodenService.betaalmethodenOphalen();
-      this.setState({ betaalmethoden: alleBetaalmethoden });
-    } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de betaalmethoden."
-      );
-    }
-  };
-
-  betaalmethodeOverschrijvingInladen = async () => {
-    try {
-      const {
-        data: betaalmethode,
-      } = await betaalmethodenService.betaalmethodeOverschrijving();
-      this.setState({ betaalmethodeOverschrijving: betaalmethode });
-    } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de betaalmathode voor overschrijving."
-      );
-    }
-  };
-
-  controleInschrijving = async () => {
-    const paramsInschrijvingsId = this.props.match.params.inschrijvingsId;
-    if (paramsInschrijvingsId) {
-      const inschrijvingsId = await inschrijvingenService.controleInschrijvingsId(
-        paramsInschrijvingsId
-      );
-      if (inschrijvingsId) {
-        const inschrijving = await this.inschrijvingInladen(inschrijvingsId);
-        const data = { ...this.state.data };
-        data.inschrijvingsId = inschrijvingsId;
-        if (inschrijving) {
-          data.betaalmethodeId = inschrijving.betaalmethodeId;
-          data.verantwoordelijkeBetaling =
-            inschrijving.voornaam + " " + inschrijving.achternaam;
-          data.gestructureerdeMededeling =
-            inschrijving.gestructureerdeMededeling;
-          // var schema = "";
-          // if (data.gestructureerdeMededeling) {
-          //   schema = this.schemaMetOverschrijving;
-          // } else {
-          //   schema = this.schema;
-          // }
-        }
-        this.setState({ data: data, inschrijving: inschrijving });
-      } else {
-        this.props.history.push("/not-found");
-      }
-    }
-  };
-
-  inschrijvingInladen = async (inschrijvingsId) => {
-    try {
-      const {
-        data: inschrijving,
-      } = await inschrijvingenService.inschrijvingOphalen(inschrijvingsId);
-      return inschrijving;
-    } catch (error) {
-      if (error.response.status === "404") {
-        this.props.history.push("/not-found");
-      }
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de inschrijving."
-      );
     }
   };
 }

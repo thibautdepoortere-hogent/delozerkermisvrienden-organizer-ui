@@ -1,13 +1,20 @@
 import http from "./httpService";
-import * as datumService from "../datumService";
 
 const url = "/betaalmethoden";
 
-export function betaalmethodenOphalen() {
+function urlMetId(id) {
+  return `${url}/${id}`;
+}
+
+export function getBetaalmethoden() {
   return http.get(url);
 }
 
-export function betaalmethodeOverschrijving() {
+export function getBetaalmethode(betaalmethodeId) {
+  return http.get(urlMetId(betaalmethodeId));
+}
+
+export function getBetaalmethodeOverschrijving() {
   return http.get(url + "/overschrijving");
 }
 

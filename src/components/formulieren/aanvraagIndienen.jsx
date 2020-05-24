@@ -1,24 +1,19 @@
 import React from "react";
 import Joi from "joi-browser";
+import Formulier from "../gemeenschappelijk/formulieren/formulier";
+import SpinnerInladenGegevens from "../gemeenschappelijk/spinnerInladenGegevens";
 import * as toaster from "../../services/toasterService";
-import Formulier from "./../gemeenschappelijk/formulieren/formulier";
+import * as datumService from "../../services/datumService";
+import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as betaalmethodenService from "../../services/api/betaalmethodenService";
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
 import * as instellingenService from "../../services/api/instellingenService";
-import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
-import * as datumService from "../../services/datumService";
-import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
 import * as nieuwsbriefService from "../../services/api/nieuwsbriefService";
 
-class FormulierNieuweAanvraag extends Formulier {
+class FormulierAanvraagIndienen extends Formulier {
   state = {
+    schema: this.schema,
     errors: {},
-    evenement: {
-      id: "c4660a63-7e82-4e68-92c9-85f3c193f69e",
-      naam: "Rommelmarkt 2020",
-      datumStartEvenement: new Date("09/26/2020"),
-    },
-    betaalmethoden: [],
     data: {
       voornaam: "",
       achternaam: "",
@@ -38,13 +33,18 @@ class FormulierNieuweAanvraag extends Formulier {
       evenementId: "",
       lidId: "",
     },
+    evenement: {
+      id: "c4660a63-7e82-4e68-92c9-85f3c193f69e",
+      naam: "Rommelmarkt 2020",
+      datumStartEvenement: new Date("09/26/2020"),
+    },
+    betaalmethoden: [],
     nieuwsbrief: false,
     minimumAantalMeter: 0,
     prijs: 0,
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
     gegevensInladen: false,
-    schema: this.schema,
   };
 
   schema = {
@@ -74,11 +74,10 @@ class FormulierNieuweAanvraag extends Formulier {
   };
 
   async componentDidMount() {
-    this.setState({ gegevensInladen: true });
-    this.setState({ schema: this.schema });
+    this.setState({ gegevensInladen: true, schema: this.schema });
     const data = { ...this.state.data };
     await this.instellingenInladen(data);
-    this.evenementIdOphalen(data);
+    this.evenementIdInladen(data);
     this.setState({ data: data });
     await this.betaalmethodenInladen();
     this.setState({ gegevensInladen: false });
@@ -96,7 +95,7 @@ class FormulierNieuweAanvraag extends Formulier {
       <div>
         {this.state.gegevensInladen && <SpinnerInladenGegevens />}
         <form onSubmit={this.handleVerzendFormulier}>
-          {this.genereerTitel("nieuweAanvraagH1", "Nieuwe aanvraag")}
+          {this.genereerTitel("nieuweAanvraagH1", "Nieuwe aanvraag", 1)}
           {this.genereerMededeling(
             "evenementDatum",
             evenement.naam,
@@ -108,13 +107,7 @@ class FormulierNieuweAanvraag extends Formulier {
             "Success"
           )}
           <div>
-            {this.genereerTitel(
-              "persoonlijkH2",
-              "Persoonlijk:",
-              "",
-              undefined,
-              2
-            )}
+            {this.genereerTitel("persoonlijkH2", "Persoonlijk", 2)}
             {this.genereerFormulierGroep([
               this.genereerTekstvak(
                 "voornaam",
@@ -177,7 +170,7 @@ class FormulierNieuweAanvraag extends Formulier {
             ])}
           </div>
           <div>
-            {this.genereerTitel("praktischH2", "Praktisch:", "", undefined, 2)}
+            {this.genereerTitel("praktischH2", "Praktisch", 2)}
             {this.genereerFormulierGroep([
               this.genereerNumeriekVak(
                 "aantalMeter",
@@ -189,7 +182,7 @@ class FormulierNieuweAanvraag extends Formulier {
                 false,
                 true,
                 undefined,
-                this.handleWijzigingAantalMeter
+                this.verwerkWijzigingAantalMeter
               ),
               this.genereerNumeriekVak(
                 "prijs",
@@ -247,13 +240,7 @@ class FormulierNieuweAanvraag extends Formulier {
             ])}
           </div>
           <div>
-            {this.genereerTitel(
-              "betaalmethodeH2",
-              "Betaalmethode:",
-              "",
-              undefined,
-              2
-            )}
+            {this.genereerTitel("betaalmethodeH2", "Betaalmethode", 2)}
             {this.genereerRadio(
               "betaalmethodeId",
               "Betaalmethode",
@@ -262,20 +249,14 @@ class FormulierNieuweAanvraag extends Formulier {
             )}
           </div>
           <div>
-            {this.genereerTitel(
-              "nieuwsbriefH2",
-              "Nieuwsbrief:",
-              "",
-              undefined,
-              2
-            )}
+            {this.genereerTitel("nieuwsbriefH2", "Nieuwsbrief", 2)}
             {this.genereerCheckbox(
               "nieuwsbrief",
               "Ik wil graag op de hoogte gehouden worden van jullie toekomstige evenementen via mail.",
               "",
               false,
               undefined,
-              this.handleNieuwsbrief
+              this.verwerkWijzigingNieuwsbrief
             )}
           </div>
           {this.genereerVerzendKnopMetAttributen(
@@ -290,31 +271,27 @@ class FormulierNieuweAanvraag extends Formulier {
     );
   }
 
+  // === === === === ===
+  // Inladen
   instellingenInladen = async (data) => {
     try {
       const {
         data: instellingen,
-      } = await instellingenService.instellingenAanvraagOphalen();
-      const minimumAantalMeter = instellingen.minimumAantalMeter;
-      const meterPrijs = instellingen.meterPrijs;
-      const prijs = minimumAantalMeter * meterPrijs;
-      data.aantalMeter = minimumAantalMeter;
-      data.meterPrijs = meterPrijs;
+      } = await instellingenService.getInstellingenAanvraag();
+      data.aantalMeter = instellingen.minimumAantalMeter;
+      data.meterPrijs = instellingen.meterPrijs;
       data.inschrijvingsstatusId = instellingen.aanvraagInschrijvingssstatus;
+      const prijs = data.aantalMeter * data.meterPrijs;
       this.setState({
-        minimumAantalMeter: minimumAantalMeter,
+        minimumAantalMeter: instellingen.minimumAantalMeter,
         prijs: prijs,
       });
     } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de instellingen."
-      );
+      responseErrorMeldingService.ToonFoutmeldingVast();
     }
   };
 
-  evenementIdOphalen = (data) => {
+  evenementIdInladen = (data) => {
     const { evenement } = this.state;
     data.evenementId = evenement.id;
   };
@@ -323,22 +300,24 @@ class FormulierNieuweAanvraag extends Formulier {
     try {
       const {
         data: alleBetaalmethoden,
-      } = await betaalmethodenService.betaalmethodenOphalen();
+      } = await betaalmethodenService.getBetaalmethoden();
       const verschilInDagen = this.getVerschilInDagen();
       const teGebruikenBetaalmethoden = alleBetaalmethoden.filter((b) =>
         betaalmethodenService.isBetaalmethodeNogGeldig(b, verschilInDagen)
       );
       this.setState({ betaalmethoden: teGebruikenBetaalmethoden });
     } catch (error) {
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "Er is een fout opgetreden bij het inladen van de betaalmethoden."
-      );
+      responseErrorMeldingService.ToonFoutmeldingVast();
     }
   };
 
-  handleWijzigingAantalMeter = (waardeAlsNummer, waardeAlsTekst, invoer) => {
+  // === === === === ===
+  // Events
+  verwerkWijzigingNieuwsbrief = () => {
+    this.setState({ nieuwsbrief: !this.state.nieuwsbrief });
+  };
+
+  verwerkWijzigingAantalMeter = (waardeAlsNummer, waardeAlsTekst, invoer) => {
     this.updateData(invoer);
 
     const { meterPrijs } = this.state.data;
@@ -346,17 +325,32 @@ class FormulierNieuweAanvraag extends Formulier {
     this.setState({ prijs: prijs });
   };
 
+  // === === === === ===
+  // Formulier verwerken
   verzendFormulier = async () => {
     this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
     if (this.state.nieuwsbrief) {
       await this.nieuwsbriefToevoegen();
     }
-    const id = await this.aanvraagIndienen();
-    if (id) {
+    const aanvraagId = await this.aanvraagIndienen();
+    if (aanvraagId) {
       this.setState({ opdrachtVerwerken: false });
-      this.props.history.push("/inschrijvingen/" + id);
+      this.props.history.push("/inschrijvingen/" + aanvraagId);
     } else {
-      this.setState({ opdrachtVerwerken: false });
+      this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
+    }
+  };
+
+  aanvraagIndienen = async () => {
+    try {
+      const {
+        data: ingediendeAanvraag,
+      } = await inschrijvingenService.postAanvraag(this.state.data);
+      toaster.infoToastAanmaken("Aanvraag ingediend.");
+      return ingediendeAanvraag ? ingediendeAanvraag.id : undefined;
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return false;
     }
   };
 
@@ -366,49 +360,17 @@ class FormulierNieuweAanvraag extends Formulier {
         email: this.state.data.email,
         evenementId: this.state.data.evenementId,
       };
-      const { data: response } = await nieuwsbriefService.nieuwsbriefToevoegen(
-        nieuwsbrief
-      );
-      toaster.infoToastAanmaken("Nieuwsbrief toegevoegd.");
-      return true;
-    } catch (error) {
-      this.setState({ opdrachtNietVerwerkt: true });
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "De aanvraag is niet goed opgebouwd."
-      );
-      return false;
-    }
+      await nieuwsbriefService.postNieuwsbrief(nieuwsbrief);
+    } catch (error) {}
   };
 
-  aanvraagIndienen = async () => {
-    try {
-      const { data: response } = await inschrijvingenService.aanvraagIndienen(
-        this.state.data
-      );
-      toaster.infoToastAanmaken("Aanvraag ingediend.");
-      return response.id;
-    } catch (error) {
-      this.setState({ opdrachtNietVerwerkt: true });
-      responseErrorMeldingService.ToonFoutmelding(
-        error,
-        true,
-        "De aanvraag is niet goed opgebouwd."
-      );
-      return undefined;
-    }
-  };
-
+  // === === === === ===
+  // Helpers
   getVerschilInDagen = () => {
     const beginPeriode = new Date();
     const eindePeriode = this.state.evenement.datumStartEvenement;
     return datumService.getDagenVerschilInPeriode(beginPeriode, eindePeriode);
   };
-
-  handleNieuwsbrief = () => {
-    this.setState({ nieuwsbrief: !this.state.nieuwsbrief });
-  };
 }
 
-export default FormulierNieuweAanvraag;
+export default FormulierAanvraagIndienen;

@@ -2,19 +2,11 @@ import http from "./httpService";
 
 const url = "/betaaltransacties";
 
-// function urlMetId(id) {
-//   return `${url}/${id}`;
-// }
-
-export function betaaltransactiesOphalen() {
-  return http.get(url);
-}
-
-export function betaaltransactiesVanInschrijvingOphalen(inschrijvingsId) {
+export function getBetaaltransactiesVanInschrijving(inschrijvingsId) {
   return http.get(url + "?inschrijving=" + inschrijvingsId);
 }
 
-export function betaaltransactieToevoegen(betaaltransactie) {
+export function postBetaaltransactie(betaaltransactie) {
   return http.post(url, betaaltransactie);
 }
 

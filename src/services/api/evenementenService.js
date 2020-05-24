@@ -6,14 +6,10 @@ function urlMetId(id) {
   return `${url}/${id}`;
 }
 
-export function evenementenOphalen() {
+export function getEvenementen() {
   return http.get(url);
 }
 
-export function evenementOphalen(evenementId) {
+export function getEvenement(evenementId) {
   return http.get(urlMetId(evenementId));
-}
-
-export function evenementVerwijderen(evenementsId) {
-  return http.delete(urlMetId(evenementsId));
 }

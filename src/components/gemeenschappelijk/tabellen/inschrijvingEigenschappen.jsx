@@ -1,6 +1,7 @@
 import React from "react";
 import Tabel from "./tabel";
-import * as datumService from "../../../services/datumService";
+import * as responseErrorMeldingService from "../../../services/api/responseErrorMeldingService";
+import * as inschrijvingsstatusService from "../../../services/api/inschrijvingsstatusService";
 
 const TabelInschrijvingEigenschappen = ({ inschrijving }) => {
   return (
@@ -12,6 +13,8 @@ const TabelInschrijvingEigenschappen = ({ inschrijving }) => {
   );
 };
 
+// === === === === ===
+// Inladen
 const kolommen = () => {
   return [
     {
@@ -41,8 +44,30 @@ const data = (inschrijving) => {
       eigenschap: "Standnummer",
       waarde: inschrijving.standnummer ? inschrijving.standnummer : "-",
     },
+    {
+      id: "status",
+      eigenschap: "Status",
+      waarde: naamInschrijvingsstatus(inschrijving.inschrijvingsstatusId),
+    },
     { id: "id", eigenschap: "Inschrijvingsnummer", waarde: inschrijving.id },
   ];
+};
+
+// === === === === ===
+// Helpers
+const naamInschrijvingsstatus = async (inschrijvingsstatusId) => {
+  try {
+    const {
+      data: inschrijvingsstatus,
+    } = await inschrijvingsstatusService.getInschrijvingsstatus(
+      inschrijvingsstatusId
+    );
+    return inschrijvingsstatus
+      ? inschrijvingsstatus.naam
+      : inschrijvingsstatusId;
+  } catch (error) {
+    responseErrorMeldingService.ToonFoutmeldingVast();
+  }
 };
 
 export default TabelInschrijvingEigenschappen;

@@ -71,21 +71,21 @@ class Inschrijvingen extends Component {
   };
 
   handleInschrijvingWissen = async (inschrijving) => {
-    try {
-      await api.inschrijvingVerwijderen(inschrijving.id);
-      this.inschrijvingenInladen();
-      toaster.infoToastAanmaken("Inschrijving verwijderd.");
-    } catch (error) {
-      if (error.response) {
-        if (error.response.status === 404) {
-          toaster.errorToastAanmaken(
-            "Deze inschrijving is niet meer beschikbaar."
-          );
-        } else if (error.response.status === 400) {
-          toaster.errorToastAanmaken("De aanvraag is niet goed opgebouwd!");
-        }
-      }
-    }
+    // try {
+    //   await api.inschrijvingVerwijderen(inschrijving.id);
+    //   this.inschrijvingenInladen();
+    //   toaster.infoToastAanmaken("Inschrijving verwijderd.");
+    // } catch (error) {
+    //   if (error.response) {
+    //     if (error.response.status === 404) {
+    //       toaster.errorToastAanmaken(
+    //         "Deze inschrijving is niet meer beschikbaar."
+    //       );
+    //     } else if (error.response.status === 400) {
+    //       toaster.errorToastAanmaken("De aanvraag is niet goed opgebouwd!");
+    //     }
+    //   }
+    // }
   };
 
   render() {
@@ -109,21 +109,21 @@ class Inschrijvingen extends Component {
   }
 
   inschrijvingenInladen = async () => {
-    try {
-      const { data } = await api.inschrijvingenOphalen();
-      this.setState({ data: data });
-      return true;
-    } catch (error) {
-      toaster.errorToastAanmaken(
-        "Er is een onverwachte fout opgetreden bij het inladen van de inschrijvingen."
-      );
-    }
+    // try {
+    //   const { data } = await api.inschrijvingenOphalen();
+    //   this.setState({ data: data });
+    //   return true;
+    // } catch (error) {
+    //   toaster.errorToastAanmaken(
+    //     "Er is een onverwachte fout opgetreden bij het inladen van de inschrijvingen."
+    //   );
+    // }
   };
 
   inschrijvingenHerladen = async () => {
-    if (await this.inschrijvingenInladen()) {
-      toaster.infoToastAanmaken("Gegevens herladen voltooid.");
-    }
+    // if (await this.inschrijvingenInladen()) {
+    //   toaster.infoToastAanmaken("Gegevens herladen voltooid.");
+    // }
   };
 
   kolommenInladen = () => {

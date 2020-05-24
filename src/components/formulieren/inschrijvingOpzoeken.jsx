@@ -1,27 +1,27 @@
 import React from "react";
-import Titel from "../gemeenschappelijk/titel";
-import * as qrCodeService from "../../services/qrCodeService";
-import Formulier from "./../gemeenschappelijk/formulieren/formulier";
-import * as inschrijvingenService from "../../services/api/inschrijvingenService";
-import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import Joi from "joi-browser";
-import FormulierGroepTekstvak from "./../gemeenschappelijk/formulieren/groepTekstvak";
+import Formulier from "./../gemeenschappelijk/formulieren/formulier";
 import Knop from "./../gemeenschappelijk/knop";
 import KaartInschrijving from "../gemeenschappelijk/kaartInschrijving";
+import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
+import * as qrCodeService from "../../services/qrCodeService";
+import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
+import * as inschrijvingenService from "../../services/api/inschrijvingenService";
 
 class FormulierInschrijvingOpzoeken extends Formulier {
   state = {
+    schema: this.schema,
     errors: {},
-    scannerZichtbaar: false,
-    fout: "",
-    inschrijvingen: [],
     data: {
       voornaam: "",
       achternaam: "",
       standnummer: "",
       inschrijvingsnummer: "",
     },
-    schema: this.schema,
+    scannerZichtbaar: false,
+    fout: "",
+    inschrijvingen: [],
+    gegevensInladen: false,
   };
 
   schema = {
@@ -47,12 +47,14 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     const { scannerZichtbaar, inschrijvingen, fout } = this.state;
     return (
       <div>
+        {this.state.gegevensInladen && <SpinnerInladenGegevens />}
         <div>
           {!scannerZichtbaar && (
             <div>
               {this.genereerTitel(
-                "inschrijvingOpzoeken",
-                "Inschrijving opzoeken"
+                "inschrijvingOpzoekenH1",
+                "Inschrijving opzoeken",
+                1
               )}
               {this.genereerFormulierGroep([
                 this.genereerTekstvak("voornaam", "Voornaam", "", "", "person"),
@@ -88,21 +90,21 @@ class FormulierInschrijvingOpzoeken extends Formulier {
               inhoud="Zoeken"
               intent="success"
               vullen={true}
-              onKlik={this.handleZoeken}
+              onKlik={this.handleKlikZoeken}
             />,
             <Knop
               id="filtersWissen"
               inhoud="Filters wissen"
               intent="danger"
               vullen={true}
-              onKlik={this.handleFiltersWissen}
+              onKlik={this.handleKlikFiltersWissen}
             />,
             <Knop
               id="scanQr"
               inhoud={scannerZichtbaar ? "Verberg QR" : "Scan QR"}
               intent="primary"
               vullen={true}
-              onKlik={this.handleScanQr}
+              onKlik={this.handleKlikScanQrCode}
             />,
           ])}
           {fout &&
@@ -119,8 +121,8 @@ class FormulierInschrijvingOpzoeken extends Formulier {
         {scannerZichtbaar && (
           <div className="qrCode-scanner">
             {qrCodeService.genereerQrCodeLezer(
-              this.handleOnFoutQr,
-              this.handleOnScan
+              this.handleQrCodeFout,
+              this.handleQrCodeGescand
             )}
           </div>
         )}
@@ -135,25 +137,37 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     );
   }
 
-  handleOnScan = async (data) => {
-    if (data) {
-      await this.inschrijvingenOphalenViaQrCode(data);
+  // === === === === ===
+  // Inladen
+  inschrijvingenInladenViaFilters = async () => {
+    try {
+      const {
+        data: inschrijvingen,
+      } = await inschrijvingenService.getInschrijvingenViaFilters(
+        this.state.data
+      );
+      return inschrijvingen;
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return undefined;
     }
   };
 
-  handleOnFoutQr = (err) => {
-    this.setState({
-      fout: err,
-      inschrijvingen: [],
-      scannerZichtbaar: false,
-    });
+  inschrijvingenInladenViaQrCode = async (qrCode) => {
+    try {
+      const {
+        data: inschrijvingen,
+      } = await inschrijvingenService.getInschrijvingenViaQrCode(qrCode);
+      return inschrijvingen;
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return undefined;
+    }
   };
 
-  handleZoeken = async () => {
-    await this.inschrijvingenOphalenViaFilters();
-  };
-
-  handleFiltersWissen = () => {
+  // === === === === ===
+  // Events
+  handleKlikFiltersWissen = () => {
     this.setState({
       data: {
         voornaam: "",
@@ -167,7 +181,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     });
   };
 
-  handleScanQr = () => {
+  handleKlikScanQrCode = () => {
     this.setState({
       fout: "",
       inschrijvingen: [],
@@ -175,82 +189,52 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     });
   };
 
-  inschrijvingenOphalenViaFilters = async () => {
-    try {
-      const {
-        data: inschrijvingen,
-      } = await inschrijvingenService.inschrijvingenViaFiltersOphalen(
-        this.state.data
-      );
-      if (inschrijvingen) {
-        if (inschrijvingen.length > 0) {
-          this.setState({
-            inschrijvingen: inschrijvingen,
-            fout: "",
-            scannerZichtbaar: false,
-          });
-        } else {
-          this.setState({
-            inschrijvingen: [],
-            fout: "Er zijn geen inschrijvingen gevonden met deze filters",
-            scannerZichtbaar: false,
-          });
-        }
-      }
-    } catch (error) {
-      let fout = "";
-      fout = "Er is een fout opgetreden bij het zoeken naar inschrijvingen.";
-      responseErrorMeldingService.ToonFoutmelding(error, true, fout);
+  handleKlikZoeken = async () => {
+    const inschrijvingen = await this.inschrijvingenInladenViaFilters();
+    if (inschrijvingen && inschrijvingen.length > 0) {
       this.setState({
-        fout: fout,
-        inschrijvingen: [],
+        inschrijvingen: inschrijvingen,
+        fout: "",
+        scannerZichtbaar: false,
+      });
+    } else {
+      this.setState({
+        inschrijving: [],
+        fout: "Er zijn geen inschrijvingen gevonden",
         scannerZichtbaar: false,
       });
     }
   };
 
-  inschrijvingenOphalenViaQrCode = async (qrCode) => {
-    try {
-      const {
-        data: inschrijvingen,
-      } = await inschrijvingenService.inschrijvingenViaQrCodeOphalen(qrCode);
-      if (inschrijvingen) {
-        if (inschrijvingen.length > 0) {
-          this.setState({
-            inschrijvingen: inschrijvingen,
-            fout: "",
-            scannerZichtbaar: false,
-          });
-        } else {
-          this.setState({
-            inschrijvingen: [],
-            fout:
-              "Er zijn geen inschrijvingen gevonden met de QR-code '" +
-              qrCode +
-              "'",
-            scannerZichtbaar: false,
-          });
-        }
-      }
-    } catch (error) {
-      let fout = "";
-      if (error && error.response.status === 404) {
-        fout =
-          "Er zijn geen inschrijvingen gevonden met de QR-code '" +
-          qrCode +
-          "'";
+  handleQrCodeGescand = async (data) => {
+    if (data) {
+      const inschrijvingen = await this.inschrijvingenInladenViaQrCode(data);
+      if (inschrijvingen && inschrijvingen.length > 0) {
+        this.setState({
+          inschrijvingen: inschrijvingen,
+          fout: "",
+          scannerZichtbaar: false,
+        });
       } else {
-        fout =
-          "Er is een fout opgetreden bij het inladen van de inschrijvingen.";
-        responseErrorMeldingService.ToonFoutmelding(error, true, fout);
+        this.setState({
+          inschrijving: [],
+          fout: "Er zijn geen inschrijvingen gevonden",
+          scannerZichtbaar: false,
+        });
       }
-      this.setState({
-        fout: fout,
-        inschrijvingen: [],
-        scannerZichtbaar: false,
-      });
     }
   };
+
+  handleQrCodeFout = (err) => {
+    this.setState({
+      fout: err,
+      inschrijvingen: [],
+      scannerZichtbaar: false,
+    });
+  };
+
+  // === === === === ===
+  // Helpers
 }
 
 export default FormulierInschrijvingOpzoeken;

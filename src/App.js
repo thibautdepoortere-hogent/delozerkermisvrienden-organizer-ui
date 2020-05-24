@@ -4,14 +4,14 @@ import NavBar from "./components/navigation/navBar";
 import NotFound from "./components/notFound";
 import Fabrieksinstellingen from "./components/fabrieksinstellingen/fabrieksinstellingen";
 import Lijsten from "./components/lijsten/lijsten";
-import FormulierNieuweAanvraag from "./components/formulieren/nieuweAanvraag";
+import FormulierAanvraagIndienen from "./components/formulieren/aanvraagIndienen";
 import Inschrijvingen from "./components/lijsten/lijstItems/inschrijvingen";
 import FormulierinschrijvingWijzigen from "./components/formulieren/inschrijvingWijzigen";
 import FormulierInschrijvingOpzoeken from "./components/formulieren/inschrijvingOpzoeken";
 import FormulierAuthenticatieStandhouder from "./components/formulieren/authenticatieStandhouder";
 import FormulierAuthenticatieAdministrator from "./components/formulieren/authenticatieAdministrator";
 import FormulierBetaaltransactieToevoegen from "./components/formulieren/betaaltransactieToevoegen";
-import StatusInschrijving from "./components/statusInschrijving";
+import InschrijvingStatus from "./components/inschrijvingStatus";
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
               />
               <Route
                 path="/inschrijvingen/nieuw"
-                component={FormulierNieuweAanvraag}
+                component={FormulierAanvraagIndienen}
               />
               <Route
                 path="/inschrijvingen/:inschrijvingsId/betaaltransacties/nieuw"
@@ -45,7 +45,7 @@ function App() {
               />
               <Route
                 path="/inschrijvingen/:inschrijvingsId/status"
-                component={StatusInschrijving}
+                component={InschrijvingStatus}
               />
               <Route
                 path="/inschrijvingen/:inschrijvingsId"

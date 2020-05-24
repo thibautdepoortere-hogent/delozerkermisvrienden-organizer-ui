@@ -1,27 +1,25 @@
 import React from "react";
 import Joi from "joi-browser";
-import * as toaster from "../../services/toasterService";
 import Formulier from "../gemeenschappelijk/formulieren/formulier";
-import * as authenticatieService from "../../services/api/authenticatieService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
+import * as authenticatieService from "../../services/api/authenticatieService";
 
-const regEx = /^(?=.*[A-Z])(?=.*[\W])(?=.*[0-9])(?=.*[a-z]).{8,128}$/;
+const regExWachtwoord = /^(?=.*[A-Z])(?=.*[\W])(?=.*[0-9])(?=.*[a-z]).{8,128}$/;
 class FormulierAuthenticatieAdministrator extends Formulier {
   state = {
+    schema: this.schema,
     errors: {},
-    opdrachtNietVerwerkt: false,
-    opdrachtVerwerken: false,
     data: {
       email: "",
       wachtwoord: "",
     },
-    schema: this.schema,
+    opdrachtNietVerwerkt: false,
+    opdrachtVerwerken: false,
   };
 
   schema = {
     email: Joi.string().email().max(200).required().label("E-mail"),
     wachtwoord: Joi.string().label("Wachtwoord"),
-    // wachtwoord: Joi.string().regex(regEx).label("Wachtwoord"),
   };
 
   componentDidMount() {
@@ -40,8 +38,9 @@ class FormulierAuthenticatieAdministrator extends Formulier {
     return (
       <div>
         {this.genereerTitel(
-          "authenticatieAdministrator",
-          "Authenticatie administrator"
+          "authenticatieAdministratorH1",
+          "Authenticatie administrator",
+          1
         )}
         <form onSubmit={this.handleVerzendFormulier}>
           <div>
@@ -80,37 +79,8 @@ class FormulierAuthenticatieAdministrator extends Formulier {
     );
   }
 
-  verzendFormulier = async () => {
-    const { email, wachtwoord } = this.state.data;
-    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
-    const wachtwoordServer = await this.authenticeerAdministratorEmail();
-    authenticatieService.controleerWachtwoord(
-      this.state.data.wachtwoord,
-      wachtwoordServer,
-      this.onControleUitgevoerd
-    );
-  };
-
-  onControleUitgevoerd = async (resultaat) => {
-    const dataAuthenticatie = { ...this.state.data };
-    dataAuthenticatie.wachtwoord = resultaat.hashedWachtwoord;
-    const token = await this.authenticeerAdministrator(dataAuthenticatie);
-    console.log("Token: ", token);
-    if (token) {
-      this.setState({
-        token: token.token,
-        opdrachtNietVerwerkt: false,
-        opdrachtVerwerken: false,
-      });
-    } else {
-      this.setState({
-        token: "",
-        opdrachtNietVerwerkt: true,
-        opdrachtVerwerken: false,
-      });
-    }
-  };
-
+  // === === === === ===
+  // Inladen / Acties
   authenticeerAdministratorEmail = async () => {
     try {
       const {
@@ -118,10 +88,12 @@ class FormulierAuthenticatieAdministrator extends Formulier {
       } = await authenticatieService.authenticeerAdministratorEmail(
         this.state.data.email
       );
-      return wachtwoord.wachtwoord;
+      if (wachtwoord) {
+        return wachtwoord.wachtwoord;
+      }
     } catch (error) {
       if (error.response.status !== 404) {
-        responseErrorMeldingService.ToonFoutmelding(error, true, error);
+        responseErrorMeldingService.ToonFoutmeldingVast();
       }
     }
   };
@@ -136,10 +108,45 @@ class FormulierAuthenticatieAdministrator extends Formulier {
       return token;
     } catch (error) {
       if (error.response.status !== 404) {
-        responseErrorMeldingService.ToonFoutmelding(error, true, error);
+        responseErrorMeldingService.ToonFoutmeldingVast();
       }
     }
   };
+
+  // === === === === ===
+  // Events
+
+  // === === === === ===
+  // Formulier verwerken
+  verzendFormulier = async () => {
+    const { email, wachtwoord } = this.state.data;
+    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+    const wachtwoordServer = await this.authenticeerAdministratorEmail();
+    authenticatieService.controleerWachtwoord(
+      wachtwoord,
+      wachtwoordServer,
+      this.handleControleUitgevoerd
+    );
+  };
+
+  handleControleUitgevoerd = async (resultaat) => {
+    const dataAuthenticatie = { ...this.state.data };
+    dataAuthenticatie.wachtwoord = resultaat.hashedWachtwoord;
+    const token = await this.authenticeerAdministrator(dataAuthenticatie);
+    console.log("Token: ", token);
+    if (token) {
+      this.props.history.push("/");
+    } else {
+      this.setState({
+        token: "",
+        opdrachtNietVerwerkt: true,
+        opdrachtVerwerken: false,
+      });
+    }
+  };
+
+  // === === === === ===
+  // Helpers
 }
 
 export default FormulierAuthenticatieAdministrator;
