@@ -39,6 +39,9 @@ export function getInschrijvingenViaFilters(filters) {
   parameters += filters.inschrijvingsnummer
     ? "id=" + filters.inschrijvingsnummer + "&"
     : "";
+  parameters += filters.inschrijvingsstatus
+    ? "inschrijvingsstatus=" + filters.inschrijvingsstatus + "&"
+    : "";
   return http.get(url + "?" + parameters);
 }
 

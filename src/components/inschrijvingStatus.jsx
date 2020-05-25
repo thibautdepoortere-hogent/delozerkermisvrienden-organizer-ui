@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import PrintProvider, { Print, NoPrint } from "react-easy-print";
 import Basis from "./gemeenschappelijk/basis";
-import SpinnerInladenGegevens from "./gemeenschappelijk/spinnerInladenGegevens";
+import ProgressBarInladenGegevens from "./gemeenschappelijk/progressBarInladenGegevens";
 import * as formatteerService from "../services/formatteerService";
 import * as responseErrorMeldingService from "../services/api/responseErrorMeldingService";
 import * as inschrijvingenService from "../services/api/inschrijvingenService";
 import * as inschrijvingsstatusService from "../services/api/inschrijvingsstatusService";
 import * as betaalmethodenService from "../services/api/betaalmethodenService";
+import AanvraagIngediend from "./aanvraagIngediend";
 
 class InschrijvingStatus extends Basis {
   state = {
@@ -39,11 +40,16 @@ class InschrijvingStatus extends Basis {
     betaalmethodeOverschrijving: {},
     inschrijvingsstatus: { id: "", naam: "" },
     gegevensInladen: false,
+    aanvraagIngediendTonen: false,
   };
 
   async componentDidMount() {
     this.setState({ gegevensInladen: true });
     const inschrijvingsId = this.props.match.params.inschrijvingsId;
+    const aanvraagIngediend = this.props.match.params.aanvraagIngediend;
+    if (aanvraagIngediend) {
+      this.setState({ aanvraagIngediendTonen: true });
+    }
     if (!(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))) {
       this.props.history.push("/not-found");
     } else {
@@ -59,22 +65,18 @@ class InschrijvingStatus extends Basis {
       <div>
         <PrintProvider>
           <div>
-            {this.state.gegevensInladen && <SpinnerInladenGegevens />}
+            {this.state.gegevensInladen && <ProgressBarInladenGegevens />}
             <Print single printOnly name="status">
               <div>
+                {this.genereerTitel("blancoTitelH1Print", "", 1)}
                 {this.genereerTitel(
-                  "statusInschrijvingH1",
-                  "Status inschrijving",
-                  1
-                )}
-                {this.genereerTitel(
-                  "statusInschrijvingH1",
+                  "statusInschrijvingH1Print",
                   "Status inschrijving",
                   1
                 )}
                 {this.genereerFormulierGroep([
                   this.genereerTekstvak(
-                    "id",
+                    "idPrint",
                     "Inschrijvingsnummer",
                     "",
                     "",
@@ -84,7 +86,7 @@ class InschrijvingStatus extends Basis {
                 ])}
                 {this.genereerFormulierGroep([
                   this.genereerTekstvak(
-                    "inschrijvingsstatusId",
+                    "inschrijvingsstatusIdPrint",
                     "Inschrijvingsstatus",
                     "",
                     "",
@@ -97,7 +99,7 @@ class InschrijvingStatus extends Basis {
                 {this.state.data.redenAfkeuring &&
                   this.genereerFormulierGroep([
                     this.genereerTekstveld(
-                      "redenAfkeuring",
+                      "redenAfkeuringPrint",
                       "Reden afkeuring",
                       "",
                       "",
@@ -107,7 +109,7 @@ class InschrijvingStatus extends Basis {
                   ])}
                 {this.genereerFormulierGroep([
                   this.genereerTekstvak(
-                    "voornaam",
+                    "voornaamPrint",
                     "Voornaam",
                     "",
                     "",
@@ -117,7 +119,7 @@ class InschrijvingStatus extends Basis {
                 ])}
                 {this.genereerFormulierGroep([
                   this.genereerTekstvak(
-                    "achternaam",
+                    "achternaamPrint",
                     "Achternaam",
                     "",
                     "",
@@ -127,7 +129,7 @@ class InschrijvingStatus extends Basis {
                 ])}
                 {this.genereerFormulierGroep([
                   this.genereerTekstvak(
-                    "aantalMeter",
+                    "aantalMeterPrint",
                     "Aantal meter",
                     "",
                     "",
@@ -137,7 +139,7 @@ class InschrijvingStatus extends Basis {
                 ])}
                 {this.genereerFormulierGroep([
                   this.genereerTekstvak(
-                    "prijs",
+                    "prijsPrint",
                     "Prijs (€)",
                     "",
                     "",
@@ -151,7 +153,7 @@ class InschrijvingStatus extends Basis {
                   this.genereerQrCode(this.state.data.qrCode)}
                 {!this.state.data.qrCode &&
                   this.genereerMededeling(
-                    "qrCodeNietAanwezig",
+                    "qrCodeNietAanwezigPrint",
                     "",
                     "De QR Code wordt pas gegenereerd wanneer uw aanvraag is goedgekeurd.",
                     "info-sign",
@@ -160,6 +162,12 @@ class InschrijvingStatus extends Basis {
               </div>
             </Print>
 
+            {this.state.aanvraagIngediendTonen && (
+              <AanvraagIngediend
+                inschrijvingsId="c1dea00c-0513-4ebf-8c01-306c6533a270"
+                {...this.props.history}
+              />
+            )}
             {this.genereerTitel(
               "statusInschrijvingH1",
               "Status inschrijving",

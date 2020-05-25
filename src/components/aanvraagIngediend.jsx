@@ -1,22 +1,34 @@
-import React from "react";
-import { Card, Elevation } from "@blueprintjs/core";
+import React, { Component } from "react";
+import { Callout } from "@blueprintjs/core";
 
-const AanvraagIngediend = (props) => {
+const AanvraagIngediend = () => {
   return (
-    <Card className="card" elevation={Elevation.TWO}>
-      <h1>Aanvraag ingediend</h1>
-      <p>{props.match.params.inschrijvingsId}</p>
+    <div id="aanvraagIngediendMededeling" className="mededeling">
+      <Callout title="Uw aanvraag is ingediend" icon="flag" intent="Primary">
+        {genereerInhoud()}
+      </Callout>
+    </div>
+  );
+};
+
+const genereerInhoud = () => {
+  return (
+    <div>
+      <p>Uw aanvraag tot inschrijving is ingediend, waarvoor dank!</p>
       <p>
-        Uw aanvraag is succesvol ingediend. U ontvangt een bevestigingsmail van
-        uw aanvraag.
+        Als bevestiging ontvangt u een mail met een kopie van uw aanvraag
+        (controleer ook je ongewenste e-mail).
       </p>
       <p>
         <strong>
-          Let wel, dit is nog geen inschrijiving, deze moet nog goedgekeurd
-          worden. (u ontvang ook hiervan een mail).
+          Opgelet: Deze mail geldt niet dus niet als inschrijvingsbewijs!
         </strong>
       </p>
-    </Card>
+      <p>
+        U krijgt zo snel mogelijk een bericht met de melding of uw inschrijving
+        al dan niet is goedgekeurd.
+      </p>
+    </div>
   );
 };
 

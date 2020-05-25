@@ -1,7 +1,7 @@
 import React from "react";
 import Joi from "joi-browser";
 import Formulier from "../gemeenschappelijk/formulieren/formulier";
-import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
+import ProgressBarInladenGegevens from "../gemeenschappelijk/progressBarInladenGegevens";
 import * as toaster from "../../services/toasterService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as formatteerService from "../../services/formatteerService";
@@ -14,6 +14,7 @@ import * as instellingenService from "../../services/api/instellingenService";
 import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
 import InschrijvingStatus from "./../inschrijvingStatus";
 import Tabel from "./../gemeenschappelijk/tabellen/tabel";
+import KaartEvenement from "./../gemeenschappelijk/kaartEvenement";
 
 class FormulierinschrijvingWijzigen extends Formulier {
   state = {
@@ -119,10 +120,10 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } else {
       this.setState({ inschrijvingsId: inschrijvingsId });
       await this.instellingenInladen();
-      await this.inschrijvingInladen(this.state.inschrijvingsId);
-      await this.evenementInladen(this.state.data.evenementId);
+      await this.inschrijvingInladen();
+      await this.evenementInladen();
       await this.betaalmethodenInladen();
-      await this.betaalTransactiesInladen(this.state.inschrijvingsId);
+      await this.betaalTransactiesInladen();
       await this.inschrijvingsstatusInladen();
       const kolommen = this.kolommen();
       const dataTabel = await this.dataTabel();
@@ -144,7 +145,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } = this.state;
     return (
       <div>
-        {this.state.gegevensInladen && <SpinnerInladenGegevens />}
+        {this.state.gegevensInladen && <ProgressBarInladenGegevens />}
         <form onSubmit={this.handleVerzendFormulier}>
           {this.genereerTitel(
             "inschrijvingAanpassenH1",
@@ -167,19 +168,11 @@ class FormulierinschrijvingWijzigen extends Formulier {
               },
             ]
           )}
-          {evenement &&
-            evenement.datumStartEvenement &&
-            this.genereerMededeling(
-              "evenementDatum",
-              evenement.naam,
-              "Dit evenement vindt plaats op " +
-                datumService.getDatumBelgischeNotatie(
-                  evenement.datumStartEvenement
-                ) +
-                ".",
-              "timeline-events",
-              "Success"
-            )}
+          {evenement && evenement.datumStartEvenement && (
+            <div className="margin-rechts">
+              <KaartEvenement evenement={evenement} />
+            </div>
+          )}
           <div>
             <h2>Persoonlijk:</h2>
             {this.state.inschrijvingsId &&
@@ -495,7 +488,8 @@ class FormulierinschrijvingWijzigen extends Formulier {
     }
   };
 
-  inschrijvingInladen = async (inschrijvingsId) => {
+  inschrijvingInladen = async () => {
+    const { inschrijvingsId } = this.state;
     try {
       const {
         data: inschrijving,
@@ -507,7 +501,8 @@ class FormulierinschrijvingWijzigen extends Formulier {
     }
   };
 
-  evenementInladen = async (evenementId) => {
+  evenementInladen = async () => {
+    const { evenementId } = this.state.data;
     try {
       const { data: evenementApi } = await evenementenService.getEvenement(
         evenementId
@@ -530,20 +525,21 @@ class FormulierinschrijvingWijzigen extends Formulier {
         data: betaalmethoden,
       } = await betaalmethodenService.getBetaalmethoden();
       const verschilInDagen = this.getVerschilInDagen();
-      betaalmethoden.map(
-        (b) =>
-          (b.alleenLezen = !betaalmethodenService.isBetaalmethodeNogGeldig(
-            b,
-            verschilInDagen
-          ))
-      );
+      // betaalmethoden.map(
+      //   (b) =>
+      //     (b.alleenLezen = !betaalmethodenService.isBetaalmethodeNogGeldig(
+      //       b,
+      //       verschilInDagen
+      //     ))
+      // );
       this.setState({ betaalmethoden: betaalmethoden });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
   };
 
-  betaalTransactiesInladen = async (inschrijvingsId) => {
+  betaalTransactiesInladen = async () => {
+    const { inschrijvingsId } = this.state;
     try {
       const {
         data: betaaltransacties,
@@ -603,7 +599,10 @@ class FormulierinschrijvingWijzigen extends Formulier {
     const resultaat = await this.inschrijvingWijzigen();
     if (resultaat) {
       this.setState({ opdrachtVerwerken: false });
-      this.props.history.push("/inschrijvingen/" + this.state.data.id);
+      setTimeout(() => {
+        this.inschrijvingInladen();
+      }, 1500);
+      // this.props.history.push("/inschrijvingen/" + this.state.data.id);
     } else {
       this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
     }
@@ -624,7 +623,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
   // Helpers
   getVerschilInDagen = () => {
     const beginPeriode = new Date();
-    const eindePeriode = this.state.evenement.datumStartEvenement;
+    const eindePeriode = new Date(this.state.evenement.datumStartEvenement);
     return datumService.getDagenVerschilInPeriode(beginPeriode, eindePeriode);
   };
 

@@ -16,7 +16,13 @@ class KaartInschrijving extends Basis {
   }
 
   render() {
-    const { inschrijving, detailsZichtbaar, checkInZichtbaar } = this.props;
+    const {
+      inschrijving,
+      detailsZichtbaar,
+      checkInZichtbaar,
+      onKlikDetails,
+      onKlikCheckIn,
+    } = this.props;
     const detailsTonen =
       detailsZichtbaar === undefined ? true : detailsZichtbaar;
     const checkInTonen =
@@ -36,7 +42,11 @@ class KaartInschrijving extends Basis {
                   inhoud="Details"
                   intent="primary"
                   vullen={true}
-                  onKlik={(e) => this.handleKlikDetails(inschrijving.id)}
+                  onKlik={(e) =>
+                    onKlikDetails
+                      ? onKlikDetails(inschrijving.id)
+                      : this.handleKlikDetails(inschrijving.id)
+                  }
                 />
               </div>
             )}
@@ -47,7 +57,11 @@ class KaartInschrijving extends Basis {
                   inhoud="Check in"
                   intent="success"
                   vullen={true}
-                  onKlik={(e) => this.handleKlikCheckIn(inschrijving.id)}
+                  onKlik={(e) =>
+                    onKlikCheckIn
+                      ? onKlikCheckIn(inschrijving.id)
+                      : this.handleKlikCheckIn(inschrijving.id)
+                  }
                 />
               </div>
             )}

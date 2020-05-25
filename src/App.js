@@ -5,13 +5,14 @@ import NotFound from "./components/notFound";
 import Fabrieksinstellingen from "./components/fabrieksinstellingen/fabrieksinstellingen";
 import Lijsten from "./components/lijsten/lijsten";
 import FormulierAanvraagIndienen from "./components/formulieren/aanvraagIndienen";
-import Inschrijvingen from "./components/lijsten/lijstItems/inschrijvingen";
 import FormulierinschrijvingWijzigen from "./components/formulieren/inschrijvingWijzigen";
 import FormulierInschrijvingOpzoeken from "./components/formulieren/inschrijvingOpzoeken";
 import FormulierAuthenticatieStandhouder from "./components/formulieren/authenticatieStandhouder";
 import FormulierAuthenticatieAdministrator from "./components/formulieren/authenticatieAdministrator";
 import FormulierBetaaltransactieToevoegen from "./components/formulieren/betaaltransactieToevoegen";
 import InschrijvingStatus from "./components/inschrijvingStatus";
+import LijstInschrijvingen from "./components/lijsten/inschrijvingen";
+import LijstInschrijvingenVolgensStatus from "./components/lijsten/lijstInschrijvingenVolgensStatus";
 
 function App() {
   return (
@@ -44,7 +45,7 @@ function App() {
                 component={FormulierBetaaltransactieToevoegen}
               />
               <Route
-                path="/inschrijvingen/:inschrijvingsId/status"
+                path="/inschrijvingen/:inschrijvingsId/status/:aanvraagIngediend?"
                 component={InschrijvingStatus}
               />
               <Route
@@ -52,10 +53,9 @@ function App() {
                 component={FormulierinschrijvingWijzigen}
               />
               <Route
-                path="/lijsten/inschrijvingen"
-                component={Inschrijvingen}
+                path="/lijst/inschrijvingen/:inschrijvingsstatusFilter"
+                component={LijstInschrijvingenVolgensStatus}
               />
-              <Route path="/lijsten/aanvragen" component={NotFound} />
               <Route path="/lijsten/" component={Lijsten} />
               <Route
                 path="/fabrieksinstellingen"

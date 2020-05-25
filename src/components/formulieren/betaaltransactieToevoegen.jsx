@@ -1,7 +1,7 @@
 import React from "react";
 import Joi from "joi-browser";
 import Formulier from "./../gemeenschappelijk/formulieren/formulier";
-import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
+import ProgressBarInladenGegevens from "../gemeenschappelijk/progressBarInladenGegevens";
 import KaartInschrijving from "../gemeenschappelijk/kaartInschrijving";
 import * as toaster from "../../services/toasterService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
@@ -82,7 +82,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     const { opdrachtNietVerwerkt, opdrachtVerwerken } = this.state;
     return (
       <div>
-        {this.state.gegevensInladen && <SpinnerInladenGegevens />}
+        {this.state.gegevensInladen && <ProgressBarInladenGegevens />}
         {this.state.inschrijving && (
           <div className="margin-rechts">
             <KaartInschrijving

@@ -201,16 +201,16 @@ body {
   margin-bottom: 10px;
 }
 
-.spinner-inladenGegevens {
+.progressBar-inladenGegevens {
   /* Rest */
   position: fixed;
   z-index: 99;
-  width: 100px;
-  height: 100px;
-  top: 20%;
-  left: 65%;
-  margin-top: -50px;
-  margin-left: -50px;
+  width: 25%;
+  height: 10px;
+  top: 1%;
+  right: 4%;
+  /* margin-top: -50px;
+  margin-left: -50px; */
 }
 
 .margin-rechts {

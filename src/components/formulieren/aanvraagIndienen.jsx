@@ -1,7 +1,7 @@
 import React from "react";
 import Joi from "joi-browser";
 import Formulier from "../gemeenschappelijk/formulieren/formulier";
-import SpinnerInladenGegevens from "../gemeenschappelijk/spinnerInladenGegevens";
+import ProgressBarInladenGegevens from "./../gemeenschappelijk/progressBarInladenGegevens";
 import * as toaster from "../../services/toasterService";
 import * as datumService from "../../services/datumService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
@@ -9,6 +9,7 @@ import * as betaalmethodenService from "../../services/api/betaalmethodenService
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
 import * as instellingenService from "../../services/api/instellingenService";
 import * as nieuwsbriefService from "../../services/api/nieuwsbriefService";
+import KaartEvenement from "./../gemeenschappelijk/kaartEvenement";
 
 class FormulierAanvraagIndienen extends Formulier {
   state = {
@@ -45,6 +46,7 @@ class FormulierAanvraagIndienen extends Formulier {
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
     gegevensInladen: false,
+    overlayActief: false,
   };
 
   schema = {
@@ -78,7 +80,7 @@ class FormulierAanvraagIndienen extends Formulier {
     await this.instellingenInladen();
     this.evenementIdInladen();
     await this.betaalmethodenInladen();
-    this.setState({ gegevensInladen: false });
+    this.setState({ gegevensInladen: false, overlayActief: true });
   }
 
   render() {
@@ -91,19 +93,12 @@ class FormulierAanvraagIndienen extends Formulier {
     } = this.state;
     return (
       <div>
-        {this.state.gegevensInladen && <SpinnerInladenGegevens />}
+        {this.state.gegevensInladen && <ProgressBarInladenGegevens />}
         <form onSubmit={this.handleVerzendFormulier}>
           {this.genereerTitel("nieuweAanvraagH1", "Nieuwe aanvraag", 1)}
-          {this.genereerMededeling(
-            "evenementDatum",
-            evenement.naam,
-            "Dit evenement vindt plaats op " +
-              datumService.getDatumBelgischeNotatie(
-                evenement.datumStartEvenement
-              ),
-            "timeline-events",
-            "Success"
-          )}
+          <div className="margin-rechts">
+            <KaartEvenement evenement={evenement} />
+          </div>
           <div>
             {this.genereerTitel("persoonlijkH2", "Persoonlijk", 2)}
             {this.genereerFormulierGroep([
@@ -337,7 +332,9 @@ class FormulierAanvraagIndienen extends Formulier {
     const aanvraagId = await this.aanvraagIndienen();
     if (aanvraagId) {
       this.setState({ opdrachtVerwerken: false });
-      this.props.history.push("/inschrijvingen/" + aanvraagId + "/status");
+      this.props.history.push(
+        "/inschrijvingen/" + aanvraagId + "/status/aanvraagIngediend"
+      );
     } else {
       this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
     }
@@ -348,7 +345,7 @@ class FormulierAanvraagIndienen extends Formulier {
       const {
         data: ingediendeAanvraag,
       } = await inschrijvingenService.postAanvraag(this.state.data);
-      toaster.infoToastAanmaken("Aanvraag ingediend.");
+      //toaster.infoToastAanmaken("Aanvraag ingediend.");
       return ingediendeAanvraag ? ingediendeAanvraag.id : undefined;
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();

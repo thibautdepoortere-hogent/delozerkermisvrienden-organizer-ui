@@ -3,7 +3,7 @@ import Joi from "joi-browser";
 import Formulier from "./../gemeenschappelijk/formulieren/formulier";
 import Knop from "./../gemeenschappelijk/knop";
 import KaartInschrijving from "../gemeenschappelijk/kaartInschrijving";
-import SpinnerInladenGegevens from "./../gemeenschappelijk/spinnerInladenGegevens";
+import ProgressBarInladenGegevens from "./../gemeenschappelijk/progressBarInladenGegevens";
 import * as qrCodeService from "../../services/qrCodeService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
@@ -47,7 +47,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     const { scannerZichtbaar, inschrijvingen, fout } = this.state;
     return (
       <div>
-        {this.state.gegevensInladen && <SpinnerInladenGegevens />}
+        {this.state.gegevensInladen && <ProgressBarInladenGegevens />}
         <div>
           {!scannerZichtbaar && (
             <div>
@@ -141,13 +141,16 @@ class FormulierInschrijvingOpzoeken extends Formulier {
   // Inladen
   inschrijvingenInladenViaFilters = async () => {
     try {
+      this.setState({ gegevensInladen: true });
       const {
         data: inschrijvingen,
       } = await inschrijvingenService.getInschrijvingenViaFilters(
         this.state.data
       );
+      this.setState({ gegevensInladen: false });
       return inschrijvingen;
     } catch (error) {
+      this.setState({ gegevensInladen: false });
       responseErrorMeldingService.ToonFoutmeldingVast();
       return undefined;
     }

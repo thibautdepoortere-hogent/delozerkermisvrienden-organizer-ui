@@ -8,9 +8,8 @@
     flex-direction: column;
   }
 
-  .spinner-inladenGegevens {
-    left: 50%;
-    top: 30%;
+  .progressBar-inladenGegevens {
+    top: 70px;
   }
 
   /* ------------------------------- */
