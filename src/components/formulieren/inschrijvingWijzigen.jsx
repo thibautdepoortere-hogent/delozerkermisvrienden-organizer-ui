@@ -56,6 +56,8 @@ class FormulierinschrijvingWijzigen extends Formulier {
     openstaandBedrag: 0,
     minimumAantalMeter: 0,
     prijs: 0,
+    kolommen: [],
+    dataTabel: [],
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
     gegevensInladen: false,
@@ -122,7 +124,13 @@ class FormulierinschrijvingWijzigen extends Formulier {
       await this.betaalmethodenInladen();
       await this.betaalTransactiesInladen(this.state.inschrijvingsId);
       await this.inschrijvingsstatusInladen();
-      this.setState({ gegevensInladen: false });
+      const kolommen = this.kolommen();
+      const dataTabel = await this.dataTabel();
+      this.setState({
+        kolommen: kolommen,
+        dataTabel: dataTabel,
+        gegevensInladen: false,
+      });
     }
   }
 
@@ -386,11 +394,14 @@ class FormulierinschrijvingWijzigen extends Formulier {
               "bank-account",
               this.state.openstaandBedrag > 0 ? "Warning" : "Success"
             )}
-            <Tabel
-              kolommen={this.kolommen()}
-              data={this.dataTabel()}
-              zonderHoofding={false}
-            />
+            {this.state.betaaltransacties &&
+              this.state.betaaltransacties.length > 0 && (
+                <Tabel
+                  kolommen={this.state.kolommen}
+                  data={this.state.dataTabel}
+                  zonderHoofding={false}
+                />
+              )}
             <h2>Check-ins:</h2>
             {this.genereerFormulierGroep([
               this.genereerTekstvak(
@@ -440,7 +451,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
         id: "betaalmethode",
         naam: "Betaalmethode",
         veld: "betaalmethode",
-        verbergBijSmaller: true,
+        verbergBijSmaller: false,
       },
       {
         id: "verantwoordelijkeBetaling",
@@ -457,15 +468,14 @@ class FormulierinschrijvingWijzigen extends Formulier {
     ];
   };
 
-  dataTabel = () => {
+  dataTabel = async () => {
     const betaaltransacties = [...this.state.betaaltransacties];
-
     for (let index = 0; index < betaaltransacties.length; index++) {
       const betaaltransactie = betaaltransacties[index];
       betaaltransactie.datum = datumService.getDatumBelgischeNotatie(
-        betaaltransactie.datumBetaling
+        new Date(betaaltransactie.datumBetaling)
       );
-      betaaltransactie.betaalmethode = this.naamBetaalmethode(
+      betaaltransactie.betaalmethode = await this.naamBetaalmethode(
         betaaltransactie.betaalmethodeId
       );
     }

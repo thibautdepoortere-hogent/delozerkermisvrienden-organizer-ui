@@ -68,10 +68,11 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       this.props.history.push("/not-found");
     } else {
       this.setState({ inschrijvingsId: inschrijvingsId });
+      console.log(inschrijvingsId);
       await this.inschrijvingInladen(inschrijvingsId);
       await this.betaalmethodenInladen();
       await this.betaalmethodeOverschrijvingInladen();
-      await this.inschrijvingInladen(this.state.inschrijvingsId);
+      // await this.inschrijvingInladen(this.state.inschrijvingsId);
       this.wijzigSchemaManueel();
       this.setState({ gegevensInladen: false });
     }
@@ -82,17 +83,16 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
     return (
       <div>
         {this.state.gegevensInladen && <SpinnerInladenGegevens />}
+        {this.state.inschrijving && (
+          <div className="margin-rechts">
+            <KaartInschrijving
+              inschrijving={this.state.inschrijving}
+              {...this.props}
+            />
+          </div>
+        )}
         <form onSubmit={this.handleVerzendFormulier}>
           {this.genereerTitel("betalingH1", "Nieuwe betaaltransactie", 1)}
-          {this.state.inschrijving && (
-            <div className="margin-rechts">
-              <KaartInschrijving
-                inschrijving={this.state.inschrijving}
-                checkInZichtbaar={false}
-                {...this.props}
-              />
-            </div>
-          )}
           <div>
             {this.genereerFormulierGroep([
               this.genereerRadio(
@@ -167,7 +167,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
         data: inschrijving,
       } = await inschrijvingenService.getInschrijving(inschrijvingsId);
       const data = { ...this.state.data };
-      data.inschrijvingsId = inschrijving.Id;
+      data.inschrijvingsId = inschrijving.id;
       data.betaalmethodeId = inschrijving.betaalmethodeId;
       data.verantwoordelijkeBetaling =
         inschrijving.voornaam + " " + inschrijving.achternaam;

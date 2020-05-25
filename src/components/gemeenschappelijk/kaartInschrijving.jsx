@@ -10,7 +10,9 @@ class KaartInschrijving extends Basis {
   state = { inschrijvingsstatus: {} };
 
   async componentDidMount() {
-    await this.inschrijvingsstatusInladen();
+    if (this.props.inschrijving && this.props.inschrijving.inschrijvingsId) {
+      await this.inschrijvingsstatusInladen();
+    }
   }
 
   render() {
@@ -19,7 +21,6 @@ class KaartInschrijving extends Basis {
       detailsZichtbaar === undefined ? true : detailsZichtbaar;
     const checkInTonen =
       checkInZichtbaar === undefined ? true : checkInZichtbaar;
-    console.log(inschrijving);
 
     return (
       <Card key={inschrijving.id} className="card">
@@ -80,7 +81,7 @@ class KaartInschrijving extends Basis {
     this.props.history.push("/inschrijvingen/" + inschrijvingsId);
   };
 
-  handleKlikCheckin = (inschrijvingsId) => {
+  handleKlikCheckIn = (inschrijvingsId) => {
     this.props.history.push("/inschrijvingen/" + inschrijvingsId);
   };
 }

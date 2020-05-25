@@ -75,10 +75,8 @@ class FormulierAanvraagIndienen extends Formulier {
 
   async componentDidMount() {
     this.setState({ gegevensInladen: true, schema: this.schema });
-    const data = { ...this.state.data };
-    await this.instellingenInladen(data);
-    this.evenementIdInladen(data);
-    this.setState({ data: data });
+    await this.instellingenInladen();
+    this.evenementIdInladen();
     await this.betaalmethodenInladen();
     this.setState({ gegevensInladen: false });
   }
@@ -273,8 +271,9 @@ class FormulierAanvraagIndienen extends Formulier {
 
   // === === === === ===
   // Inladen
-  instellingenInladen = async (data) => {
+  instellingenInladen = async () => {
     try {
+      const data = { ...this.state.data };
       const {
         data: instellingen,
       } = await instellingenService.getInstellingenAanvraag();
@@ -283,6 +282,7 @@ class FormulierAanvraagIndienen extends Formulier {
       data.inschrijvingsstatusId = instellingen.aanvraagInschrijvingssstatus;
       const prijs = data.aantalMeter * data.meterPrijs;
       this.setState({
+        data: data,
         minimumAantalMeter: instellingen.minimumAantalMeter,
         prijs: prijs,
       });
@@ -291,9 +291,11 @@ class FormulierAanvraagIndienen extends Formulier {
     }
   };
 
-  evenementIdInladen = (data) => {
+  evenementIdInladen = () => {
+    const data = { ...this.state.data };
     const { evenement } = this.state;
     data.evenementId = evenement.id;
+    this.setState({ data: data });
   };
 
   betaalmethodenInladen = async () => {
@@ -335,7 +337,7 @@ class FormulierAanvraagIndienen extends Formulier {
     const aanvraagId = await this.aanvraagIndienen();
     if (aanvraagId) {
       this.setState({ opdrachtVerwerken: false });
-      this.props.history.push("/inschrijvingen/" + aanvraagId);
+      this.props.history.push("/inschrijvingen/" + aanvraagId + "/status");
     } else {
       this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
     }
