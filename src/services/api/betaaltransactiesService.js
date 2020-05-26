@@ -1,4 +1,4 @@
-import http from "./httpService";
+import http, { Headers } from "./httpService";
 
 const url = "/betaaltransacties";
 
@@ -7,7 +7,7 @@ export function getBetaaltransactiesVanInschrijving(inschrijvingsId) {
 }
 
 export function postBetaaltransactie(betaaltransactie) {
-  return http.post(url, betaaltransactie);
+  return http.post(url, betaaltransactie, { headers: Headers() });
 }
 
 // export function betaaltransactieOphalen(betaaltransactieId) {

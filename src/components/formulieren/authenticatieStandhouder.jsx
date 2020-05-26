@@ -25,7 +25,12 @@ class FormulierAuthenticatieStandhouder extends Formulier {
   };
 
   componentDidMount() {
-    this.setState({ schema: this.schema });
+    const inschrijvingsnummer = this.props.match.params.inschrijvingsnummer;
+    const data = { ...this.state.data };
+    if (inschrijvingsnummer) {
+      data.inschrijvingsId = inschrijvingsnummer;
+    }
+    this.setState({ schema: this.schema, data: data });
   }
 
   render() {

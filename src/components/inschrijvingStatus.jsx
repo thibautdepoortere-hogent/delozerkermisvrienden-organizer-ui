@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import PrintProvider, { Print, NoPrint } from "react-easy-print";
+import React from "react";
+import PrintProvider, { Print } from "react-easy-print";
 import Basis from "./gemeenschappelijk/basis";
 import ProgressBarInladenGegevens from "./gemeenschappelijk/progressBarInladenGegevens";
 import * as formatteerService from "../services/formatteerService";
@@ -450,6 +450,8 @@ class InschrijvingStatus extends Basis {
     betaalmethodeId,
     betaalmethodeOverschrijvingId
   ) => {
+    console.log(betaalmethodeId);
+    console.log(betaalmethodeOverschrijvingId);
     if (betaalmethodeId === betaalmethodeOverschrijvingId) {
       return true;
     }

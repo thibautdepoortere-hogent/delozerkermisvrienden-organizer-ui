@@ -2,7 +2,6 @@ import React from "react";
 import Joi from "joi-browser";
 import Formulier from "../gemeenschappelijk/formulieren/formulier";
 import ProgressBarInladenGegevens from "./../gemeenschappelijk/progressBarInladenGegevens";
-import * as toaster from "../../services/toasterService";
 import * as datumService from "../../services/datumService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as betaalmethodenService from "../../services/api/betaalmethodenService";

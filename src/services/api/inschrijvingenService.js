@@ -1,4 +1,4 @@
-import http from "./httpService";
+import http, { Headers } from "./httpService";
 import * as responseErrorMeldingService from "../api/responseErrorMeldingService";
 import * as guidService from "../../services/guidService";
 
@@ -54,9 +54,69 @@ export function getInschrijvingVoorStatus(inschrijvingsId) {
 }
 
 export function postAanvraag(aanvraag) {
-  return http.post(url, aanvraag);
+  return http.post(url, aanvraag, { headers: Headers() });
 }
 
 export function putInschrijving(inschrijving) {
   return http.put(urlMetId(inschrijving.id), inschrijving);
+}
+
+export function patchInschrijvingGoedkeuren(
+  inschrijvingsId,
+  volgendeInschrijvingsstatusId
+) {
+  const patchJson = [
+    {
+      op: "replace",
+      path: "/InschrijvingsstatusId",
+      value: volgendeInschrijvingsstatusId,
+    },
+  ];
+  return http.patch(urlMetId(inschrijvingsId), patchJson, {
+    headers: Headers(),
+  });
+}
+
+export function patchInschrijvingAfkeuren(
+  inschrijvingsId,
+  volgendeInschrijvingsstatusId,
+  redenAfkeuring
+) {
+  const patchJson = [
+    {
+      op: "replace",
+      path: "/redenAfkeuring",
+      value: redenAfkeuring,
+    },
+    {
+      op: "replace",
+      path: "/InschrijvingsstatusId",
+      value: volgendeInschrijvingsstatusId,
+    },
+  ];
+  return http.patch(urlMetId(inschrijvingsId), patchJson, {
+    headers: Headers(),
+  });
+}
+
+export function patchInschrijvingInplannen(
+  inschrijvingsId,
+  volgendeInschrijvingsstatusId,
+  standnummer
+) {
+  const patchJson = [
+    {
+      op: "replace",
+      path: "/standnummer",
+      value: standnummer,
+    },
+    {
+      op: "replace",
+      path: "/InschrijvingsstatusId",
+      value: volgendeInschrijvingsstatusId,
+    },
+  ];
+  return http.patch(urlMetId(inschrijvingsId), patchJson, {
+    headers: Headers(),
+  });
 }

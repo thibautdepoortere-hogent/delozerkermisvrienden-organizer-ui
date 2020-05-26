@@ -1,5 +1,5 @@
 import React from "react";
-import { Spinner, ProgressBar } from "@blueprintjs/core";
+import { ProgressBar } from "@blueprintjs/core";
 
 const ProgressBarInladenGegevens = () => {
   return (

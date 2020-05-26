@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import KaartInschrijving from "../gemeenschappelijk/kaartInschrijving";
 import Basis from "../gemeenschappelijk/basis";
 import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
@@ -166,26 +166,20 @@ class LijstInschrijvingenVolgensStatus extends Basis {
   };
 
   vergelijkAantalMeter = (a, b) => {
-    // a should come before b in the sorted order
     if (a.aantalMeter > b.aantalMeter) {
       return -1;
-      // a should come after b in the sorted order
     } else if (a.aantalMeter < b.aantalMeter) {
       return 1;
-      // and and b are the same
     } else {
       return 0;
     }
   };
 
   vergelijkDatumInschrijving = (a, b) => {
-    // a should come before b in the sorted order
     if (new Date(a.datumInschrijving) < new Date(b.datumInschrijving)) {
       return -1;
-      // a should come after b in the sorted order
     } else if (new Date(a.datumInschrijving) > new Date(b.datumInschrijving)) {
       return 1;
-      // and and b are the same
     } else {
       return 0;
     }
@@ -203,19 +197,9 @@ class LijstInschrijvingenVolgensStatus extends Basis {
   };
 
   titelAanmaken = (inschrijvingsstausFilter) => {
-    switch (inschrijvingsstausFilter) {
-      case "aangevraagd":
-        return "Openstaande aanvragen";
-      case "goedgekeurd":
-        return "Goedgekeurde inschrijvingen";
-      case "afgekeurd":
-        return "Afgekeurde inschrijvingen";
-      case "gepland":
-        return "Ingeplande inschrijvingen";
-      case "":
-      default:
-        return "Alle inschrijvingen";
-    }
+    return inschrijvingsstatusService.getInschrijvingsstatusTitelViaFilter(
+      inschrijvingsstausFilter
+    );
   };
 }
 

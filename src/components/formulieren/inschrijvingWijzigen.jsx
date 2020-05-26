@@ -12,9 +12,9 @@ import * as evenementenService from "../../services/api/evenementenService";
 import * as betaaltransactiesService from "../../services/api/betaaltransactiesService";
 import * as instellingenService from "../../services/api/instellingenService";
 import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
-import InschrijvingStatus from "./../inschrijvingStatus";
 import Tabel from "./../gemeenschappelijk/tabellen/tabel";
 import KaartEvenement from "./../gemeenschappelijk/kaartEvenement";
+import Knop from "./../gemeenschappelijk/knop";
 
 class FormulierinschrijvingWijzigen extends Formulier {
   state = {
@@ -52,6 +52,13 @@ class FormulierinschrijvingWijzigen extends Formulier {
     },
     inschrijvingsId: "",
     inschrijvingsstatus: { id: "", naam: "" },
+    inschrijvingsstatusGoedgekeurd: { id: "", naam: "" },
+    inschrijvingsstatusAfgekeurd: { id: "", naam: "" },
+    inschrijvingsstatusGepland: { id: "", naam: "" },
+    inschrijvingsstatusIsAangevraagd: false,
+    inschrijvingsstatusIsGoedgekeurd: false,
+    inschrijvingsstatusIsAfgekeurd: false,
+    inschrijvingsstatusIsGepland: false,
     betaalmethoden: [],
     betaaltransacties: [],
     openstaandBedrag: 0,
@@ -59,6 +66,9 @@ class FormulierinschrijvingWijzigen extends Formulier {
     prijs: 0,
     kolommen: [],
     dataTabel: [],
+    foutmeldingRedenAfkeuring: false,
+    foutmeldingStandnummer: false,
+    foutmeldingFormulierNietCorrectIngevuld: false,
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
     gegevensInladen: false,
@@ -110,6 +120,50 @@ class FormulierinschrijvingWijzigen extends Formulier {
       .allow(null)
       .allow("")
       .label("Standnummer"),
+  };
+
+  schemaIngepland = {
+    id: Joi.string().guid().required().label("Id"),
+    voornaam: Joi.string().max(150).required().label("Voornaam"),
+    achternaam: Joi.string().max(150).required().label("Achternaam"),
+    postcode: Joi.string().min(4).max(4).required().label("Postcode"),
+    gemeente: Joi.string().max(100).required().label("Gemeente"),
+    prefixMobielNummer: Joi.string().max(6).required().label("Landnummer"),
+    mobielNummer: Joi.string().min(9).max(9).required().label("Mobiel nummer"),
+    email: Joi.string().email().max(200).required().label("E-mail"),
+    aantalMeter: Joi.number()
+      .min(this.state.minimumAantalMeter)
+      .required()
+      .label("Aantal meter"),
+    meterPrijs: Joi.number().required().label("Meterprijs"),
+    aantalWagens: Joi.number().min(0).allow(null).label("Aantal wagens"),
+    aantalAanhangwagens: Joi.number()
+      .min(0)
+      .allow(null)
+      .label("Aantal aanhangwagens"),
+    aantalMobilhomes: Joi.number()
+      .min(0)
+      .allow(null)
+      .label("Aantal mobilhomes"),
+    opmerking: Joi.string().max(200).allow(null).allow("").label("Opmerking"),
+    inschrijvingsstatusId: Joi.string()
+      .guid()
+      .required()
+      .label("Inschrijvingsstatus"),
+    betaalmethodeId: Joi.string().guid().required().label("Betaalmethode"),
+    evenementId: Joi.string().guid().required().label("Evenement"),
+    lidId: Joi.string().guid().allow(null).allow("").label("Lid"),
+    datumInschrijving: Joi.date().label("Datum inschrijving"),
+    gestructureerdeMededeling: Joi.string()
+      .allow(null)
+      .allow("")
+      .label("Gestructureerde mededeling"),
+    qrCode: Joi.string().allow(null).allow("").label("QR Code"),
+    redenAfkeuring: Joi.string()
+      .allow(null)
+      .allow("")
+      .label("Reden afekeuring"),
+    standnummer: Joi.string().max(10).required().label("Standnummer"),
   };
 
   async componentDidMount() {
@@ -174,7 +228,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
             </div>
           )}
           <div>
-            <h2>Persoonlijk:</h2>
+            {this.genereerTitel("statusH2", "Status", 2)}
             {this.state.inschrijvingsId &&
               this.state.data.datumInschrijving &&
               this.genereerMededeling(
@@ -188,6 +242,65 @@ class FormulierinschrijvingWijzigen extends Formulier {
                 "info-sign",
                 "Primary"
               )}
+            {this.genereerFormulierGroep([
+              this.genereerTekstvak(
+                "inschrijvingsstatusId",
+                "Inschrijvingsstatus",
+                "",
+                "",
+                "flag",
+                true,
+                false,
+                this.state.inschrijvingsstatus.naam
+              ),
+            ])}
+            {(this.state.inschrijvingsstatusIsAangevraagd ||
+              this.state.inschrijvingsstatusIsAfgekeurd) &&
+              this.genereerFormulierGroep([
+                this.genereerTekstveld(
+                  "redenAfkeuring",
+                  "Reden afkeuring",
+                  "",
+                  "",
+                  "",
+                  this.state.inschrijvingsstatusIsAfgekeurd,
+                  false
+                ),
+              ])}
+            {this.state.foutmeldingRedenAfkeuring &&
+              this.genereerMededeling(
+                "foutRedenAfkeuringInvullen",
+                "Reden afkeuring invullen",
+                "Een inschrijving kan enkel afgekeurd worden afgekeurd wanneer een reden tot afkeuring is opgegeven.",
+                "warning-sign",
+                "danger"
+              )}
+            {this.state.foutmeldingStandnummer &&
+              this.genereerMededeling(
+                "foutStandnummerInvullen",
+                "Standnummer invullen",
+                "Een inschrijving kan enkel ingepland worden wanneer een standnummer is opgegeven.",
+                "warning-sign",
+                "danger"
+              )}
+            {this.state.foutmeldingFormulierNietCorrectIngevuld &&
+              this.genereerMededeling(
+                "foutFormulierNietCorrectIngevuld",
+                "Formulier niet volledig (correct) ingevuld",
+                "Het formulier is nog niet volledig (correct) ingevuld. Het veld / de velden die niet (correct) ingevuld zijn zullen een foutmelding bevatten.",
+                "warning-sign",
+                "danger"
+              )}
+            {this.state.inschrijvingsstatusIsAangevraagd &&
+              this.genereerFormulierGroep([
+                this.knopGoedkeuren(),
+                this.knopAfkeuren(),
+              ])}
+            {this.state.inschrijvingsstatusIsGoedgekeurd &&
+              this.genereerFormulierGroep([this.knopInplannen()])}
+          </div>
+          <div>
+            {this.genereerTitel("persoonlijkH2", "Persoonlijk", 2)}
             {this.genereerFormulierGroep([
               this.genereerTekstvak(
                 "voornaam",
@@ -248,7 +361,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
             ])}
           </div>
           <div>
-            <h2>Praktisch:</h2>
+            {this.genereerTitel("praktischH2", "Praktisch", 2)}
             {this.genereerFormulierGroep([
               this.genereerNumeriekVak(
                 "aantalMeter",
@@ -309,36 +422,19 @@ class FormulierinschrijvingWijzigen extends Formulier {
               this.genereerTekstveld("opmerking", "Opmerking"),
             ])}
             {this.genereerFormulierGroep([
-              this.genereerTekstvak("standnummer", "Standnummer"),
+              this.genereerTekstvak(
+                "standnummer",
+                "Standnummer",
+                "",
+                "",
+                "",
+                false,
+                this.state.inschrijvingsstatusIsGepland
+              ),
             ])}
           </div>
           <div>
-            <h2>Status:</h2>
-            {this.genereerFormulierGroep([
-              this.genereerTekstvak(
-                "inschrijvingsstatusId",
-                "Inschrijvingsstatus",
-                "",
-                "",
-                "",
-                true,
-                true,
-                this.state.inschrijvingsstatus.naam
-              ),
-            ])}
-            {this.state.data.redenAfkeuring &&
-              this.genereerFormulierGroep([
-                this.genereerTekstvak(
-                  "redenAfkeuring",
-                  "Reden afkeuring",
-                  "",
-                  "",
-                  "",
-                  true,
-                  false
-                ),
-              ])}
-            <h2>Betaalmethode:</h2>
+            {this.genereerTitel("betaalmethodeH2", "Betaalmethode", 2)}
             {this.genereerFormulierGroep([
               this.genereerRadio(
                 "betaalmethodeId",
@@ -395,18 +491,19 @@ class FormulierinschrijvingWijzigen extends Formulier {
                   zonderHoofding={false}
                 />
               )}
-            <h2>Check-ins:</h2>
-            {this.genereerFormulierGroep([
-              this.genereerTekstvak(
-                "qrCode",
-                "QR Code",
-                "",
-                "",
-                "",
-                true,
-                false
-              ),
-            ])}
+            {this.genereerTitel("checkInH2", "Check-ins", 2)}
+            {this.state.data.qrCode &&
+              this.genereerFormulierGroep([
+                this.genereerTekstvak(
+                  "qrCode",
+                  "QR Code",
+                  "",
+                  "",
+                  "",
+                  true,
+                  false
+                ),
+              ])}
             {this.state.data.qrCode &&
               this.genereerQrCode(this.state.data.qrCode)}
             {!this.state.data.qrCode &&
@@ -418,13 +515,14 @@ class FormulierinschrijvingWijzigen extends Formulier {
                 "primary"
               )}
           </div>
-          {this.genereerVerzendKnopMetAttributen(
-            opdrachtNietVerwerkt,
-            opdrachtVerwerken,
-            "Opslaan",
-            "Fout opgetreden",
-            "De aanpassingen zijn niet opgeslagen."
-          )}
+          {!this.state.inschrijvingsstatusIsAfgekeurd &&
+            this.genereerVerzendKnopMetAttributen(
+              opdrachtNietVerwerkt,
+              opdrachtVerwerken,
+              "Opslaan",
+              "Fout opgetreden",
+              "De aanpassingen zijn niet opgeslagen."
+            )}
         </form>
       </div>
     );
@@ -524,7 +622,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
       const {
         data: betaalmethoden,
       } = await betaalmethodenService.getBetaalmethoden();
-      const verschilInDagen = this.getVerschilInDagen();
+      // const verschilInDagen = this.getVerschilInDagen();
       // betaalmethoden.map(
       //   (b) =>
       //     (b.alleenLezen = !betaalmethodenService.isBetaalmethodeNogGeldig(
@@ -560,9 +658,127 @@ class FormulierinschrijvingWijzigen extends Formulier {
       } = await inschrijvingsstatusService.getInschrijvingsstatus(
         this.state.data.inschrijvingsstatusId
       );
-      this.setState({ inschrijvingsstatus: inschrijvingsstatus });
+      const inschrijvingsstatusIsAangevraagd = await this.isInschrijvingsstatusAangevraagd(
+        inschrijvingsstatus
+      );
+      const inschrijvingsstatusIsGoedgekeurd = !inschrijvingsstatusIsAangevraagd
+        ? await this.isInschrijvingsstatusGoedgekeurd(inschrijvingsstatus)
+        : false;
+      const inschrijvingsstatusIsAfgekeurd = !inschrijvingsstatusIsGoedgekeurd
+        ? await this.isInschrijvingsstatusAfgekeurd(inschrijvingsstatus)
+        : false;
+      const inschrijvingsstatusIsGepland = !inschrijvingsstatusIsAfgekeurd
+        ? await this.isInschrijvingsstatusGepland(inschrijvingsstatus)
+        : false;
+      const schema = inschrijvingsstatusIsGepland
+        ? this.schemaIngepland
+        : this.schema;
+      this.setState({
+        inschrijvingsstatus: inschrijvingsstatus,
+        inschrijvingsstatusIsAangevraagd: inschrijvingsstatusIsAangevraagd,
+        inschrijvingsstatusIsGoedgekeurd: inschrijvingsstatusIsGoedgekeurd,
+        inschrijvingsstatusIsAfgekeurd: inschrijvingsstatusIsAfgekeurd,
+        inschrijvingsstatusIsGepland: inschrijvingsstatusIsGepland,
+        schema: schema,
+      });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
+    }
+  };
+
+  isInschrijvingsstatusAangevraagd = async (inschrijvingsstatus) => {
+    let huidigeInschrijvingsstatus = inschrijvingsstatus;
+    const inschrijvingsstatusAangevraagd = await this.inschrijvingsstatusAangevraagdInladen();
+    if (!huidigeInschrijvingsstatus && !huidigeInschrijvingsstatus.id) {
+      huidigeInschrijvingsstatus = this.state.inschrijvingsstatus;
+    }
+    return inschrijvingsstatusAangevraagd.id === huidigeInschrijvingsstatus.id;
+  };
+
+  isInschrijvingsstatusGoedgekeurd = async (inschrijvingsstatus) => {
+    let huidigeInschrijvingsstatus = inschrijvingsstatus;
+    const inschrijvingsstatusGoedgekeurd = await this.inschrijvingsstatusGoedgekeurdInladen();
+    if (!huidigeInschrijvingsstatus && !huidigeInschrijvingsstatus.id) {
+      huidigeInschrijvingsstatus = this.state.inschrijvingsstatus;
+    }
+    return inschrijvingsstatusGoedgekeurd.id === huidigeInschrijvingsstatus.id;
+  };
+
+  isInschrijvingsstatusAfgekeurd = async (inschrijvingsstatus) => {
+    let huidigeInschrijvingsstatus = inschrijvingsstatus;
+    const inschrijvingsstatusAfgekeurd = await this.inschrijvingsstatusAfgekeurdInladen();
+    if (!huidigeInschrijvingsstatus && !huidigeInschrijvingsstatus.id) {
+      huidigeInschrijvingsstatus = this.state.inschrijvingsstatus;
+    }
+    return inschrijvingsstatusAfgekeurd.id === huidigeInschrijvingsstatus.id;
+  };
+
+  isInschrijvingsstatusGepland = async (inschrijvingsstatus) => {
+    let huidigeInschrijvingsstatus = inschrijvingsstatus;
+    const inschrijvingsstatusGepland = await this.inschrijvingsstatusGeplandInladen();
+    if (!huidigeInschrijvingsstatus && !huidigeInschrijvingsstatus.id) {
+      huidigeInschrijvingsstatus = this.state.inschrijvingsstatus;
+    }
+    return inschrijvingsstatusGepland.id === huidigeInschrijvingsstatus.id;
+  };
+
+  inschrijvingsstatusAangevraagdInladen = async () => {
+    try {
+      const {
+        data: inschrijvingsstatusAangevraagd,
+      } = await inschrijvingsstatusService.getInschrijvingsstatusAangevraagd();
+      this.setState({
+        inschrijvingsstatusAangevraagd: inschrijvingsstatusAangevraagd,
+      });
+      return inschrijvingsstatusAangevraagd;
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return undefined;
+    }
+  };
+
+  inschrijvingsstatusGoedgekeurdInladen = async () => {
+    try {
+      const {
+        data: inschrijvingsstatusGoedgekeurd,
+      } = await inschrijvingsstatusService.getInschrijvingsstatusGoedgekeurd();
+      this.setState({
+        inschrijvingsstatusGoedgekeurd: inschrijvingsstatusGoedgekeurd,
+      });
+      return inschrijvingsstatusGoedgekeurd;
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return undefined;
+    }
+  };
+
+  inschrijvingsstatusAfgekeurdInladen = async () => {
+    try {
+      const {
+        data: inschrijvingsstatusAfgekeurd,
+      } = await inschrijvingsstatusService.getInschrijvingsstatusAfgekeurd();
+      this.setState({
+        inschrijvingsstatusAfgekeurd: inschrijvingsstatusAfgekeurd,
+      });
+      return inschrijvingsstatusAfgekeurd;
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return undefined;
+    }
+  };
+
+  inschrijvingsstatusGeplandInladen = async () => {
+    try {
+      const {
+        data: inschrijvingsstatusGepland,
+      } = await inschrijvingsstatusService.getInschrijvingsstatusGepland();
+      this.setState({
+        inschrijvingsstatusGepland: inschrijvingsstatusGepland,
+      });
+      return inschrijvingsstatusGepland;
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return undefined;
     }
   };
 
@@ -590,6 +806,97 @@ class FormulierinschrijvingWijzigen extends Formulier {
     const { meterPrijs } = this.state.data;
     const prijs = meterPrijs * invoer.value;
     this.setState({ prijs: prijs });
+  };
+
+  handleKlikKnopGoedkeuren = async () => {
+    if (this.isFormulierCorrectIngevuld()) {
+      let volgendeInschrijvingsstatus = this.state
+        .inschrijvingsstatusGoedgekeurd;
+      if (!volgendeInschrijvingsstatus || !volgendeInschrijvingsstatus.id) {
+        volgendeInschrijvingsstatus = await this.inschrijvingsstatusGoedgekeurdInladen();
+      }
+      this.inschrijvingWijzigen();
+      try {
+        await inschrijvingenService.patchInschrijvingGoedkeuren(
+          this.state.data.id,
+          volgendeInschrijvingsstatus.id
+        );
+        toaster.infoToastAanmaken("Inschrijving goedgekeurd.");
+        setTimeout(async () => {
+          await this.inschrijvingInladen();
+          await this.inschrijvingsstatusInladen();
+        }, 1500);
+      } catch (error) {
+        responseErrorMeldingService.ToonFoutmeldingVast();
+      }
+    }
+  };
+
+  handleKlikKnopAfkeuren = async () => {
+    if (this.isFormulierCorrectIngevuld()) {
+      if (
+        !this.state.data.redenAfkeuring ||
+        (this.state.data.redenAfkeuring &&
+          this.state.data.redenAfkeuring.trim() === "")
+      ) {
+        this.setState({ foutmeldingRedenAfkeuring: true });
+      } else {
+        let volgendeInschrijvingsstatus = this.state
+          .inschrijvingsstatusAfgekeurd;
+        if (!volgendeInschrijvingsstatus || !volgendeInschrijvingsstatus.id) {
+          volgendeInschrijvingsstatus = await this.inschrijvingsstatusAfgekeurdInladen();
+        }
+        this.inschrijvingWijzigen();
+        try {
+          await inschrijvingenService.patchInschrijvingAfkeuren(
+            this.state.data.id,
+            volgendeInschrijvingsstatus.id,
+            this.state.data.redenAfkeuring
+          );
+          this.setState({ foutmeldingRedenAfkeuring: false });
+          toaster.infoToastAanmaken("Inschrijving afgekeurd.");
+          setTimeout(async () => {
+            await this.inschrijvingInladen();
+            await this.inschrijvingsstatusInladen();
+          }, 1500);
+        } catch (error) {
+          responseErrorMeldingService.ToonFoutmeldingVast();
+        }
+      }
+    }
+  };
+
+  handleKlikKnopInplannen = async () => {
+    if (this.isFormulierCorrectIngevuld()) {
+      if (
+        !this.state.data.standnummer ||
+        (this.state.data.standnummer &&
+          this.state.data.standnummer.trim() === "")
+      ) {
+        this.setState({ foutmeldingStandnummer: true });
+      } else {
+        let volgendeInschrijvingsstatus = this.state.inschrijvingsstatusGepland;
+        if (!volgendeInschrijvingsstatus || !volgendeInschrijvingsstatus.id) {
+          volgendeInschrijvingsstatus = await this.inschrijvingsstatusGeplandInladen();
+        }
+        this.inschrijvingWijzigen();
+        try {
+          await inschrijvingenService.patchInschrijvingInplannen(
+            this.state.data.id,
+            volgendeInschrijvingsstatus.id,
+            this.state.data.standnummer
+          );
+          this.setState({ foutmeldingStandnummer: false });
+          toaster.infoToastAanmaken("Inschrijving ingepland.");
+          setTimeout(async () => {
+            await this.inschrijvingInladen();
+            await this.inschrijvingsstatusInladen();
+          }, 1500);
+        } catch (error) {
+          responseErrorMeldingService.ToonFoutmeldingVast();
+        }
+      }
+    }
   };
 
   // === === === === ===
@@ -642,6 +949,55 @@ class FormulierinschrijvingWijzigen extends Formulier {
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
+  };
+
+  knopGoedkeuren = () => {
+    return (
+      <Knop
+        id="goedkeurenKnop"
+        inhoud="Goedkeuren"
+        intent="success"
+        vullen={true}
+        onKlik={this.handleKlikKnopGoedkeuren}
+      />
+    );
+  };
+
+  knopAfkeuren = () => {
+    return (
+      <Knop
+        id="afkeurenKnop"
+        inhoud="Afkeuren"
+        intent="danger"
+        vullen={true}
+        onKlik={this.handleKlikKnopAfkeuren}
+      />
+    );
+  };
+
+  knopInplannen = () => {
+    return (
+      <Knop
+        id="inplannenKnop"
+        inhoud="Inplannen"
+        intent="primary"
+        vullen={true}
+        onKlik={this.handleKlikKnopInplannen}
+      />
+    );
+  };
+
+  isFormulierCorrectIngevuld = () => {
+    const errors = this.valideer();
+    this.setState({ errors: errors || {} });
+    if (errors) {
+      this.setState({
+        errors: errors,
+        foutmeldingFormulierNietCorrectIngevuld: true,
+      });
+      return false;
+    }
+    return true;
   };
 }
 

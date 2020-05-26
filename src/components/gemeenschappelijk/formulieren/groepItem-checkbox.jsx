@@ -1,6 +1,5 @@
 import React from "react";
 import FormulierGroepItemFout from "./groepItem-fout";
-import FormulierGroepItemIcoon from "./groepItem-icoon";
 import FormulierGroepItemHelper from "./groepItem-helper";
 import { Checkbox } from "@blueprintjs/core";
 

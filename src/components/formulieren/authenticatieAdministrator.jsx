@@ -4,7 +4,7 @@ import Formulier from "../gemeenschappelijk/formulieren/formulier";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as authenticatieService from "../../services/api/authenticatieService";
 
-const regExWachtwoord = /^(?=.*[A-Z])(?=.*[\W])(?=.*[0-9])(?=.*[a-z]).{8,128}$/;
+// const regExWachtwoord = /^(?=.*[A-Z])(?=.*[\W])(?=.*[0-9])(?=.*[a-z]).{8,128}$/;
 class FormulierAuthenticatieAdministrator extends Formulier {
   state = {
     schema: this.schema,
@@ -119,7 +119,7 @@ class FormulierAuthenticatieAdministrator extends Formulier {
   // === === === === ===
   // Formulier verwerken
   verzendFormulier = async () => {
-    const { email, wachtwoord } = this.state.data;
+    const { wachtwoord } = this.state.data;
     this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
     const wachtwoordServer = await this.authenticeerAdministratorEmail();
     authenticatieService.controleerWachtwoord(

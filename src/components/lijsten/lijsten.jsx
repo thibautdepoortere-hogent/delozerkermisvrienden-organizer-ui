@@ -1,51 +1,85 @@
 import React from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
-import NavBarLijsten from "./navBarLijsten";
-import NotFound from "./../notFound";
 import Basis from "./../gemeenschappelijk/basis";
 import Knop from "./../gemeenschappelijk/knop";
+import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
 
 class Lijsten extends Basis {
   render() {
-    return this.lijsten().map((lijst) => (
-      <Knop
-        key={lijst.id}
-        id={lijst.id}
-        inhoud={lijst.inhoud}
-        intent={lijst.intent}
-        icoon={lijst.icoon}
-        onKlik={this.handleKlikKnop}
-      />
-    ));
+    return (
+      <div className="lijsten">
+        <div className="lijsten-lijst">
+          {this.lijstInschrijvingen().map((lijst) => (
+            <div key={lijst.id}>
+              {this.genereerFormulierGroep([
+                <Knop
+                  key={lijst.id}
+                  id={lijst.id}
+                  inhoud={lijst.inhoud}
+                  intent={lijst.intent}
+                  icoon={lijst.icoon}
+                  vullen={true}
+                  onKlik={this.handleKlikKnopLijstInschrijvingen}
+                />,
+              ])}
+            </div>
+          ))}
+        </div>
+        <div className="lijsten-lijst">
+          {this.lijstActies().map((lijst) => (
+            <div key={lijst.id}>
+              {this.genereerFormulierGroep([
+                <Knop
+                  key={lijst.id}
+                  id={lijst.id}
+                  inhoud={lijst.inhoud}
+                  intent={lijst.intent}
+                  icoon={lijst.icoon}
+                  vullen={true}
+                  onKlik={this.handleKlikKnopLijstActies}
+                />,
+              ])}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   // Info van status 'titel' van service halen! al 2 keer in deze applicatie!!!
-  lijsten = () => {
+  lijstInschrijvingen = () => {
     return [
       {
         id: "inschrijvingenAanvraag",
-        inhoud: "Nieuwe aanvragen",
+        inhoud: inschrijvingsstatusService.getInschrijvingsstatusTitelViaFilter(
+          "aangevraagd"
+        ),
         intent: "primary",
         icoon: "flag",
         url: "/lijst/inschrijvingen/aangevraagd",
       },
       {
         id: "inschrijvingenGoedgekeurd",
-        inhoud: "Goedgekeurde inschrijvingen",
+        inhoud: inschrijvingsstatusService.getInschrijvingsstatusTitelViaFilter(
+          "goedgekeurd"
+        ),
         intent: "primary",
         icoon: "flag",
         url: "/lijst/inschrijvingen/goedgekeurd",
       },
       {
         id: "inschrijvingenGepland",
-        inhoud: "Ingeplande inschrijvingen",
+        inhoud: inschrijvingsstatusService.getInschrijvingsstatusTitelViaFilter(
+          "gepland"
+        ),
         intent: "primary",
         icoon: "flag",
         url: "/lijst/inschrijvingen/gepland",
       },
       {
         id: "inschrijvingenAfgekeurd",
-        inhoud: "Afgekeurde inschrijvingen",
+        inhoud: inschrijvingsstatusService.getInschrijvingsstatusTitelViaFilter(
+          "afgekeurd"
+        ),
         intent: "primary",
         icoon: "flag",
         url: "/lijst/inschrijvingen/afgekeurd",
@@ -53,8 +87,35 @@ class Lijsten extends Basis {
     ];
   };
 
-  handleKlikKnop = ({ currentTarget: knop }) => {
-    const lijst = this.lijsten().filter((l) => l.id === knop.id);
+  lijstActies = () => {
+    return [
+      {
+        id: "aanvraagIndienen",
+        inhoud: "Aanvraag indienen",
+        intent: "success",
+        icoon: "plus",
+        url: "/inschrijvingen/nieuw",
+      },
+      {
+        id: "inschrijvingOpzoeken",
+        inhoud: "Inschrijving opzoeken",
+        intent: "success",
+        icoon: "search",
+        url: "/inschrijvingen/opzoeken",
+      },
+    ];
+  };
+
+  handleKlikKnopLijstInschrijvingen = ({ currentTarget: knop }) => {
+    const lijst = this.lijstInschrijvingen().filter((l) => l.id === knop.id);
+    if (lijst) {
+      const url = lijst[0].url;
+      url && this.props.history.push(url);
+    }
+  };
+
+  handleKlikKnopLijstActies = ({ currentTarget: knop }) => {
+    const lijst = this.lijstActies().filter((l) => l.id === knop.id);
     if (lijst) {
       const url = lijst[0].url;
       url && this.props.history.push(url);

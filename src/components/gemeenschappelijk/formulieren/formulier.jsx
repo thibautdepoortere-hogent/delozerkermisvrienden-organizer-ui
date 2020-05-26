@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import Joi from "joi-browser";
 import { Spinner } from "@blueprintjs/core";
 import Knop from "./../knop";

@@ -264,3 +264,14 @@ body {
 .tabel-100-procent {
   width: 100%;
 }
+
+.lijsten {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.lijsten-lijst {
+  margin-bottom: 20px;
+}

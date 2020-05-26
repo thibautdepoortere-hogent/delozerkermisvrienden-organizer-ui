@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Tabel from "./tabel";
-import * as responseErrorMeldingService from "../../../services/api/responseErrorMeldingService";
 import * as datumService from "../../../services/datumService";
 
 class TabelEvenementEigenschappen extends Component {

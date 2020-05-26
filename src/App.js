@@ -11,7 +11,6 @@ import FormulierAuthenticatieStandhouder from "./components/formulieren/authenti
 import FormulierAuthenticatieAdministrator from "./components/formulieren/authenticatieAdministrator";
 import FormulierBetaaltransactieToevoegen from "./components/formulieren/betaaltransactieToevoegen";
 import InschrijvingStatus from "./components/inschrijvingStatus";
-import LijstInschrijvingen from "./components/lijsten/inschrijvingen";
 import LijstInschrijvingenVolgensStatus from "./components/lijsten/lijstInschrijvingenVolgensStatus";
 
 function App() {
@@ -24,20 +23,25 @@ function App() {
         <div className="wrapper">
           <div className="inhoud">
             <Switch>
+              {/* --- AUTHENTICATIE --- */}
               <Route
-                path="/authenticatie/standhouder"
+                path="/authenticatie/standhouder/:inschrijvingsnummer?"
                 component={FormulierAuthenticatieStandhouder}
               />
               <Route
                 path="/authenticatie/administrator"
                 component={FormulierAuthenticatieAdministrator}
               />
+
+              {/* --- INSCHRIJVINGEN --- */}
               <Route
                 path="/inschrijvingen/opzoeken"
+                exact
                 component={FormulierInschrijvingOpzoeken}
               />
               <Route
                 path="/inschrijvingen/nieuw"
+                exact
                 component={FormulierAanvraagIndienen}
               />
               <Route
@@ -52,15 +56,21 @@ function App() {
                 path="/inschrijvingen/:inschrijvingsId"
                 component={FormulierinschrijvingWijzigen}
               />
+
+              {/* --- LIJSTEN --- */}
               <Route
                 path="/lijst/inschrijvingen/:inschrijvingsstatusFilter"
                 component={LijstInschrijvingenVolgensStatus}
               />
               <Route path="/lijsten/" component={Lijsten} />
+
+              {/* --- FABRIEKSINSTELLINGEN --- */}
               <Route
                 path="/fabrieksinstellingen"
                 component={Fabrieksinstellingen}
               />
+
+              {/* --- OVERIGE --- */}
               <Route path="/not-found" component={NotFound} />
               <Redirect from="/" exact to="/inschrijvingen/nieuw" />
               <Redirect to="/not-found" />
