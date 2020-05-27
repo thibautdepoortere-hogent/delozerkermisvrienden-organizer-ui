@@ -12,6 +12,7 @@
     "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
     "joi-browser": "^13.4.0",
+    "jwt-decode": "^2.2.0",
     "node-gyp": "^6.1.0",
     "qr-code-scanner": "^1.0.7",
     "qrcode.react": "^1.0.0",

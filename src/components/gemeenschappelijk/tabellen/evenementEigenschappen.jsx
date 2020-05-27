@@ -3,15 +3,22 @@ import Tabel from "./tabel";
 import * as datumService from "../../../services/datumService";
 
 class TabelEvenementEigenschappen extends Component {
+  _isMounted = false;
+
   state = { kolommen: [], data: [] };
 
   async componentDidMount() {
+    this._isMounted = true;
     const { evenement } = this.props;
     if (evenement && evenement.id) {
       const kolommen = this.kolommen();
       const data = await this.data(evenement);
-      this.setState({ kolommen: kolommen, data: data });
+      this._isMounted && this.setState({ kolommen: kolommen, data: data });
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {

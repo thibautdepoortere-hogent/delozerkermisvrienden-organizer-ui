@@ -8,9 +8,12 @@ import * as betaalmethodenService from "../../services/api/betaalmethodenService
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
 import * as instellingenService from "../../services/api/instellingenService";
 import * as nieuwsbriefService from "../../services/api/nieuwsbriefService";
+import * as authenticatieService from "../../services/api/authenticatieService";
 import KaartEvenement from "./../gemeenschappelijk/kaartEvenement";
 
 class FormulierAanvraagIndienen extends Formulier {
+  _isMounted = false;
+
   state = {
     schema: this.schema,
     errors: {},
@@ -75,11 +78,31 @@ class FormulierAanvraagIndienen extends Formulier {
   };
 
   async componentDidMount() {
-    this.setState({ gegevensInladen: true, schema: this.schema });
+    this._isMounted = true;
+    this._isMounted &&
+      this.setState({ gegevensInladen: true, schema: this.schema });
+    const rol = authenticatieService.getActieveGebruikersRol();
+    const id =
+      rol === "Administrator"
+        ? authenticatieService.getActieveGebruikersId()
+        : "";
     await this.instellingenInladen();
     this.evenementIdInladen();
     await this.betaalmethodenInladen();
-    this.setState({ gegevensInladen: false, overlayActief: true });
+    const data = { ...this.state.data };
+    if (id !== "") {
+      data.lidId = id;
+    }
+    this._isMounted &&
+      this.setState({
+        gegevensInladen: false,
+        overlayActief: true,
+        data: data,
+      });
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -275,11 +298,12 @@ class FormulierAanvraagIndienen extends Formulier {
       data.meterPrijs = instellingen.meterPrijs;
       data.inschrijvingsstatusId = instellingen.aanvraagInschrijvingssstatus;
       const prijs = data.aantalMeter * data.meterPrijs;
-      this.setState({
-        data: data,
-        minimumAantalMeter: instellingen.minimumAantalMeter,
-        prijs: prijs,
-      });
+      this._isMounted &&
+        this.setState({
+          data: data,
+          minimumAantalMeter: instellingen.minimumAantalMeter,
+          prijs: prijs,
+        });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -289,7 +313,7 @@ class FormulierAanvraagIndienen extends Formulier {
     const data = { ...this.state.data };
     const { evenement } = this.state;
     data.evenementId = evenement.id;
-    this.setState({ data: data });
+    this._isMounted && this.setState({ data: data });
   };
 
   betaalmethodenInladen = async () => {
@@ -301,7 +325,8 @@ class FormulierAanvraagIndienen extends Formulier {
       const teGebruikenBetaalmethoden = alleBetaalmethoden.filter((b) =>
         betaalmethodenService.isBetaalmethodeNogGeldig(b, verschilInDagen)
       );
-      this.setState({ betaalmethoden: teGebruikenBetaalmethoden });
+      this._isMounted &&
+        this.setState({ betaalmethoden: teGebruikenBetaalmethoden });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -310,7 +335,7 @@ class FormulierAanvraagIndienen extends Formulier {
   // === === === === ===
   // Events
   verwerkWijzigingNieuwsbrief = () => {
-    this.setState({ nieuwsbrief: !this.state.nieuwsbrief });
+    this._isMounted && this.setState({ nieuwsbrief: !this.state.nieuwsbrief });
   };
 
   verwerkWijzigingAantalMeter = (waardeAlsNummer, waardeAlsTekst, invoer) => {
@@ -318,24 +343,28 @@ class FormulierAanvraagIndienen extends Formulier {
 
     const { meterPrijs } = this.state.data;
     const prijs = meterPrijs * invoer.value;
-    this.setState({ prijs: prijs });
+    this._isMounted && this.setState({ prijs: prijs });
   };
 
   // === === === === ===
   // Formulier verwerken
   verzendFormulier = async () => {
-    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+    this._isMounted &&
+      this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
     if (this.state.nieuwsbrief) {
       await this.nieuwsbriefToevoegen();
     }
     const aanvraagId = await this.aanvraagIndienen();
-    if (aanvraagId) {
-      this.setState({ opdrachtVerwerken: false });
-      this.props.history.push(
-        "/inschrijvingen/" + aanvraagId + "/status/aanvraagIngediend"
-      );
+    const resultaatToken = await this.authenticeerStandhouder(
+      aanvraagId,
+      this.state.data.email
+    );
+    if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
+      const id = authenticatieService.getActieveGebruikersId();
+      window.location = "/inschrijvingen/" + id + "/status/aanvraagIngediend";
     } else {
-      this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
+      this._isMounted &&
+        this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
     }
   };
 
@@ -360,6 +389,23 @@ class FormulierAanvraagIndienen extends Formulier {
       };
       await nieuwsbriefService.postNieuwsbrief(nieuwsbrief);
     } catch (error) {}
+  };
+
+  authenticeerStandhouder = async (inschrijvingsId, email) => {
+    const data = {
+      inschrijvingsId: inschrijvingsId,
+      email: email,
+    };
+    try {
+      const {
+        data: token,
+      } = await authenticatieService.authenticeerStandhouder(data);
+      return token;
+    } catch (error) {
+      if (error.response.status !== 404) {
+        responseErrorMeldingService.ToonFoutmeldingVast();
+      }
+    }
   };
 
   // === === === === ===

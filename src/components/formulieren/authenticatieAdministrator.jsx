@@ -6,6 +6,8 @@ import * as authenticatieService from "../../services/api/authenticatieService";
 
 // const regExWachtwoord = /^(?=.*[A-Z])(?=.*[\W])(?=.*[0-9])(?=.*[a-z]).{8,128}$/;
 class FormulierAuthenticatieAdministrator extends Formulier {
+  _isMounted = false;
+
   state = {
     schema: this.schema,
     errors: {},
@@ -23,14 +25,19 @@ class FormulierAuthenticatieAdministrator extends Formulier {
   };
 
   componentDidMount() {
-    this.setState({ schema: this.schema });
+    this._isMounted = true;
+    this._isMounted && this.setState({ schema: this.schema });
     //
     const data = {
       email: "thibaut.depoortere@student.hogent.be",
       wachtwoord: "Rul3r of this region!",
     };
-    this.setState({ data: data });
+    this._isMounted && this.setState({ data: data });
     //
+  }
+
+  componentWillMount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -120,7 +127,8 @@ class FormulierAuthenticatieAdministrator extends Formulier {
   // Formulier verwerken
   verzendFormulier = async () => {
     const { wachtwoord } = this.state.data;
-    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+    this._isMounted &&
+      this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
     const wachtwoordServer = await this.authenticeerAdministratorEmail();
     authenticatieService.controleerWachtwoord(
       wachtwoord,
@@ -132,16 +140,17 @@ class FormulierAuthenticatieAdministrator extends Formulier {
   handleControleUitgevoerd = async (resultaat) => {
     const dataAuthenticatie = { ...this.state.data };
     dataAuthenticatie.wachtwoord = resultaat.hashedWachtwoord;
-    const token = await this.authenticeerAdministrator(dataAuthenticatie);
-    console.log("Token: ", token);
-    if (token) {
-      this.props.history.push("/");
+    const resultaatToken = await this.authenticeerAdministrator(
+      dataAuthenticatie
+    );
+    if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
+      window.location = "/lijsten";
     } else {
-      this.setState({
-        token: "",
-        opdrachtNietVerwerkt: true,
-        opdrachtVerwerken: false,
-      });
+      this._isMounted &&
+        this.setState({
+          opdrachtNietVerwerkt: true,
+          opdrachtVerwerken: false,
+        });
     }
   };
 

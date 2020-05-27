@@ -8,9 +8,12 @@ import * as responseErrorMeldingService from "../../services/api/responseErrorMe
 import * as betaalmethodenService from "../../services/api/betaalmethodenService";
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
 import * as betaaltransactiesService from "../../services/api/betaaltransactiesService";
+import * as authenticatieService from "../../services/api/authenticatieService";
 
 const regEx = /^(?=.*[0-9]).{12,12}$/;
 class FormulierBetaaltransactieToevoegen extends Formulier {
+  _isMounted = false;
+
   state = {
     schema: this.schema,
     errors: {},
@@ -62,20 +65,34 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
   };
 
   async componentDidMount() {
-    this.setState({ gegevensInladen: true, schema: this.schema });
-    const inschrijvingsId = this.props.match.params.inschrijvingsId;
-    if (!(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))) {
-      this.props.history.push("/not-found");
+    this._isMounted = true;
+    const id = authenticatieService.getActieveGebruikersId();
+    if (id === "" || id === "geenid" || id === "geengebruiker") {
+      this.props.history.push("/authenticatie/administrator");
+    } else if (
+      !authenticatieService.heeftActieveGebruikerToegang(["Administrator"])
+    ) {
+      this.props.history.push("/geentoegang");
     } else {
-      this.setState({ inschrijvingsId: inschrijvingsId });
-      console.log(inschrijvingsId);
-      await this.inschrijvingInladen(inschrijvingsId);
-      await this.betaalmethodenInladen();
-      await this.betaalmethodeOverschrijvingInladen();
-      // await this.inschrijvingInladen(this.state.inschrijvingsId);
-      this.wijzigSchemaManueel();
-      this.setState({ gegevensInladen: false });
+      this._isMounted &&
+        this.setState({ gegevensInladen: true, schema: this.schema });
+      const inschrijvingsId = this.props.match.params.inschrijvingsId;
+      if (!(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))) {
+        this.props.history.push("/not-found");
+      } else {
+        this._isMounted && this.setState({ inschrijvingsId: inschrijvingsId });
+        await this.inschrijvingInladen(inschrijvingsId);
+        await this.betaalmethodenInladen();
+        await this.betaalmethodeOverschrijvingInladen();
+        // await this.inschrijvingInladen(this.state.inschrijvingsId);
+        this.wijzigSchemaManueel();
+        this._isMounted && this.setState({ gegevensInladen: false });
+      }
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -172,7 +189,8 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       data.verantwoordelijkeBetaling =
         inschrijving.voornaam + " " + inschrijving.achternaam;
       data.gestructureerdeMededeling = inschrijving.gestructureerdeMededeling;
-      this.setState({ data: data, inschrijving: inschrijving });
+      this._isMounted &&
+        this.setState({ data: data, inschrijving: inschrijving });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -183,7 +201,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       const {
         data: betaalmethoden,
       } = await betaalmethodenService.getBetaalmethoden();
-      this.setState({ betaalmethoden: betaalmethoden });
+      this._isMounted && this.setState({ betaalmethoden: betaalmethoden });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -194,7 +212,8 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       const {
         data: betaalmethode,
       } = await betaalmethodenService.getBetaalmethodeOverschrijving();
-      this.setState({ betaalmethodeOverschrijving: betaalmethode });
+      this._isMounted &&
+        this.setState({ betaalmethodeOverschrijving: betaalmethode });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -209,15 +228,16 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
   // === === === === ===
   // Formulier verwerken
   verzendFormulier = async () => {
-    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+    this._isMounted &&
+      this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
     const resultaat = await this.betaaltransactieToevoegen();
     if (resultaat) {
-      this.setState({ opdrachtVerwerken: false });
+      this._isMounted && this.setState({ opdrachtVerwerken: false });
       this.props.history.push(
         "/inschrijvingen/" + this.state.data.inschrijvingsId
       );
     } else {
-      this.setState({ opdrachtVerwerken: false });
+      this._isMounted && this.setState({ opdrachtVerwerken: false });
     }
   };
 
@@ -227,7 +247,7 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
       toaster.infoToastAanmaken("Betaaltransactie toegevoegd.");
       return true;
     } catch (error) {
-      this.setState({ opdrachtNietVerwerkt: true });
+      this._isMounted && this.setState({ opdrachtNietVerwerkt: true });
       responseErrorMeldingService.ToonFoutmeldingVast();
       return false;
     }
@@ -246,9 +266,10 @@ class FormulierBetaaltransactieToevoegen extends Formulier {
 
   wijzigSchema = (gestructureerdeMededelingAanwezig) => {
     if (gestructureerdeMededelingAanwezig) {
-      this.setState({ schema: this.schemaMetOverschrijving });
+      this._isMounted &&
+        this.setState({ schema: this.schemaMetOverschrijving });
     } else {
-      this.setState({ schema: this.schema });
+      this._isMounted && this.setState({ schema: this.schema });
     }
   };
 

@@ -4,15 +4,22 @@ import * as responseErrorMeldingService from "../../../services/api/responseErro
 import * as inschrijvingsstatusService from "../../../services/api/inschrijvingsstatusService";
 
 class TabelInschrijvingEigenschappen extends Component {
+  _isMounted = false;
+
   state = { kolommen: [], data: [] };
 
   async componentDidMount() {
+    this._isMounted = true;
     const { inschrijving } = this.props;
     if (inschrijving && inschrijving.inschrijvingsstatusId) {
       const kolommen = this.kolommen();
       const data = await this.data(inschrijving);
-      this.setState({ kolommen: kolommen, data: data });
+      this._isMounted && this.setState({ kolommen: kolommen, data: data });
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {

@@ -8,8 +8,11 @@ import * as inschrijvingenService from "../services/api/inschrijvingenService";
 import * as inschrijvingsstatusService from "../services/api/inschrijvingsstatusService";
 import * as betaalmethodenService from "../services/api/betaalmethodenService";
 import AanvraagIngediend from "./aanvraagIngediend";
+import * as authenticatieService from "../services/api/authenticatieService";
 
 class InschrijvingStatus extends Basis {
+  _isMounted = false;
+
   state = {
     errors: {},
     data: {
@@ -44,20 +47,53 @@ class InschrijvingStatus extends Basis {
   };
 
   async componentDidMount() {
-    this.setState({ gegevensInladen: true });
+    this._isMounted = true;
+    this._isMounted && this.setState({ gegevensInladen: true });
+    const id = authenticatieService.getActieveGebruikersId();
+    const rol = authenticatieService.getActieveGebruikersRol();
     const inschrijvingsId = this.props.match.params.inschrijvingsId;
-    const aanvraagIngediend = this.props.match.params.aanvraagIngediend;
-    if (aanvraagIngediend) {
-      this.setState({ aanvraagIngediendTonen: true });
-    }
-    if (!(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))) {
-      this.props.history.push("/not-found");
+    if (
+      id === "" ||
+      id === "geenid" ||
+      id === "geengebruiker" ||
+      (rol !== "Administrator" && id !== inschrijvingsId)
+    ) {
+      this.props.history.push(
+        "/authenticatie/standhouder" +
+          (inschrijvingsId !== "" &&
+          inschrijvingsId !== "geenid" &&
+          inschrijvingsId !== "geengebruiker"
+            ? "/" + inschrijvingsId
+            : "")
+      );
+    } else if (
+      !authenticatieService.heeftActieveGebruikerToegang([
+        "Standhouder",
+        "Administrator",
+      ])
+    ) {
+      this.props.history.push("/geentoegang");
     } else {
-      await this.inschrijvingInladen(inschrijvingsId);
-      await this.inschrijvingsstatusInladen();
-      await this.betaalmethodeInladen();
-      this.setState({ gegevensInladen: false });
+      const aanvraagIngediend = this.props.match.params.aanvraagIngediend;
+      if (
+        inschrijvingsId !== "geenid" &&
+        !(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))
+      ) {
+        this.props.history.push("/not-found");
+      } else {
+        if (aanvraagIngediend) {
+          this._isMounted && this.setState({ aanvraagIngediendTonen: true });
+        }
+        await this.inschrijvingInladen(inschrijvingsId);
+        await this.inschrijvingsstatusInladen();
+        await this.betaalmethodeInladen();
+        this._isMounted && this.setState({ gegevensInladen: false });
+      }
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -409,7 +445,7 @@ class InschrijvingStatus extends Basis {
         inschrijvingsId
       );
       const prijs = inschrijving.aantalMeter * inschrijving.meterPrijs;
-      this.setState({ data: inschrijving, prijs: prijs });
+      this._isMounted && this.setState({ data: inschrijving, prijs: prijs });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -422,7 +458,8 @@ class InschrijvingStatus extends Basis {
       } = await inschrijvingsstatusService.getInschrijvingsstatus(
         this.state.data.inschrijvingsstatusId
       );
-      this.setState({ inschrijvingsstatus: inschrijvingsstatus });
+      this._isMounted &&
+        this.setState({ inschrijvingsstatus: inschrijvingsstatus });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -435,7 +472,7 @@ class InschrijvingStatus extends Basis {
       } = await betaalmethodenService.getBetaalmethode(
         this.state.data.betaalmethodeId
       );
-      this.setState({ betaalmethode: betaalmethode });
+      this._isMounted && this.setState({ betaalmethode: betaalmethode });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -450,8 +487,6 @@ class InschrijvingStatus extends Basis {
     betaalmethodeId,
     betaalmethodeOverschrijvingId
   ) => {
-    console.log(betaalmethodeId);
-    console.log(betaalmethodeOverschrijvingId);
     if (betaalmethodeId === betaalmethodeOverschrijvingId) {
       return true;
     }

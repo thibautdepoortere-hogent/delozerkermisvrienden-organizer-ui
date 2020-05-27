@@ -7,12 +7,19 @@ import * as responseErrorMeldingService from "../../services/api/responseErrorMe
 import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
 
 class KaartInschrijving extends Basis {
+  _isMounted = false;
+
   state = { inschrijvingsstatus: {} };
 
   async componentDidMount() {
+    this._isMounted = true;
     if (this.props.inschrijving && this.props.inschrijving.inschrijvingsId) {
       await this.inschrijvingsstatusInladen();
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -83,7 +90,8 @@ class KaartInschrijving extends Basis {
       } = await inschrijvingsstatusService.getInschrijvingsstatus(
         this.props.inschrijving.inschrijvingsstatusId
       );
-      this.setState({ inschrijvingsstatus: inschrijvingsstatus });
+      this._isMounted &&
+        this.setState({ inschrijvingsstatus: inschrijvingsstatus });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }

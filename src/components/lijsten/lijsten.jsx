@@ -2,8 +2,20 @@ import React from "react";
 import Basis from "./../gemeenschappelijk/basis";
 import Knop from "./../gemeenschappelijk/knop";
 import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
+import * as authenticatieService from "../../services/api/authenticatieService";
 
 class Lijsten extends Basis {
+  componentDidMount() {
+    const id = authenticatieService.getActieveGebruikersId();
+    if (id === "" || id === "geenid" || id === "geengebruiker") {
+      this.props.history.push("/authenticatie/administrator");
+    } else if (
+      !authenticatieService.heeftActieveGebruikerToegang(["Administrator"])
+    ) {
+      this.props.history.push("/geentoegang");
+    }
+  }
+
   render() {
     return (
       <div className="lijsten">
@@ -102,6 +114,13 @@ class Lijsten extends Basis {
         intent: "success",
         icoon: "search",
         url: "/inschrijvingen/opzoeken",
+      },
+      {
+        id: "fabrieksinstellingen",
+        inhoud: "Fabrieksinstellingen",
+        intent: "danger",
+        icoon: "reset",
+        url: "/fabrieksinstellingen",
       },
     ];
   };

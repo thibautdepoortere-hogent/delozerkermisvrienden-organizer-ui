@@ -7,8 +7,11 @@ import ProgressBarInladenGegevens from "./../gemeenschappelijk/progressBarInlade
 import * as qrCodeService from "../../services/qrCodeService";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import * as inschrijvingenService from "../../services/api/inschrijvingenService";
+import * as authenticatieService from "../../services/api/authenticatieService";
 
 class FormulierInschrijvingOpzoeken extends Formulier {
+  _isMounted = false;
+
   state = {
     schema: this.schema,
     errors: {},
@@ -40,7 +43,21 @@ class FormulierInschrijvingOpzoeken extends Formulier {
   };
 
   componentDidMount() {
-    this.setState({ schema: this.schema });
+    this._isMounted = true;
+    const id = authenticatieService.getActieveGebruikersId();
+    if (id === "" || id === "geenid" || id === "geengebruiker") {
+      this.props.history.push("/authenticatie/administrator");
+    } else if (
+      !authenticatieService.heeftActieveGebruikerToegang(["Administrator"])
+    ) {
+      this.props.history.push("/geentoegang");
+    } else {
+      this._isMounted && this.setState({ schema: this.schema });
+    }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -141,16 +158,16 @@ class FormulierInschrijvingOpzoeken extends Formulier {
   // Inladen
   inschrijvingenInladenViaFilters = async () => {
     try {
-      this.setState({ gegevensInladen: true });
+      this._isMounted && this.setState({ gegevensInladen: true });
       const {
         data: inschrijvingen,
       } = await inschrijvingenService.getInschrijvingenViaFilters(
         this.state.data
       );
-      this.setState({ gegevensInladen: false });
+      this._isMounted && this.setState({ gegevensInladen: false });
       return inschrijvingen;
     } catch (error) {
-      this.setState({ gegevensInladen: false });
+      this._isMounted && this.setState({ gegevensInladen: false });
       responseErrorMeldingService.ToonFoutmeldingVast();
       return undefined;
     }
@@ -171,41 +188,45 @@ class FormulierInschrijvingOpzoeken extends Formulier {
   // === === === === ===
   // Events
   handleKlikFiltersWissen = () => {
-    this.setState({
-      data: {
-        voornaam: "",
-        achternaam: "",
-        standnummer: "",
-        inschrijvingsnummer: "",
-      },
-      fout: "",
-      inschrijvingen: [],
-      scannerZichtbaar: false,
-    });
+    this._isMounted &&
+      this.setState({
+        data: {
+          voornaam: "",
+          achternaam: "",
+          standnummer: "",
+          inschrijvingsnummer: "",
+        },
+        fout: "",
+        inschrijvingen: [],
+        scannerZichtbaar: false,
+      });
   };
 
   handleKlikScanQrCode = () => {
-    this.setState({
-      fout: "",
-      inschrijvingen: [],
-      scannerZichtbaar: !this.state.scannerZichtbaar,
-    });
+    this._isMounted &&
+      this.setState({
+        fout: "",
+        inschrijvingen: [],
+        scannerZichtbaar: !this.state.scannerZichtbaar,
+      });
   };
 
   handleKlikZoeken = async () => {
     const inschrijvingen = await this.inschrijvingenInladenViaFilters();
     if (inschrijvingen && inschrijvingen.length > 0) {
-      this.setState({
-        inschrijvingen: inschrijvingen,
-        fout: "",
-        scannerZichtbaar: false,
-      });
+      this._isMounted &&
+        this.setState({
+          inschrijvingen: inschrijvingen,
+          fout: "",
+          scannerZichtbaar: false,
+        });
     } else {
-      this.setState({
-        inschrijving: [],
-        fout: "Er zijn geen inschrijvingen gevonden",
-        scannerZichtbaar: false,
-      });
+      this._isMounted &&
+        this.setState({
+          inschrijving: [],
+          fout: "Er zijn geen inschrijvingen gevonden",
+          scannerZichtbaar: false,
+        });
     }
   };
 
@@ -213,27 +234,30 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     if (data) {
       const inschrijvingen = await this.inschrijvingenInladenViaQrCode(data);
       if (inschrijvingen && inschrijvingen.length > 0) {
-        this.setState({
-          inschrijvingen: inschrijvingen,
-          fout: "",
-          scannerZichtbaar: false,
-        });
+        this._isMounted &&
+          this.setState({
+            inschrijvingen: inschrijvingen,
+            fout: "",
+            scannerZichtbaar: false,
+          });
       } else {
-        this.setState({
-          inschrijving: [],
-          fout: "Er zijn geen inschrijvingen gevonden",
-          scannerZichtbaar: false,
-        });
+        this._isMounted &&
+          this.setState({
+            inschrijving: [],
+            fout: "Er zijn geen inschrijvingen gevonden",
+            scannerZichtbaar: false,
+          });
       }
     }
   };
 
   handleQrCodeFout = (err) => {
-    this.setState({
-      fout: err,
-      inschrijvingen: [],
-      scannerZichtbaar: false,
-    });
+    this._isMounted &&
+      this.setState({
+        fout: err,
+        inschrijvingen: [],
+        scannerZichtbaar: false,
+      });
   };
 
   // === === === === ===

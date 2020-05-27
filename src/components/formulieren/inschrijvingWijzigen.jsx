@@ -12,11 +12,15 @@ import * as evenementenService from "../../services/api/evenementenService";
 import * as betaaltransactiesService from "../../services/api/betaaltransactiesService";
 import * as instellingenService from "../../services/api/instellingenService";
 import * as inschrijvingsstatusService from "../../services/api/inschrijvingsstatusService";
+import * as ledenService from "../../services/api/ledenService";
 import Tabel from "./../gemeenschappelijk/tabellen/tabel";
 import KaartEvenement from "./../gemeenschappelijk/kaartEvenement";
 import Knop from "./../gemeenschappelijk/knop";
+import * as authenticatieService from "../../services/api/authenticatieService";
 
 class FormulierinschrijvingWijzigen extends Formulier {
+  _isMounted = false;
+
   state = {
     schema: this.schema,
     errors: {},
@@ -50,6 +54,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
       naam: "",
       datumStartEvenement: undefined,
     },
+    lid: { voornaam: "", achternaam: "" },
     inschrijvingsId: "",
     inschrijvingsstatus: { id: "", naam: "" },
     inschrijvingsstatusGoedgekeurd: { id: "", naam: "" },
@@ -167,26 +172,43 @@ class FormulierinschrijvingWijzigen extends Formulier {
   };
 
   async componentDidMount() {
-    this.setState({ gegevensInladen: true, schema: this.schema });
-    const inschrijvingsId = this.props.match.params.inschrijvingsId;
-    if (!(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))) {
-      this.props.history.push("/not-found");
+    this._isMounted = true;
+    const id = authenticatieService.getActieveGebruikersId();
+    if (id === "" || id === "geenid" || id === "geengebruiker") {
+      this.props.history.push("/authenticatie/administrator");
+    } else if (
+      !authenticatieService.heeftActieveGebruikerToegang(["Administrator"])
+    ) {
+      this.props.history.push("/geentoegang");
     } else {
-      this.setState({ inschrijvingsId: inschrijvingsId });
-      await this.instellingenInladen();
-      await this.inschrijvingInladen();
-      await this.evenementInladen();
-      await this.betaalmethodenInladen();
-      await this.betaalTransactiesInladen();
-      await this.inschrijvingsstatusInladen();
-      const kolommen = this.kolommen();
-      const dataTabel = await this.dataTabel();
-      this.setState({
-        kolommen: kolommen,
-        dataTabel: dataTabel,
-        gegevensInladen: false,
-      });
+      this._isMounted &&
+        this.setState({ gegevensInladen: true, schema: this.schema });
+      const inschrijvingsId = this.props.match.params.inschrijvingsId;
+      if (!(await inschrijvingenService.bestaatInschrijving(inschrijvingsId))) {
+        this.props.history.push("/not-found");
+      } else {
+        this._isMounted && this.setState({ inschrijvingsId: inschrijvingsId });
+        await this.instellingenInladen();
+        await this.inschrijvingInladen();
+        await this.evenementInladen();
+        await this.betaalmethodenInladen();
+        await this.betaalTransactiesInladen();
+        await this.inschrijvingsstatusInladen();
+        await this.lidInladen();
+        const kolommen = this.kolommen();
+        const dataTabel = await this.dataTabel();
+        this._isMounted &&
+          this.setState({
+            kolommen: kolommen,
+            dataTabel: dataTabel,
+            gegevensInladen: false,
+          });
+      }
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -238,7 +260,13 @@ class FormulierinschrijvingWijzigen extends Formulier {
                   datumService.getDatumBelgischeNotatie(
                     new Date(this.state.data.datumInschrijving)
                   ) +
-                  ".",
+                  (this.state.lid && this.state.lid.voornaam !== ""
+                    ? " door " +
+                      this.state.lid.voornaam +
+                      " " +
+                      this.state.lid.achternaam +
+                      "."
+                    : "."),
                 "info-sign",
                 "Primary"
               )}
@@ -578,9 +606,10 @@ class FormulierinschrijvingWijzigen extends Formulier {
       const {
         data: instellingen,
       } = await instellingenService.getInstellingenAanvraag();
-      this.setState({
-        minimumAantalMeter: instellingen.minimumAantalMeter,
-      });
+      this._isMounted &&
+        this.setState({
+          minimumAantalMeter: instellingen.minimumAantalMeter,
+        });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -593,7 +622,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
         data: inschrijving,
       } = await inschrijvingenService.getInschrijving(inschrijvingsId);
       const prijs = inschrijving.aantalMeter * inschrijving.meterPrijs;
-      this.setState({ data: inschrijving, prijs: prijs });
+      this._isMounted && this.setState({ data: inschrijving, prijs: prijs });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -611,7 +640,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
       evenement.datumStartEvenement = new Date(
         evenementApi.datumStartEvenement
       );
-      this.setState({ evenement: evenement });
+      this._isMounted && this.setState({ evenement: evenement });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -630,7 +659,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
       //       verschilInDagen
       //     ))
       // );
-      this.setState({ betaalmethoden: betaalmethoden });
+      this._isMounted && this.setState({ betaalmethoden: betaalmethoden });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -644,7 +673,8 @@ class FormulierinschrijvingWijzigen extends Formulier {
       } = await betaaltransactiesService.getBetaaltransactiesVanInschrijving(
         inschrijvingsId
       );
-      this.setState({ betaaltransacties: betaaltransacties });
+      this._isMounted &&
+        this.setState({ betaaltransacties: betaaltransacties });
       this.berekenOpenstaandBedrag();
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
@@ -673,14 +703,15 @@ class FormulierinschrijvingWijzigen extends Formulier {
       const schema = inschrijvingsstatusIsGepland
         ? this.schemaIngepland
         : this.schema;
-      this.setState({
-        inschrijvingsstatus: inschrijvingsstatus,
-        inschrijvingsstatusIsAangevraagd: inschrijvingsstatusIsAangevraagd,
-        inschrijvingsstatusIsGoedgekeurd: inschrijvingsstatusIsGoedgekeurd,
-        inschrijvingsstatusIsAfgekeurd: inschrijvingsstatusIsAfgekeurd,
-        inschrijvingsstatusIsGepland: inschrijvingsstatusIsGepland,
-        schema: schema,
-      });
+      this._isMounted &&
+        this.setState({
+          inschrijvingsstatus: inschrijvingsstatus,
+          inschrijvingsstatusIsAangevraagd: inschrijvingsstatusIsAangevraagd,
+          inschrijvingsstatusIsGoedgekeurd: inschrijvingsstatusIsGoedgekeurd,
+          inschrijvingsstatusIsAfgekeurd: inschrijvingsstatusIsAfgekeurd,
+          inschrijvingsstatusIsGepland: inschrijvingsstatusIsGepland,
+          schema: schema,
+        });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -727,9 +758,10 @@ class FormulierinschrijvingWijzigen extends Formulier {
       const {
         data: inschrijvingsstatusAangevraagd,
       } = await inschrijvingsstatusService.getInschrijvingsstatusAangevraagd();
-      this.setState({
-        inschrijvingsstatusAangevraagd: inschrijvingsstatusAangevraagd,
-      });
+      this._isMounted &&
+        this.setState({
+          inschrijvingsstatusAangevraagd: inschrijvingsstatusAangevraagd,
+        });
       return inschrijvingsstatusAangevraagd;
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
@@ -742,9 +774,10 @@ class FormulierinschrijvingWijzigen extends Formulier {
       const {
         data: inschrijvingsstatusGoedgekeurd,
       } = await inschrijvingsstatusService.getInschrijvingsstatusGoedgekeurd();
-      this.setState({
-        inschrijvingsstatusGoedgekeurd: inschrijvingsstatusGoedgekeurd,
-      });
+      this._isMounted &&
+        this.setState({
+          inschrijvingsstatusGoedgekeurd: inschrijvingsstatusGoedgekeurd,
+        });
       return inschrijvingsstatusGoedgekeurd;
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
@@ -757,9 +790,10 @@ class FormulierinschrijvingWijzigen extends Formulier {
       const {
         data: inschrijvingsstatusAfgekeurd,
       } = await inschrijvingsstatusService.getInschrijvingsstatusAfgekeurd();
-      this.setState({
-        inschrijvingsstatusAfgekeurd: inschrijvingsstatusAfgekeurd,
-      });
+      this._isMounted &&
+        this.setState({
+          inschrijvingsstatusAfgekeurd: inschrijvingsstatusAfgekeurd,
+        });
       return inschrijvingsstatusAfgekeurd;
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
@@ -772,13 +806,26 @@ class FormulierinschrijvingWijzigen extends Formulier {
       const {
         data: inschrijvingsstatusGepland,
       } = await inschrijvingsstatusService.getInschrijvingsstatusGepland();
-      this.setState({
-        inschrijvingsstatusGepland: inschrijvingsstatusGepland,
-      });
+      this._isMounted &&
+        this.setState({
+          inschrijvingsstatusGepland: inschrijvingsstatusGepland,
+        });
       return inschrijvingsstatusGepland;
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
       return undefined;
+    }
+  };
+
+  lidInladen = async () => {
+    if (this.state.data.lidId && this.state.data.lidId !== "") {
+      try {
+        const { data: lid } = await ledenService.getLid(this.state.data.lidId);
+        this._isMounted &&
+          this.setState({
+            lid: lid,
+          });
+      } catch (error) {}
     }
   };
 
@@ -805,7 +852,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
 
     const { meterPrijs } = this.state.data;
     const prijs = meterPrijs * invoer.value;
-    this.setState({ prijs: prijs });
+    this._isMounted && this.setState({ prijs: prijs });
   };
 
   handleKlikKnopGoedkeuren = async () => {
@@ -839,7 +886,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
         (this.state.data.redenAfkeuring &&
           this.state.data.redenAfkeuring.trim() === "")
       ) {
-        this.setState({ foutmeldingRedenAfkeuring: true });
+        this._isMounted && this.setState({ foutmeldingRedenAfkeuring: true });
       } else {
         let volgendeInschrijvingsstatus = this.state
           .inschrijvingsstatusAfgekeurd;
@@ -853,7 +900,8 @@ class FormulierinschrijvingWijzigen extends Formulier {
             volgendeInschrijvingsstatus.id,
             this.state.data.redenAfkeuring
           );
-          this.setState({ foutmeldingRedenAfkeuring: false });
+          this._isMounted &&
+            this.setState({ foutmeldingRedenAfkeuring: false });
           toaster.infoToastAanmaken("Inschrijving afgekeurd.");
           setTimeout(async () => {
             await this.inschrijvingInladen();
@@ -873,7 +921,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
         (this.state.data.standnummer &&
           this.state.data.standnummer.trim() === "")
       ) {
-        this.setState({ foutmeldingStandnummer: true });
+        this._isMounted && this.setState({ foutmeldingStandnummer: true });
       } else {
         let volgendeInschrijvingsstatus = this.state.inschrijvingsstatusGepland;
         if (!volgendeInschrijvingsstatus || !volgendeInschrijvingsstatus.id) {
@@ -886,7 +934,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
             volgendeInschrijvingsstatus.id,
             this.state.data.standnummer
           );
-          this.setState({ foutmeldingStandnummer: false });
+          this._isMounted && this.setState({ foutmeldingStandnummer: false });
           toaster.infoToastAanmaken("Inschrijving ingepland.");
           setTimeout(async () => {
             await this.inschrijvingInladen();
@@ -902,16 +950,18 @@ class FormulierinschrijvingWijzigen extends Formulier {
   // === === === === ===
   // Formulier verwerken
   verzendFormulier = async () => {
-    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+    this._isMounted &&
+      this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
     const resultaat = await this.inschrijvingWijzigen();
     if (resultaat) {
-      this.setState({ opdrachtVerwerken: false });
+      this._isMounted && this.setState({ opdrachtVerwerken: false });
       setTimeout(() => {
         this.inschrijvingInladen();
       }, 1500);
       // this.props.history.push("/inschrijvingen/" + this.state.data.id);
     } else {
-      this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
+      this._isMounted &&
+        this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
     }
   };
 
@@ -937,7 +987,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
   berekenOpenstaandBedrag = () => {
     var openstaandBedrag = this.state.prijs;
     this.state.betaaltransacties.map((b) => (openstaandBedrag -= b.bedrag));
-    this.setState({ openstaandBedrag: openstaandBedrag });
+    this._isMounted && this.setState({ openstaandBedrag: openstaandBedrag });
   };
 
   naamBetaalmethode = async (betaalmethodeId) => {
@@ -989,12 +1039,13 @@ class FormulierinschrijvingWijzigen extends Formulier {
 
   isFormulierCorrectIngevuld = () => {
     const errors = this.valideer();
-    this.setState({ errors: errors || {} });
+    this._isMounted && this.setState({ errors: errors || {} });
     if (errors) {
-      this.setState({
-        errors: errors,
-        foutmeldingFormulierNietCorrectIngevuld: true,
-      });
+      this._isMounted &&
+        this.setState({
+          errors: errors,
+          foutmeldingFormulierNietCorrectIngevuld: true,
+        });
       return false;
     }
     return true;

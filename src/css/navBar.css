@@ -49,7 +49,21 @@
   color: #f5f8fa;
 }
 
+.nav-subitem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px 20px 0 60px;
+  color: #f5f8fa;
+}
+
 .nav-item:hover {
+  text-decoration: none;
+  font-weight: normal;
+  color: #f5f8fa;
+}
+
+.nav-subitem:hover {
   text-decoration: none;
   font-weight: normal;
   color: #f5f8fa;
@@ -61,6 +75,11 @@
 
 .nav-item-text {
   margin: 0;
+}
+
+.nav-subitem-text {
+  margin: 0;
+  font-size: smaller;
 }
 
 .active {

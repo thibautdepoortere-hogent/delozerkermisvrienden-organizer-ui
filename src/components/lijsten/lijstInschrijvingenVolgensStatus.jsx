@@ -7,8 +7,11 @@ import KaartEvenement from "../gemeenschappelijk/kaartEvenement";
 import ProgressBarInladenGegevens from "../gemeenschappelijk/progressBarInladenGegevens";
 import * as responseErrorMeldingService from "../../services/api/responseErrorMeldingService";
 import Knop from "../gemeenschappelijk/knop";
+import * as authenticatieService from "../../services/api/authenticatieService";
 
 class LijstInschrijvingenVolgensStatus extends Basis {
+  _isMounted = false;
+
   state = {
     evenement: {
       id: "c4660a63-7e82-4e68-92c9-85f3c193f69e",
@@ -24,13 +27,27 @@ class LijstInschrijvingenVolgensStatus extends Basis {
   };
 
   async componentDidMount() {
-    const filter = this.props.match.params.inschrijvingsstatusFilter;
-    this.setState({ filter: filter });
-    this.setState({ gegevensInladen: true });
-    await this.inschrijvingsstatusInladen(filter);
-    await this.aanvragenInladen();
-    this.handleKlikSorteerOpDatum();
-    this.setState({ gegevensInladen: false });
+    this._isMounted = true;
+    const id = authenticatieService.getActieveGebruikersId();
+    if (id === "" || id === "geenid" || id === "geengebruiker") {
+      this.props.history.push("/authenticatie/administrator");
+    } else if (
+      !authenticatieService.heeftActieveGebruikerToegang(["Administrator"])
+    ) {
+      this.props.history.push("/geentoegang");
+    } else {
+      const filter = this.props.match.params.inschrijvingsstatusFilter;
+      this._isMounted && this.setState({ filter: filter });
+      this._isMounted && this.setState({ gegevensInladen: true });
+      await this.inschrijvingsstatusInladen(filter);
+      await this.aanvragenInladen();
+      this.handleKlikSorteerOpDatum();
+      this._isMounted && this.setState({ gegevensInladen: false });
+    }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -101,7 +118,8 @@ class LijstInschrijvingenVolgensStatus extends Basis {
       } = await inschrijvingsstatusService.getInschrijvingsstatusViaFilter(
         filter
       );
-      this.setState({ inschrijvingsstatusId: inschrijvingsstatus.id });
+      this._isMounted &&
+        this.setState({ inschrijvingsstatusId: inschrijvingsstatus.id });
       return true;
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
@@ -116,7 +134,7 @@ class LijstInschrijvingenVolgensStatus extends Basis {
       } = await inschrijvingenService.getInschrijvingenViaFilters({
         inschrijvingsstatus: this.state.inschrijvingsstatusId,
       });
-      this.setState({ aanvragen: aanvragen });
+      this._isMounted && this.setState({ aanvragen: aanvragen });
       return true;
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
@@ -128,20 +146,22 @@ class LijstInschrijvingenVolgensStatus extends Basis {
   // Events
   handleKlikSorteerOpAantalMeter = () => {
     const aanvragen = this.sorteer("aantalMeter");
-    this.setState({
-      aanvragen: aanvragen,
-      sorteerOpAantalMeter: true,
-      sorteerOpDatum: false,
-    });
+    this._isMounted &&
+      this.setState({
+        aanvragen: aanvragen,
+        sorteerOpAantalMeter: true,
+        sorteerOpDatum: false,
+      });
   };
 
   handleKlikSorteerOpDatum = () => {
     const aanvragen = this.sorteer("datumInschrijving");
-    this.setState({
-      aanvragen: aanvragen,
-      sorteerOpAantalMeter: false,
-      sorteerOpDatum: true,
-    });
+    this._isMounted &&
+      this.setState({
+        aanvragen: aanvragen,
+        sorteerOpAantalMeter: false,
+        sorteerOpDatum: true,
+      });
   };
 
   handleKlikNieuweAanvraag = () => {

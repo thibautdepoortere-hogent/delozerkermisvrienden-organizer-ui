@@ -1,7 +1,9 @@
 import bcrypt from "bcryptjs";
+import jwtDecode from "jwt-decode";
 import http, { Headers } from "./httpService";
 import * as toaster from "../../services/toasterService";
 
+const localStorageTokenNaam = "token";
 const url = "/authenticatie";
 // const salt = "(rmv#yy}/<eIHOQczV%{{QbhyH3=ff";
 
@@ -19,6 +21,60 @@ export function authenticeerAdministratorEmail(email) {
     { email: email },
     { headers: Headers() }
   );
+}
+
+export function handleTokenOpgehaald(tokenObject) {
+  const token = tokenObject && tokenObject.token;
+  if (token !== "") {
+    localStorage.setItem(localStorageTokenNaam, tokenObject.token);
+    return true;
+  }
+}
+
+export function getActieveGebruiker() {
+  try {
+    const token = localStorage.getItem(localStorageTokenNaam);
+    return jwtDecode(token);
+  } catch (error) {
+    return null;
+  }
+}
+
+export function getActieveGebruikersId() {
+  const gebruiker = getActieveGebruiker();
+  if (gebruiker) {
+    if (gebruiker.role === "Standhouder") {
+      return gebruiker
+        ? gebruiker.nameid !== ""
+          ? gebruiker.nameid
+          : "geenid"
+        : "geengebruiker";
+    } else if (gebruiker.role === "Administrator") {
+      return gebruiker.nameid;
+    }
+  }
+  return "";
+}
+
+export function getActieveGebruikersRol() {
+  const gebruiker = getActieveGebruiker();
+  return gebruiker && gebruiker.role !== "" ? gebruiker.role : "";
+}
+
+export function handleLogUit() {
+  localStorage.removeItem(localStorageTokenNaam);
+}
+
+export function heeftActieveGebruikerToegang(toegelatenRollen) {
+  const actieveGebruikersRol = getActieveGebruikersRol();
+  if (actieveGebruikersRol && actieveGebruikersRol !== "") {
+    for (let index = 0; index < toegelatenRollen.length; index++) {
+      const toegelatenRol = toegelatenRollen[index];
+      if (actieveGebruikersRol === toegelatenRol) {
+        return true;
+      }
+    }
+  }
 }
 
 export function controleerWachtwoord(

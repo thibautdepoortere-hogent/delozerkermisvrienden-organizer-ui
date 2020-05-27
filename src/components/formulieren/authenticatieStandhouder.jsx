@@ -5,6 +5,8 @@ import * as responseErrorMeldingService from "../../services/api/responseErrorMe
 import * as authenticatieService from "../../services/api/authenticatieService";
 
 class FormulierAuthenticatieStandhouder extends Formulier {
+  _isMounted = false;
+
   state = {
     schema: this.schema,
     errors: {},
@@ -25,12 +27,17 @@ class FormulierAuthenticatieStandhouder extends Formulier {
   };
 
   componentDidMount() {
+    this._isMounted = true;
     const inschrijvingsnummer = this.props.match.params.inschrijvingsnummer;
     const data = { ...this.state.data };
     if (inschrijvingsnummer) {
       data.inschrijvingsId = inschrijvingsnummer;
     }
-    this.setState({ schema: this.schema, data: data });
+    this._isMounted && this.setState({ schema: this.schema, data: data });
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -100,19 +107,19 @@ class FormulierAuthenticatieStandhouder extends Formulier {
   // === === === === ===
   // Formulier verwerken
   verzendFormulier = async () => {
-    this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
-    const token = await this.authenticeerStandhouder();
-    console.log(token);
-    if (token) {
-      this.props.history.push(
-        "/inschrijvingen/" + this.state.data.inschrijvingsId + "/status"
-      );
+    this._isMounted &&
+      this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+    const resultaatToken = await this.authenticeerStandhouder();
+    if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
+      const id = authenticatieService.getActieveGebruikersId();
+      window.location = "/inschrijvingen/" + id + "/status";
     } else {
-      this.setState({
-        token: "",
-        opdrachtNietVerwerkt: true,
-        opdrachtVerwerken: false,
-      });
+      this._isMounted &&
+        this.setState({
+          token: "",
+          opdrachtNietVerwerkt: true,
+          opdrachtVerwerken: false,
+        });
     }
   };
 
