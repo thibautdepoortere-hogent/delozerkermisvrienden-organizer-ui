@@ -12,7 +12,7 @@ export async function bestaatInschrijving(inschrijvingsId) {
   const guidInschrijvingsId = guidService.getGuidFormaat(inschrijvingsId);
   if (guidService.isGuid(guidInschrijvingsId)) {
     try {
-      await http.head(urlMetId(guidInschrijvingsId));
+      await http.head(urlMetId(guidInschrijvingsId) + "/status");
       return true;
     } catch (error) {
       if (error && error.response.status !== 404) {

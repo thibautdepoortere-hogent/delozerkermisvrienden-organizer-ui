@@ -30,7 +30,7 @@ class FormulierAuthenticatieAdministrator extends Formulier {
     //
     const data = {
       email: "thibaut.depoortere@student.hogent.be",
-      wachtwoord: "Rul3r of this region!",
+      wachtwoord: "Administrator",
     };
     this._isMounted && this.setState({ data: data });
     //
@@ -63,7 +63,7 @@ class FormulierAuthenticatieAdministrator extends Formulier {
               ),
             ])}
             {this.genereerFormulierGroep([
-              this.genereerTekstvak(
+              this.genereerPaswoordTekstvak(
                 "wachtwoord",
                 "Wachtwoord",
                 "",
@@ -129,17 +129,15 @@ class FormulierAuthenticatieAdministrator extends Formulier {
     const { wachtwoord } = this.state.data;
     this._isMounted &&
       this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
-    const wachtwoordServer = await this.authenticeerAdministratorEmail();
-    authenticatieService.controleerWachtwoord(
+    authenticatieService.hashWachtwoord(
       wachtwoord,
-      wachtwoordServer,
-      this.handleControleUitgevoerd
+      this.handleHashedWachtwoord
     );
   };
 
-  handleControleUitgevoerd = async (resultaat) => {
+  handleHashedWachtwoord = async (resultaat) => {
     const dataAuthenticatie = { ...this.state.data };
-    dataAuthenticatie.wachtwoord = resultaat.hashedWachtwoord;
+    dataAuthenticatie.wachtwoord = resultaat;
     const resultaatToken = await this.authenticeerAdministrator(
       dataAuthenticatie
     );
@@ -153,6 +151,35 @@ class FormulierAuthenticatieAdministrator extends Formulier {
         });
     }
   };
+
+  // verzendFormulier = async () => {
+  //   const { wachtwoord } = this.state.data;
+  //   this._isMounted &&
+  //     this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
+  //   const wachtwoordServer = await this.authenticeerAdministratorEmail();
+  //   authenticatieService.controleerWachtwoord(
+  //     wachtwoord,
+  //     wachtwoordServer,
+  //     this.handleControleUitgevoerd
+  //   );
+  // };
+
+  // handleControleUitgevoerd = async (resultaat) => {
+  //   const dataAuthenticatie = { ...this.state.data };
+  //   dataAuthenticatie.wachtwoord = resultaat.hashedWachtwoord;
+  //   const resultaatToken = await this.authenticeerAdministrator(
+  //     dataAuthenticatie
+  //   );
+  //   if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
+  //     window.location = "/lijsten";
+  //   } else {
+  //     this._isMounted &&
+  //       this.setState({
+  //         opdrachtNietVerwerkt: true,
+  //         opdrachtVerwerken: false,
+  //       });
+  //   }
+  // };
 
   // === === === === ===
   // Helpers

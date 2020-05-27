@@ -1,7 +1,11 @@
 import axios from "axios";
 import * as toaster from "../toasterService";
+import * as logService from "../logService";
 
+const localStorageTokenNaam = "token";
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+axios.defaults.headers.common["Authorization"] =
+  "Bearer " + localStorage.getItem(localStorageTokenNaam);
 
 axios.interceptors.response.use(null, (error) => {
   const expectedError =
@@ -10,9 +14,9 @@ axios.interceptors.response.use(null, (error) => {
     error.response.status < 500;
 
   if (!expectedError) {
+    logService.LogFoutmelding(error);
+    logService.LogFout(error);
     console.log("Mijn error: ", error);
-    //logger.log(error);
-    //toast.error("An unexpected error occurred.");
     toaster.errorToastAanmaken("Er is een onverwachte fout opgetreden.");
   }
   return Promise.reject(error);

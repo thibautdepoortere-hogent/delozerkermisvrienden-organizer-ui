@@ -8,6 +8,7 @@ const FormulierGroepItemTekstvak = ({
   waarde,
   inhoudHelper,
   inhoudFout,
+  wachtwoord,
   placeholder,
   icoon,
   alleenLezen,
@@ -23,7 +24,7 @@ const FormulierGroepItemTekstvak = ({
           placeholder={placeholder}
           disabled={alleenLezen}
           onChange={(e) => onWaardeGewijzigd(e)}
-          type="text"
+          type={wachtwoord ? "password" : "text"}
           className="bp3-input"
         />
       </div>

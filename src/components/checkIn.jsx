@@ -9,6 +9,7 @@ import * as checkInService from "../services/api/checkInService";
 import * as responseErrorMeldingService from "../services/api/responseErrorMeldingService";
 import ProgressBarInladenGegevens from "./gemeenschappelijk/progressBarInladenGegevens";
 import * as authenticatieService from "../services/api/authenticatieService";
+import Knop from "./gemeenschappelijk/knop";
 
 class CheckIn extends Basis {
   _isMounted = false;
@@ -68,22 +69,37 @@ class CheckIn extends Basis {
       <div>
         {this.state.gegevensInladen && <ProgressBarInladenGegevens />}
         {this.genereerTitel("checkInH1", "Check-In", 1)}
+        {this.genereerFormulierGroep([
+          <Knop
+            id="checkIn"
+            inhoud="Check-in"
+            intent="success"
+            vullen={true}
+            onKlik={this.handleKlikCheckIn}
+          />,
+          <Knop
+            id="details"
+            inhoud="Details"
+            intent="primary"
+            vullen={true}
+            onKlik={this.handleKlikDetails}
+          />,
+        ])}
         {this.genereerMededeling(
           "naam",
           "Naam",
           this.state.data.voornaam + " " + this.state.data.achternaam,
-          "",
-          "Person"
+          "person"
         )}
         {this.genereerMededeling(
           "inschrijvingsstatus",
           "Inschrijvingsstatus",
           this.state.inschrijvingsstatus.naam,
-          "Flag",
+          "flag",
           this.state.inschrijvingsstatusIsAangevraagd ||
             this.state.inschrijvingsstatusIsAfgekeurd
             ? "Danger"
-            : ""
+            : "Success"
         )}
         {this.genereerMededeling(
           "openstaandBedrag",
@@ -98,14 +114,14 @@ class CheckIn extends Basis {
           "standnummer",
           "Standnummer",
           this.state.data.standnummer || "-",
-          "Flag",
+          "numerical",
           "Primary"
         )}
         {this.genereerMededeling(
           "checkIns",
           "Aantal check-ins",
           this.state.aantalCheckIns,
-          "Flag"
+          "endorsed"
         )}
         <Tabel
           kolommen={this.state.kolommen}
@@ -299,6 +315,31 @@ class CheckIn extends Basis {
       return undefined;
     }
   };
+
+  // === === === === ===
+  // Evenementen
+  handleKlikCheckIn = async () => {
+    try {
+      await checkInService.postCheckIn({
+        inschrijvingsId: this.state.inschrijvingsId,
+        lidId: authenticatieService.getActieveGebruikersId(),
+      });
+      this.props.history.push("/inschrijvingen/opzoeken");
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+      return undefined;
+    }
+  };
+
+  handleKlikDetails = () => {
+    this.state.inschrijvingsId &&
+      this.state.inschrijvingsId !== "" &&
+      this.props.history.push("/inschrijvingen/" + this.state.inschrijvingsId);
+  };
+
+  // === === === === ===
+  // Acties
+  inschrijvingInchecken = () => {};
 
   // === === === === ===
   // Helpers

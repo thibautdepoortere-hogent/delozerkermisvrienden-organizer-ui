@@ -27,19 +27,15 @@ class NavBar extends Component {
             icoonNaam="add"
             onMenuItemClick={this.handleMenuItemClick}
           />
-          {gebruiker &&
-            rol === "Standhouder" &&
-            id !== "" &&
-            id !== "geenid" &&
-            id !== "geengebruiker" && (
-              <NavBarItem
-                linkUrl={"/inschrijvingen/" + id + "/status"}
-                linkNaam="Status controleren"
-                icoonNaam="search"
-                onMenuItemClick={this.handleMenuItemClick}
-              />
-            )}
-          {gebruiker && rol === "Administrator" && (
+          {this.isGemachtigdStandhouder(gebruiker, rol, id) && (
+            <NavBarItem
+              linkUrl={"/inschrijvingen/" + id + "/status"}
+              linkNaam="Status controleren"
+              icoonNaam="search"
+              onMenuItemClick={this.handleMenuItemClick}
+            />
+          )}
+          {this.isGemachtigdAdministrator(gebruiker, rol) && (
             <React.Fragment>
               <NavBarItem
                 linkUrl="/lijsten"
@@ -49,7 +45,7 @@ class NavBar extends Component {
               />
               <NavBarItem
                 linkUrl="/inschrijvingen/opzoeken"
-                linkNaam="Inschrijving opzoeken (Admin)"
+                linkNaam="Inschrijving opzoeken"
                 icoonNaam="search"
                 onMenuItemClick={this.handleMenuItemClick}
               />
@@ -90,7 +86,17 @@ class NavBar extends Component {
           {gebruiker && (
             <React.Fragment>
               <div className="nav-item">
-                <Icon className="nav-item-icon" icon="user" iconSize={20} />
+                <Icon
+                  className="nav-item-icon"
+                  icon={
+                    rol && rol !== ""
+                      ? rol === "Administrator"
+                        ? "user"
+                        : "person"
+                      : "id-number"
+                  }
+                  iconSize={20}
+                />
                 <p className="nav-item-text">{gebruiker.given_name}</p>
               </div>
               <NavBarItem
@@ -105,6 +111,20 @@ class NavBar extends Component {
       </div>
     );
   }
+
+  isGemachtigdStandhouder = (gebruiker, rol, id) => {
+    return (
+      gebruiker &&
+      rol === "Standhouder" &&
+      id !== "" &&
+      id !== "geenid" &&
+      id !== "geengebruiker"
+    );
+  };
+
+  isGemachtigdAdministrator = (gebruiker, rol) => {
+    return gebruiker && rol === "Administrator";
+  };
 
   renderClassNameDivNavBarItems = () => {
     return this.state.menuZichtbaar ? "nav-items" : "nav-items onzichtbaar";

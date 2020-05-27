@@ -70,6 +70,35 @@ class Basis extends Component {
     );
   }
 
+  genereerPaswoordTekstvak(
+    id,
+    inhoud,
+    inhoudHelper,
+    placeholder,
+    icoon,
+    alleenLezen,
+    verplicht,
+    specifiekeWaarde,
+    specifiekeFout
+  ) {
+    const { data, errors } = this.state;
+    return (
+      <FormulierGroepTekstvak
+        id={id}
+        waarde={specifiekeWaarde ? specifiekeWaarde : data[id] ? data[id] : ""}
+        inhoud={inhoud}
+        inhoudHelper={inhoudHelper}
+        inhoudFout={errors[id] && specifiekeFout ? specifiekeFout : errors[id]}
+        placeholder={placeholder}
+        icoon={icoon}
+        alleenLezen={alleenLezen}
+        verplicht={verplicht}
+        onWaardeGewijzigd={this.handleWijziging}
+        wachtwoord={true}
+      />
+    );
+  }
+
   genereerTekstveld(
     id,
     inhoud,

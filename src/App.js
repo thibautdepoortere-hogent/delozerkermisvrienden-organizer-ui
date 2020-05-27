@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
+import * as Sentry from "@sentry/browser";
 import NavBar from "./components/navigatie/navBar";
 import NotFound from "./components/notFound";
 import Fabrieksinstellingen from "./components/fabrieksinstellingen/fabrieksinstellingen";
@@ -17,6 +18,11 @@ import * as authenticatieService from "./services/api/authenticatieService";
 import Uitgelogd from "./components/uitgelogd";
 import CheckIn from "./components/checkIn";
 import GeenToegang from "./components/geenToegang";
+
+Sentry.init({
+  dsn:
+    "https://73ef6f5909ce49e5bf703799d1587317@o387121.ingest.sentry.io/5255822",
+});
 
 class App extends Component {
   state = { gebruiker: "" };

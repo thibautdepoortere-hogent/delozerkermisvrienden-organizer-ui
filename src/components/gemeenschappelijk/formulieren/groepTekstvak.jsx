@@ -9,6 +9,7 @@ const FormulierGroepTekstvak = ({
   inhoud,
   inhoudHelper,
   inhoudFout,
+  wachtwoord,
   placeholder,
   icoon,
   alleenLezen,
@@ -27,6 +28,7 @@ const FormulierGroepTekstvak = ({
         waarde={waarde}
         inhoudHelper={inhoudHelper}
         inhoudFout={inhoudFout}
+        wachtwoord={wachtwoord}
         placeholder={placeholder}
         icoon={icoon}
         alleenLezen={alleenLezen}

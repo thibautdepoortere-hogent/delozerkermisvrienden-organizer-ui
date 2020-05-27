@@ -5,7 +5,7 @@ import * as toaster from "../../services/toasterService";
 
 const localStorageTokenNaam = "token";
 const url = "/authenticatie";
-// const salt = "(rmv#yy}/<eIHOQczV%{{QbhyH3=ff";
+const salt = "$2a$12$HB6ha21ETrzefxodR5H.t.";
 
 export function authenticeerStandhouder(data) {
   return http.post(url + "/standhouder", data, { headers: Headers() });
@@ -31,9 +31,14 @@ export function handleTokenOpgehaald(tokenObject) {
   }
 }
 
+export function getToken() {
+  const token = localStorage.getItem(localStorageTokenNaam);
+  return token;
+}
+
 export function getActieveGebruiker() {
   try {
-    const token = localStorage.getItem(localStorageTokenNaam);
+    const token = getToken();
     return jwtDecode(token);
   } catch (error) {
     return null;
@@ -75,6 +80,18 @@ export function heeftActieveGebruikerToegang(toegelatenRollen) {
       }
     }
   }
+}
+
+export function hashWachtwoord(
+  wachtwoordIngegevenDoorGebruiker,
+  onHashedWachtwoord
+) {
+  bcrypt.hash(wachtwoordIngegevenDoorGebruiker, salt, function (err, hash) {
+    if (err) {
+      toaster.errorToastAanmaken(err);
+    }
+    onHashedWachtwoord(hash);
+  });
 }
 
 export function controleerWachtwoord(

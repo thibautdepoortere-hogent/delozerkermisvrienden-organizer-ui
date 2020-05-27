@@ -217,6 +217,10 @@ body {
   margin-right: 10px;
 }
 
+.margin-onder {
+  margin-bottom: 25px;
+}
+
 .card {
   display: flex;
   flex-direction: column;

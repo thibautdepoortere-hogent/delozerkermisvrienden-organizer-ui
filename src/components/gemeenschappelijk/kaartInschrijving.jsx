@@ -104,7 +104,7 @@ class KaartInschrijving extends Basis {
   };
 
   handleKlikCheckIn = (inschrijvingsId) => {
-    this.props.history.push("/inschrijvingen/" + inschrijvingsId);
+    this.props.history.push("/inschrijvingen/" + inschrijvingsId + "/checkin");
   };
 }
 

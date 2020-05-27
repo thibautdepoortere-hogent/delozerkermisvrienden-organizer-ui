@@ -13,6 +13,25 @@ export function getDatumBelgischeNotatie(datum) {
   }
 }
 
+export function getTijdstip(datum) {
+  if (datum) {
+    let uren = datum.getHours();
+    let minuten = datum.getMinutes();
+    let seconden = datum.getSeconds();
+
+    if (uren < 10) {
+      uren = "0" + uren;
+    }
+    if (minuten < 10) {
+      minuten = "0" + minuten;
+    }
+    if (seconden < 10) {
+      seconden = "0" + seconden;
+    }
+    return uren + ":" + minuten + ":" + seconden;
+  }
+}
+
 export function getDatumVanBelgischeNotatie(datumBelgischeNotatie) {
   const datumZonderSpaties = datumBelgischeNotatie.replace(" ", "");
   const datumGesplitst = datumZonderSpaties.split("/");

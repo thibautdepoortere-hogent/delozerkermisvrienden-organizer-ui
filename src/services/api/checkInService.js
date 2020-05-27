@@ -1,4 +1,4 @@
-import http from "./httpService";
+import http, { Headers } from "./httpService";
 
 const url = "/checkins";
 
@@ -7,7 +7,6 @@ const url = "/checkins";
 // }
 
 export function getCheckIns(filters) {
-  console.log("Filters: ", filters);
   let parameters = "";
   parameters += filters.inschrijving
     ? "inschrijving=" + filters.inschrijving + "&"
@@ -19,8 +18,9 @@ export function getCheckIns(filters) {
   parameters += filters.checkInMomentEindPeriode
     ? "checkInMomentEindPeriode=" + filters.checkInMomentEindPeriode + "&"
     : "";
-  console.log("Parameters: ", parameters);
   return http.get(url + "?" + parameters);
 }
 
-//Inschrijving
+export function postCheckIn(data) {
+  return http.post(url, data, { headers: Headers() });
+}

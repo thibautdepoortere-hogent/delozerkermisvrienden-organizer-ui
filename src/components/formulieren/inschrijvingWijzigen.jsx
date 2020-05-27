@@ -17,6 +17,7 @@ import Tabel from "./../gemeenschappelijk/tabellen/tabel";
 import KaartEvenement from "./../gemeenschappelijk/kaartEvenement";
 import Knop from "./../gemeenschappelijk/knop";
 import * as authenticatieService from "../../services/api/authenticatieService";
+import * as checkInService from "../../services/api/checkInService";
 
 class FormulierinschrijvingWijzigen extends Formulier {
   _isMounted = false;
@@ -66,11 +67,14 @@ class FormulierinschrijvingWijzigen extends Formulier {
     inschrijvingsstatusIsGepland: false,
     betaalmethoden: [],
     betaaltransacties: [],
+    checkIns: [],
     openstaandBedrag: 0,
     minimumAantalMeter: 0,
     prijs: 0,
-    kolommen: [],
-    dataTabel: [],
+    kolommenBetaaltransacties: [],
+    dataTabelBetaaltransacties: [],
+    kolommenCheckIns: [],
+    dataTabelCheckIns: [],
     foutmeldingRedenAfkeuring: false,
     foutmeldingStandnummer: false,
     foutmeldingFormulierNietCorrectIngevuld: false,
@@ -193,14 +197,19 @@ class FormulierinschrijvingWijzigen extends Formulier {
         await this.evenementInladen();
         await this.betaalmethodenInladen();
         await this.betaalTransactiesInladen();
+        await this.checkInsInladen();
         await this.inschrijvingsstatusInladen();
         await this.lidInladen();
-        const kolommen = this.kolommen();
-        const dataTabel = await this.dataTabel();
+        const kolommenBetaaltransacties = this.kolommenBetaaltransacties();
+        const dataTabelBetaaltransacties = await this.dataTabelBetaaltransacties();
+        const kolommenCheckIns = this.kolommenCheckIns();
+        const dataTabelCheckIns = await this.dataTabelCheckIns();
         this._isMounted &&
           this.setState({
-            kolommen: kolommen,
-            dataTabel: dataTabel,
+            kolommenBetaaltransacties: kolommenBetaaltransacties,
+            dataTabelBetaaltransacties: dataTabelBetaaltransacties,
+            kolommenCheckIns: kolommenCheckIns,
+            dataTabelCheckIns: dataTabelCheckIns,
             gegevensInladen: false,
           });
       }
@@ -513,13 +522,24 @@ class FormulierinschrijvingWijzigen extends Formulier {
             )}
             {this.state.betaaltransacties &&
               this.state.betaaltransacties.length > 0 && (
-                <Tabel
-                  kolommen={this.state.kolommen}
-                  data={this.state.dataTabel}
-                  zonderHoofding={false}
-                />
+                <div className="margin-onder margin-rechts">
+                  <Tabel
+                    kolommen={this.state.kolommenBetaaltransacties}
+                    data={this.state.dataTabelBetaaltransacties}
+                    zonderHoofding={false}
+                  />
+                </div>
               )}
             {this.genereerTitel("checkInH2", "Check-ins", 2)}
+            {this.state.checkIns && this.state.checkIns.length > 0 && (
+              <div className="margin-onder margin-rechts">
+                <Tabel
+                  kolommen={this.state.kolommenCheckIns}
+                  data={this.state.dataTabelCheckIns}
+                  zonderHoofding={false}
+                />
+              </div>
+            )}
             {this.state.data.qrCode &&
               this.genereerFormulierGroep([
                 this.genereerTekstvak(
@@ -558,7 +578,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
 
   // === === === === ===
   // Inladen
-  kolommen = () => {
+  kolommenBetaaltransacties = () => {
     return [
       {
         id: "datumBetaling",
@@ -587,7 +607,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
     ];
   };
 
-  dataTabel = async () => {
+  dataTabelBetaaltransacties = async () => {
     const betaaltransacties = [...this.state.betaaltransacties];
     for (let index = 0; index < betaaltransacties.length; index++) {
       const betaaltransactie = betaaltransacties[index];
@@ -599,6 +619,44 @@ class FormulierinschrijvingWijzigen extends Formulier {
       );
     }
     return betaaltransacties;
+  };
+
+  kolommenCheckIns = () => {
+    return [
+      {
+        id: "datumCheckIn",
+        naam: "Datum",
+        veld: "datum",
+        verbergBijSmaller: false,
+      },
+      {
+        id: "tijdCheckIn",
+        naam: "Tijd",
+        veld: "tijd",
+        verbergBijSmaller: false,
+      },
+      {
+        id: "lid",
+        naam: "Lid",
+        veld: "lid",
+        verbergBijSmaller: false,
+      },
+    ];
+  };
+
+  dataTabelCheckIns = async () => {
+    const checkIns = [...this.state.checkIns];
+    for (let index = 0; index < checkIns.length; index++) {
+      const checkIn = checkIns[index];
+      checkIn.datum = datumService.getDatumBelgischeNotatie(
+        new Date(checkIn.checkInMoment)
+      );
+      checkIn.tijd = datumService.getTijdstip(new Date(checkIn.checkInMoment));
+      const lid = await this.lidInladenZonderStateUpdaten(checkIn.lidId);
+      checkIn.lid =
+        lid && lid.voornaam !== "" ? lid.voornaam + " " + lid.achternaam : "-";
+    }
+    return checkIns;
   };
 
   instellingenInladen = async () => {
@@ -676,6 +734,20 @@ class FormulierinschrijvingWijzigen extends Formulier {
       this._isMounted &&
         this.setState({ betaaltransacties: betaaltransacties });
       this.berekenOpenstaandBedrag();
+    } catch (error) {
+      responseErrorMeldingService.ToonFoutmeldingVast();
+    }
+  };
+
+  checkInsInladen = async () => {
+    try {
+      const { data: checkIns } = await checkInService.getCheckIns({
+        inschrijving: this.state.data.id,
+      });
+      this._isMounted &&
+        this.setState({
+          checkIns: checkIns,
+        });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
     }
@@ -820,12 +892,21 @@ class FormulierinschrijvingWijzigen extends Formulier {
   lidInladen = async () => {
     if (this.state.data.lidId && this.state.data.lidId !== "") {
       try {
-        const { data: lid } = await ledenService.getLid(this.state.data.lidId);
+        const lid = this.lidInladenZonderStateUpdaten(this.state.data.lidId);
         this._isMounted &&
           this.setState({
             lid: lid,
           });
       } catch (error) {}
+    }
+  };
+
+  lidInladenZonderStateUpdaten = async (lidId) => {
+    try {
+      const { data: lid } = await ledenService.getLid(lidId);
+      return lid;
+    } catch (error) {
+      return null;
     }
   };
 
@@ -841,9 +922,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
 
   handleKlikCheckIn = () => {
     this.props.history.push(
-      "/inschrijvingen/" +
-        this.state.inschrijvingsId +
-        "/betaaltransacties/nieuw"
+      "/inschrijvingen/" + this.state.inschrijvingsId + "/checkin"
     );
   };
 
