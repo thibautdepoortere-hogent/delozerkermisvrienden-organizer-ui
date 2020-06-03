@@ -358,17 +358,31 @@ class FormulierAanvraagIndienen extends Formulier {
       await this.nieuwsbriefToevoegen();
     }
     const aanvraagId = await this.aanvraagIndienen();
-    const resultaatToken = await this.authenticeerStandhouder(
-      aanvraagId,
-      this.state.data.email
-    );
-    if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
-      const id = authenticatieService.getActieveGebruikersId();
-      window.location = "/inschrijvingen/" + id + "/status/aanvraagIngediend";
+    if (aanvraagId !== false && aanvraagId !== undefined) {
+      const rol = authenticatieService.getActieveGebruikersRol();
+      if (rol === "Administrator") {
+        window.location = "/lijst/inschrijvingen/aangevraagd";
+      } else {
+        const resultaatToken = await this.authenticeerStandhouder(
+          aanvraagId,
+          this.state.data.email
+        );
+        if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
+          const id = authenticatieService.getActieveGebruikersId();
+          window.location =
+            "/inschrijvingen/" + id + "/status/aanvraagIngediend";
+        } else {
+          this.aanvraagIndienenNietVoltooid();
+        }
+      }
     } else {
-      this._isMounted &&
-        this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
+      this.aanvraagIndienenNietVoltooid();
     }
+  };
+
+  aanvraagIndienenNietVoltooid = () => {
+    this._isMounted &&
+      this.setState({ opdrachtVerwerken: false, opdrachtNietVerwerkt: true });
   };
 
   aanvraagIndienen = async () => {
