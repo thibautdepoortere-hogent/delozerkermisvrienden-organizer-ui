@@ -27,13 +27,6 @@ class FormulierAuthenticatieAdministrator extends Formulier {
   componentDidMount() {
     this._isMounted = true;
     this._isMounted && this.setState({ schema: this.schema });
-    //
-    const data = {
-      email: "thibaut.depoortere@student.hogent.be",
-      wachtwoord: "Administrator",
-    };
-    this._isMounted && this.setState({ data: data });
-    //
   }
 
   componentWillMount() {
@@ -88,22 +81,6 @@ class FormulierAuthenticatieAdministrator extends Formulier {
 
   // === === === === ===
   // Inladen / Acties
-  authenticeerAdministratorEmail = async () => {
-    try {
-      const {
-        data: wachtwoord,
-      } = await authenticatieService.authenticeerAdministratorEmail(
-        this.state.data.email
-      );
-      if (wachtwoord) {
-        return wachtwoord.wachtwoord;
-      }
-    } catch (error) {
-      if (error.response.status !== 404) {
-        responseErrorMeldingService.ToonFoutmeldingVast();
-      }
-    }
-  };
 
   authenticeerAdministrator = async (dataAuthenticatie) => {
     try {
@@ -129,10 +106,11 @@ class FormulierAuthenticatieAdministrator extends Formulier {
     const { wachtwoord } = this.state.data;
     this._isMounted &&
       this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
-    authenticatieService.hashWachtwoord(
-      wachtwoord,
-      this.handleHashedWachtwoord
-    );
+    this._isMounted &&
+      authenticatieService.hashWachtwoord(
+        wachtwoord,
+        this.handleHashedWachtwoord
+      );
   };
 
   handleHashedWachtwoord = async (resultaat) => {
@@ -141,7 +119,10 @@ class FormulierAuthenticatieAdministrator extends Formulier {
     const resultaatToken = await this.authenticeerAdministrator(
       dataAuthenticatie
     );
-    if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
+    if (
+      resultaatToken !== undefined &&
+      authenticatieService.handleTokenOpgehaald(resultaatToken)
+    ) {
       window.location = "/lijsten";
     } else {
       this._isMounted &&
@@ -151,35 +132,6 @@ class FormulierAuthenticatieAdministrator extends Formulier {
         });
     }
   };
-
-  // verzendFormulier = async () => {
-  //   const { wachtwoord } = this.state.data;
-  //   this._isMounted &&
-  //     this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
-  //   const wachtwoordServer = await this.authenticeerAdministratorEmail();
-  //   authenticatieService.controleerWachtwoord(
-  //     wachtwoord,
-  //     wachtwoordServer,
-  //     this.handleControleUitgevoerd
-  //   );
-  // };
-
-  // handleControleUitgevoerd = async (resultaat) => {
-  //   const dataAuthenticatie = { ...this.state.data };
-  //   dataAuthenticatie.wachtwoord = resultaat.hashedWachtwoord;
-  //   const resultaatToken = await this.authenticeerAdministrator(
-  //     dataAuthenticatie
-  //   );
-  //   if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
-  //     window.location = "/lijsten";
-  //   } else {
-  //     this._isMounted &&
-  //       this.setState({
-  //         opdrachtNietVerwerkt: true,
-  //         opdrachtVerwerken: false,
-  //       });
-  //   }
-  // };
 
   // === === === === ===
   // Helpers

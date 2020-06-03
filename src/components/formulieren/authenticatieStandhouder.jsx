@@ -110,7 +110,10 @@ class FormulierAuthenticatieStandhouder extends Formulier {
     this._isMounted &&
       this.setState({ opdrachtNietVerwerkt: false, opdrachtVerwerken: true });
     const resultaatToken = await this.authenticeerStandhouder();
-    if (authenticatieService.handleTokenOpgehaald(resultaatToken)) {
+    if (
+      resultaatToken !== undefined &&
+      authenticatieService.handleTokenOpgehaald(resultaatToken)
+    ) {
       const id = authenticatieService.getActieveGebruikersId();
       window.location = "/inschrijvingen/" + id + "/status";
     } else {

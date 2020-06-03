@@ -10,6 +10,7 @@ import * as instellingenService from "../../services/api/instellingenService";
 import * as nieuwsbriefService from "../../services/api/nieuwsbriefService";
 import * as authenticatieService from "../../services/api/authenticatieService";
 import KaartEvenement from "./../gemeenschappelijk/kaartEvenement";
+import { config } from "../../services/env";
 
 class FormulierAanvraagIndienen extends Formulier {
   _isMounted = false;
@@ -45,6 +46,7 @@ class FormulierAanvraagIndienen extends Formulier {
     nieuwsbrief: false,
     minimumAantalMeter: 0,
     prijs: 0,
+    validatieOk: false,
     opdrachtVerwerken: false,
     opdrachtNietVerwerkt: false,
     gegevensInladen: false,
@@ -122,6 +124,10 @@ class FormulierAanvraagIndienen extends Formulier {
             <KaartEvenement evenement={evenement} />
           </div>
           <div>
+            <p>{process.env.NODE_ENV === "development" ? "dev" : "prod"}</p>
+            <p>{config.REACT_APP_API_URL}</p>
+          </div>
+          <div>
             {this.genereerTitel("persoonlijkH2", "Persoonlijk", 2)}
             {this.genereerFormulierGroep([
               this.genereerTekstvak(
@@ -195,9 +201,7 @@ class FormulierAanvraagIndienen extends Formulier {
                 minimumAantalMeter,
                 undefined,
                 false,
-                true,
-                undefined,
-                this.verwerkWijzigingAantalMeter
+                true
               ),
               this.genereerNumeriekVak(
                 "prijs",
@@ -303,6 +307,7 @@ class FormulierAanvraagIndienen extends Formulier {
           data: data,
           minimumAantalMeter: instellingen.minimumAantalMeter,
           prijs: prijs,
+          schema: this.schema,
         });
     } catch (error) {
       responseErrorMeldingService.ToonFoutmeldingVast();
@@ -339,8 +344,6 @@ class FormulierAanvraagIndienen extends Formulier {
   };
 
   verwerkWijzigingAantalMeter = (waardeAlsNummer, waardeAlsTekst, invoer) => {
-    this.updateData(invoer);
-
     const { meterPrijs } = this.state.data;
     const prijs = meterPrijs * invoer.value;
     this._isMounted && this.setState({ prijs: prijs });

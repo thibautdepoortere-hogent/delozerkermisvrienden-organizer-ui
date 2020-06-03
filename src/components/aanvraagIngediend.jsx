@@ -21,7 +21,7 @@ const genereerInhoud = () => {
       </p>
       <p>
         <strong>
-          Opgelet: Deze mail geldt niet dus niet als inschrijvingsbewijs!
+          Opgelet: Deze mail geldt dus niet als inschrijvingsbewijs!
         </strong>
       </p>
       <p>

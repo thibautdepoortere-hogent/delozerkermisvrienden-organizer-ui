@@ -42,6 +42,9 @@ export function getInschrijvingenViaFilters(filters) {
   parameters += filters.inschrijvingsstatus
     ? "inschrijvingsstatus=" + filters.inschrijvingsstatus + "&"
     : "";
+  parameters += filters.nogNietIngecheckt
+    ? "nogNietIngecheckt=" + filters.nogNietIngecheckt + "&"
+    : "";
   return http.get(url + "?" + parameters);
 }
 

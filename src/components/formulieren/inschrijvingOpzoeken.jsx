@@ -20,6 +20,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       achternaam: "",
       standnummer: "",
       inschrijvingsnummer: "",
+      nogNietIngecheckt: false,
     },
     scannerZichtbaar: false,
     fout: "",
@@ -61,7 +62,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
   }
 
   render() {
-    const { scannerZichtbaar, inschrijvingen, fout } = this.state;
+    const { scannerZichtbaar, inschrijvingen, fout, melding } = this.state;
     return (
       <div>
         {this.state.gegevensInladen && <ProgressBarInladenGegevens />}
@@ -99,6 +100,14 @@ class FormulierInschrijvingOpzoeken extends Formulier {
                   "tag"
                 ),
               ])}
+              {this.genereerCheckbox(
+                "inschrijvingNogNietIngecheckt",
+                "Enkel niet ingecheckte inschrijvingen",
+                "",
+                false,
+                undefined,
+                this.verwerkWijzigingNogNietIngecheckt
+              )}
             </div>
           )}
           {this.genereerFormulierGroep([
@@ -132,6 +141,16 @@ class FormulierInschrijvingOpzoeken extends Formulier {
                 fout,
                 "error",
                 "Danger"
+              ),
+            ])}
+          {melding &&
+            this.genereerFormulierGroep([
+              this.genereerMededeling(
+                "meldingTijdensZoeken",
+                "",
+                melding,
+                "info-sign",
+                "Primary"
               ),
             ])}
         </div>
@@ -224,7 +243,8 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       this._isMounted &&
         this.setState({
           inschrijving: [],
-          fout: "Er zijn geen inschrijvingen gevonden",
+          fout: "",
+          melding: "Er zijn geen inschrijvingen gevonden",
           scannerZichtbaar: false,
         });
     }
@@ -244,7 +264,8 @@ class FormulierInschrijvingOpzoeken extends Formulier {
         this._isMounted &&
           this.setState({
             inschrijving: [],
-            fout: "Er zijn geen inschrijvingen gevonden",
+            fout: "",
+            melding: "Er zijn geen inschrijvingen gevonden",
             scannerZichtbaar: false,
           });
       }
@@ -258,6 +279,12 @@ class FormulierInschrijvingOpzoeken extends Formulier {
         inschrijvingen: [],
         scannerZichtbaar: false,
       });
+  };
+
+  verwerkWijzigingNogNietIngecheckt = () => {
+    const data = { ...this.state.data };
+    data.nogNietIngecheckt = !data.nogNietIngecheckt;
+    this._isMounted && this.setState({ data: data });
   };
 
   // === === === === ===

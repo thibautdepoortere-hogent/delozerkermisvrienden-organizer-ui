@@ -1,9 +1,10 @@
 import axios from "axios";
 import * as toaster from "../toasterService";
 import * as logService from "../logService";
+import { config } from "./../env";
 
 const localStorageTokenNaam = "token";
-axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+axios.defaults.baseURL = config.REACT_APP_API_URL;
 axios.defaults.headers.common["Authorization"] =
   "Bearer " + localStorage.getItem(localStorageTokenNaam);
 
