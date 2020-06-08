@@ -1,4 +1,4 @@
-const connecteerInDevlopmentNaarLiveApi = true;
+const connecteerInDevlopmentNaarLiveApi = false;
 const liveApi =
   "https://delozerkermisvrienden-organizer-api.azurewebsites.net/api";
 

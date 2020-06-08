@@ -20,10 +20,11 @@ class FormulierInschrijvingOpzoeken extends Formulier {
       achternaam: "",
       standnummer: "",
       inschrijvingsnummer: "",
-      nogNietIngecheckt: false,
+      nogNietIngecheckt: true,
     },
     scannerZichtbaar: false,
     fout: "",
+    melding: "",
     inschrijvingen: [],
     gegevensInladen: false,
   };
@@ -216,6 +217,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
           inschrijvingsnummer: "",
         },
         fout: "",
+        melding: "",
         inschrijvingen: [],
         scannerZichtbaar: false,
       });
@@ -225,6 +227,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     this._isMounted &&
       this.setState({
         fout: "",
+        melding: "",
         inschrijvingen: [],
         scannerZichtbaar: !this.state.scannerZichtbaar,
       });
@@ -237,14 +240,15 @@ class FormulierInschrijvingOpzoeken extends Formulier {
         this.setState({
           inschrijvingen: inschrijvingen,
           fout: "",
+          melding: "",
           scannerZichtbaar: false,
         });
     } else {
       this._isMounted &&
         this.setState({
-          inschrijving: [],
+          inschrijvingen: [],
           fout: "",
-          melding: "Er zijn geen inschrijvingen gevonden",
+          melding: "Er zijn geen inschrijvingen gevonden.",
           scannerZichtbaar: false,
         });
     }
@@ -258,12 +262,13 @@ class FormulierInschrijvingOpzoeken extends Formulier {
           this.setState({
             inschrijvingen: inschrijvingen,
             fout: "",
+            melding: "",
             scannerZichtbaar: false,
           });
       } else {
         this._isMounted &&
           this.setState({
-            inschrijving: [],
+            inschrijvingen: [],
             fout: "",
             melding: "Er zijn geen inschrijvingen gevonden",
             scannerZichtbaar: false,
@@ -276,6 +281,7 @@ class FormulierInschrijvingOpzoeken extends Formulier {
     this._isMounted &&
       this.setState({
         fout: err,
+        melding: "",
         inschrijvingen: [],
         scannerZichtbaar: false,
       });

@@ -268,14 +268,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
                 "Deze inschrijving werd ingediend op " +
                   datumService.getDatumBelgischeNotatie(
                     new Date(this.state.data.datumInschrijving)
-                  ) +
-                  (this.state.lid && this.state.lid.voornaam !== ""
-                    ? " door " +
-                      this.state.lid.voornaam +
-                      " " +
-                      this.state.lid.achternaam +
-                      "."
-                    : "."),
+                  ),
                 "info-sign",
                 "Primary"
               )}
@@ -308,7 +301,7 @@ class FormulierinschrijvingWijzigen extends Formulier {
               this.genereerMededeling(
                 "foutRedenAfkeuringInvullen",
                 "Reden afkeuring invullen",
-                "Een inschrijving kan enkel afgekeurd worden afgekeurd wanneer een reden tot afkeuring is opgegeven.",
+                "Een inschrijving kan enkel afgekeurd worden wanneer een reden tot afkeuring is opgegeven.",
                 "warning-sign",
                 "danger"
               )}

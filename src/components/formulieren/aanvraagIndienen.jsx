@@ -119,13 +119,9 @@ class FormulierAanvraagIndienen extends Formulier {
       <div>
         {this.state.gegevensInladen && <ProgressBarInladenGegevens />}
         <form onSubmit={this.handleVerzendFormulier}>
-          {this.genereerTitel("nieuweAanvraagH1", "Nieuwe aanvraag", 1)}
+          {this.genereerTitel("nieuweAanvraagH1", "Nieuwe inschrijving", 1)}
           <div className="margin-rechts">
             <KaartEvenement evenement={evenement} />
-          </div>
-          <div>
-            <p>{process.env.NODE_ENV === "development" ? "dev" : "prod"}</p>
-            <p>{config.REACT_APP_API_URL}</p>
           </div>
           <div>
             {this.genereerTitel("persoonlijkH2", "Persoonlijk", 2)}
@@ -201,7 +197,9 @@ class FormulierAanvraagIndienen extends Formulier {
                 minimumAantalMeter,
                 undefined,
                 false,
-                true
+                true,
+                undefined,
+                this.verwerkWijzigingAantalMeter
               ),
               this.genereerNumeriekVak(
                 "prijs",
